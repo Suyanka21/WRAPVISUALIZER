@@ -1,0 +1,60 @@
+{
+  "vehicles": {
+    "land_cruiser_v8": {
+      "label": "Toyota Land Cruiser V8/LC300",
+      "size": "XL",
+      "vinyl_sqm": 22
+    },
+    "range_rover_vogue": {
+      "label": "Range Rover Vogue",
+      "size": "XL",
+      "vinyl_sqm": 20
+    },
+    "lexus_lx600": {
+      "label": "Lexus LX600",
+      "size": "XL",
+      "vinyl_sqm": 21
+    },
+    "prado": {
+      "label": "Toyota Land Cruiser Prado",
+      "size": "L",
+      "vinyl_sqm": 18
+    },
+    "mercedes_gle": {
+      "label": "Mercedes-Benz GLE",
+      "size": "L",
+      "vinyl_sqm": 18
+    },
+    "bmw_7_series": {
+      "label": "BMW 7 Series",
+      "size": "L",
+      "vinyl_sqm": 16
+    },
+    "subaru_outback": {
+      "label": "Subaru Outback",
+      "size": "M",
+      "vinyl_sqm": 15
+    }
+  },
+  "finishes": {
+    "matte": { "label": "Matte", "price_per_sqm": 4200 },
+    "satin": { "label": "Satin", "price_per_sqm": 4500 },
+    "gloss": { "label": "Gloss", "price_per_sqm": 3800 },
+    "chrome": { "label": "Chrome", "price_per_sqm": 7500 },
+    "colour_shift": { "label": "Colour Shift", "price_per_sqm": 9000 },
+    "carbon_fibre": { "label": "Carbon Fibre", "price_per_sqm": 6500 },
+    "brushed_metal": { "label": "Brushed Metal", "price_per_sqm": 5800 },
+    "ppf_clear": { "label": "PPF Clear", "price_per_sqm": 8500 }
+  },
+  "labour": {
+    "M": 25000,
+    "L": 35000,
+    "XL": 45000
+  },
+  "addons": {
+    "ppf_coating": { "label": "Paint Protection Film", "price": 35000 },
+    "ceramic_coat": { "label": "Ceramic Top Coat", "price": 20000 },
+    "window_tint": { "label": "Window Tinting", "price": 15000 }
+  },
+  "deposit_percentage": 0.15
+}

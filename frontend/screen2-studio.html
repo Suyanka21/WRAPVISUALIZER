@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Wrap Studio | WrapVisualizer Nairobi</title>
+<meta name="description" content="Customize your vehicle wrap — choose from Matte, Gloss, Satin, Chrome, Carbon Fibre and more. See your vision come to life."/>
+<meta name="theme-color" content="#131313"/>
+<meta property="og:title" content="WrapVisualizer — Wrap Studio"/>
+<meta property="og:description" content="Customize your vehicle wrap with premium finishes and bespoke colors."/>
+<meta property="og:type" content="website"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-primary": "#a04100",
+                    "on-surface-variant": "#e2bfb0",
+                    "on-secondary-fixed": "#002109",
+                    "outline": "#a98a7d",
+                    "outline-variant": "#5a4136",
+                    "surface-tint": "#ffb693",
+                    "primary-container": "#ff6b00",
+                    "primary": "#ffb693",
+                    "surface-variant": "#353534",
+                    "inverse-on-surface": "#313030",
+                    "surface": "#131313",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "on-tertiary-container": "#2f3132",
+                    "surface-dim": "#131313",
+                    "inverse-surface": "#e5e2e1",
+                    "tertiary-fixed": "#e2e2e2",
+                    "secondary-container": "#06c85d",
+                    "surface-container-high": "#2a2a2a",
+                    "tertiary-container": "#989999",
+                    "on-primary-fixed-variant": "#7a3000",
+                    "surface-container": "#201f1f",
+                    "primary-fixed-dim": "#ffb693",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "secondary-fixed": "#66ff8e",
+                    "on-tertiary": "#2f3131",
+                    "surface-container-low": "#1c1b1b",
+                    "on-error-container": "#ffdad6",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-secondary": "#003915",
+                    "on-error": "#690005",
+                    "error": "#ffb4ab",
+                    "background": "#131313",
+                    "on-primary": "#561f00",
+                    "error-container": "#93000a",
+                    "tertiary": "#c6c6c7",
+                    "surface-bright": "#3a3939",
+                    "surface-container-highest": "#353534",
+                    "on-primary-container": "#572000",
+                    "on-secondary-fixed-variant": "#005322",
+                    "on-secondary-container": "#004d1f",
+                    "secondary": "#41e575",
+                    "secondary-fixed-dim": "#3de273",
+                    "on-background": "#e5e2e1",
+                    "on-surface": "#e5e2e1",
+                    "primary-fixed": "#ffdbcc",
+                    "tertiary-fixed-dim": "#c6c6c7",
+                    "on-primary-fixed": "#351000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #131313;
+            color: #e5e2e1;
+            font-family: 'Manrope', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(58, 57, 57, 0.6);
+            backdrop-filter: blur(24px);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #FF6B00 0%, #7A3000 100%);
+        }
+        .thin-scrollbar::-webkit-scrollbar {
+            height: 4px;
+        }
+        .thin-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 2px;
+        }
+        .thin-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255,107,0,0.4);
+            border-radius: 2px;
+        }
+        .thin-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,107,0,0.4) rgba(255,255,255,0.05);
+        }
+        .scroll-fade {
+            position: relative;
+        }
+        .scroll-fade::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 48px;
+            height: 100%;
+            background: linear-gradient(to right, transparent, #131313);
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#131313]">
+<div class="flex items-center gap-4">
+<button id="wv-back-btn" class="text-[#FF6B00] scale-95 active:duration-100 hover:opacity-80">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-['Space_Grotesk'] font-bold tracking-tighter uppercase text-xl text-[#FF6B00]">WRAP VISUALIZER</h1>
+</div>
+<button class="text-[#FF6B00] scale-95 active:duration-100 hover:opacity-80">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</header>
+<main class="pt-16 pb-32">
+<!-- Studio Canvas -->
+<section class="relative w-full aspect-[4/3] md:aspect-video flex items-center justify-center overflow-hidden bg-surface-container-lowest">
+<!-- Atmospheric Lighting Elements -->
+<div class="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-primary/20 to-transparent"></div>
+<div class="absolute top-0 right-1/4 w-px h-full bg-gradient-to-b from-primary/20 to-transparent"></div>
+<!-- Vehicle Preview -->
+<div class="relative z-10 w-full max-w-5xl px-4 group">
+<img id="wv-preview-img" class="w-full h-auto object-contain transform scale-110 transition-transform duration-700" data-alt="Luxurious Toyota Land Cruiser V8 in deep Matte Black wrap parked in a dark cinematic showroom with sharp rim lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCj3C9IgAC0jkTOsF9dwjEzWfHMmZ1ULeM0hjQd7oGa1veWU-ml9Cs0rcuueRPNSYuqR2unJeF_RR7lGxIlXHtxdC9pNSx0KFad_mnbIJS14-5krTRYV1nWx_iBw9bhuDrQ00TR_a6rlZOvYDcOsjj8pv9BPIGqgdgmq4_650IoogMr2A2UvUtO3zFsBeqjDwJQZfQjRNCiAK_Jl819R5z5DQ1RIZPqdRMXFnlaNsAUcSe6Y0jorQkQ4CLMzsLvLA9JCyUmrPuDkT3z"/>
+<!-- Vehicle Label -->
+<div class="absolute bottom-4 left-8 md:left-12">
+<span class="font-headline text-[10px] tracking-[0.3em] uppercase text-on-surface-variant opacity-60">Vehicle Selection</span>
+<h2 id="wv-vehicle-name" class="font-headline text-2xl md:text-4xl font-black tracking-tighter uppercase leading-none">LAND CRUISER V8</h2>
+</div>
+</div>
+<!-- Showroom Controls Overlay -->
+<div class="absolute top-8 right-8 flex flex-col gap-4 z-20">
+<button class="p-3 bg-surface-container-highest/80 backdrop-blur rounded-sm text-on-surface hover:text-primary transition-colors">
+<span class="material-symbols-outlined">light_mode</span>
+</button>
+<button class="p-3 bg-surface-container-highest/80 backdrop-blur rounded-sm text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dark_mode</span>
+</button>
+</div>
+</section>
+<!-- Configurator Controls -->
+<div class="px-6 -mt-12 relative z-30">
+<div class="max-w-4xl mx-auto space-y-12">
+<!-- Finishes Selection -->
+<section>
+<div class="flex items-baseline justify-between mb-4">
+<h3 class="font-headline text-lg font-bold tracking-tight uppercase">Finish Texture</h3>
+<span class="font-label text-[10px] uppercase tracking-widest text-primary flex items-center gap-1">Swipe to browse <span class="material-symbols-outlined text-xs">arrow_forward</span></span>
+</div>
+<div class="scroll-fade">
+<div class="flex gap-3 overflow-x-auto thin-scrollbar pb-4 -mx-6 px-6 snap-x snap-mandatory">
+<!-- Matte -->
+<button class="flex-shrink-0 w-28 sm:w-32 aspect-[3/4] bg-surface-container-low p-3 sm:p-4 flex flex-col justify-between border-2 border-primary group active:scale-95 transition-all snap-start">
+<div class="w-full aspect-square bg-[#222] rounded-sm overflow-hidden flex items-center justify-center relative">
+<div class="absolute inset-0 bg-gradient-to-tr from-black/60 to-transparent"></div>
+<span class="material-symbols-outlined text-primary text-3xl">texture</span>
+</div>
+<span class="font-headline text-xs font-bold tracking-widest uppercase text-primary">Matte</span>
+</button>
+<!-- Gloss -->
+<button class="flex-shrink-0 w-28 sm:w-32 aspect-[3/4] bg-surface-container-low p-3 sm:p-4 flex flex-col justify-between border border-white/5 hover:border-white/20 active:scale-95 transition-all snap-start">
+<div class="w-full aspect-square bg-[#111] rounded-sm overflow-hidden flex items-center justify-center relative">
+<div class="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent"></div>
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">shutter_speed</span>
+</div>
+<span class="font-headline text-xs font-bold tracking-widest uppercase text-on-surface-variant">Gloss</span>
+</button>
+<!-- Satin -->
+<button class="flex-shrink-0 w-28 sm:w-32 aspect-[3/4] bg-surface-container-low p-3 sm:p-4 flex flex-col justify-between border border-white/5 hover:border-white/20 active:scale-95 transition-all snap-start">
+<div class="w-full aspect-square bg-[#333] rounded-sm overflow-hidden flex items-center justify-center relative">
+<div class="absolute inset-0 bg-gradient-to-tr from-white/5 to-black/20"></div>
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">waves</span>
+</div>
+<span class="font-headline text-xs font-bold tracking-widest uppercase text-on-surface-variant">Satin</span>
+</button>
+<!-- Chrome -->
+<button class="flex-shrink-0 w-28 sm:w-32 aspect-[3/4] bg-surface-container-low p-3 sm:p-4 flex flex-col justify-between border border-white/5 hover:border-white/20 active:scale-95 transition-all snap-start">
+<div class="w-full aspect-square bg-white/10 rounded-sm overflow-hidden flex items-center justify-center relative">
+<div class="absolute inset-0 bg-gradient-to-tr from-white/30 to-black/40"></div>
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">flare</span>
+</div>
+<span class="font-headline text-xs font-bold tracking-widest uppercase text-on-surface-variant">Chrome</span>
+</button>
+<!-- Colour Shift -->
+<button class="flex-shrink-0 w-28 sm:w-32 aspect-[3/4] bg-surface-container-low p-3 sm:p-4 flex flex-col justify-between border border-white/5 hover:border-white/20 active:scale-95 transition-all snap-start">
+<div class="w-full aspect-square bg-gradient-to-br from-indigo-900 via-purple-900 to-emerald-900 rounded-sm overflow-hidden flex items-center justify-center relative">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">gradient</span>
+</div>
+<span class="font-headline text-xs font-bold tracking-widest uppercase text-on-surface-variant">Colour Shift</span>
+</button>
+<!-- Carbon Fibre -->
+<button class="flex-shrink-0 w-28 sm:w-32 aspect-[3/4] bg-surface-container-low p-3 sm:p-4 flex flex-col justify-between border border-white/5 hover:border-white/20 active:scale-95 transition-all snap-start">
+<div class="w-full aspect-square bg-[#0a0a0a] rounded-sm overflow-hidden flex items-center justify-center relative">
+<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 4px 4px;"></div>
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">grid_view</span>
+</div>
+<span class="font-headline text-xs font-bold tracking-widest uppercase text-on-surface-variant">Carbon Fibre</span>
+</button>
+<!-- Brushed Metal -->
+<button class="flex-shrink-0 w-28 sm:w-32 aspect-[3/4] bg-surface-container-low p-3 sm:p-4 flex flex-col justify-between border border-white/5 hover:border-white/20 active:scale-95 transition-all snap-start">
+<div class="w-full aspect-square bg-[#444] rounded-sm overflow-hidden flex items-center justify-center relative">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">dehaze</span>
+</div>
+<span class="font-headline text-xs font-bold tracking-widest uppercase text-on-surface-variant">Brushed Metal</span>
+</button>
+<!-- PPF Clear -->
+<button class="flex-shrink-0 w-28 sm:w-32 aspect-[3/4] bg-surface-container-low p-3 sm:p-4 flex flex-col justify-between border border-white/5 hover:border-white/20 active:scale-95 transition-all snap-start">
+<div class="w-full aspect-square bg-white/5 rounded-sm overflow-hidden flex items-center justify-center relative border border-white/10">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl">shield</span>
+</div>
+<span class="font-headline text-xs font-bold tracking-widest uppercase text-on-surface-variant">PPF Clear</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Color Palette (Featured Nairobi Collection) -->
+<section>
+<div class="flex items-baseline justify-between mb-6">
+<h3 class="font-headline text-lg font-bold tracking-tight uppercase">Bespoke Colors</h3>
+<span class="font-label text-xs text-on-surface-variant">Deep Collection</span>
+</div>
+<div class="flex gap-3 overflow-x-auto thin-scrollbar pb-2">
+<button aria-label="Stealth Black" class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-sm bg-[#0D0D0D] ring-2 ring-primary ring-offset-4 ring-offset-surface"></button>
+<button aria-label="Charcoal" class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-sm bg-[#1C1C1C] hover:ring-1 hover:ring-white/30 transition-all"></button>
+<button aria-label="Gunmetal" class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-sm bg-[#2A2B2E] hover:ring-1 hover:ring-white/30 transition-all"></button>
+<button aria-label="Forest" class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-sm bg-[#1B2A1D] hover:ring-1 hover:ring-white/30 transition-all"></button>
+<button aria-label="Midnight" class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-sm bg-[#1A1E2B] hover:ring-1 hover:ring-white/30 transition-all"></button>
+<button aria-label="Deep Wine" class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-sm bg-[#2B1A1E] hover:ring-1 hover:ring-white/30 transition-all"></button>
+<button aria-label="Navy" class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-sm bg-[#141E30] hover:ring-1 hover:ring-white/30 transition-all"></button>
+<button aria-label="Cement" class="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-sm bg-[#3A3A38] hover:ring-1 hover:ring-white/30 transition-all"></button>
+</div>
+</section>
+<!-- Vision Input Section -->
+<section class="space-y-3">
+<label class="font-label text-[10px] uppercase tracking-[0.25em] text-on-surface-variant/60 block">Describe Your Vision</label>
+<div class="relative flex items-center">
+<input id="wv-vision-input" class="w-full bg-surface-container-low border-none rounded-sm h-14 pl-5 pr-14 text-sm font-body text-on-surface placeholder:text-on-surface-variant/40 focus:ring-1 focus:ring-primary/30" placeholder="e.g. 'Army green with blacked-out badges and gold accents'" type="text"/>
+<button id="wv-vision-send" class="absolute right-2 p-2 text-primary hover:opacity-80 active:scale-90 transition-all">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</section>
+<!-- Summary Panel -->
+<section class="bg-surface-container-low p-8 border-l-2 border-primary">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="space-y-1">
+<span class="font-label text-[10px] tracking-[0.2em] uppercase text-on-surface-variant">Current Selection</span>
+<h4 id="wv-selection-name" class="font-headline text-xl font-bold uppercase">Stealth Matte Black</h4>
+<p class="font-body text-sm text-on-surface-variant max-w-xs">Premium 3M ceramic series with heat resistance and 7-year durability.</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label text-[10px] tracking-[0.2em] uppercase text-on-surface-variant">Estimate range</span>
+<span id="wv-selection-price" class="font-headline text-base font-black text-primary">KSH 148K – 213K</span>
+</div>
+</div>
+</section>
+<!-- Action Button -->
+<div class="pt-4">
+<button id="wv-get-quote-btn" class="w-full h-16 primary-gradient rounded-sm font-headline font-black text-white uppercase tracking-[0.15em] text-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+                        Get My Quote →
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center pb-safe h-20 px-4 bg-[#131313]/90 backdrop-blur-xl border-t border-white/5 shadow-2xl shadow-orange-900/20">
+<a class="flex flex-col items-center justify-center text-gray-500 p-2 group transition-all scale-90 active:duration-75 hover:text-white" href="screen1-upload.html">
+<span class="material-symbols-outlined text-2xl">palette</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#FF6B00] p-2 group transition-all scale-90 active:duration-75" href="screen2-studio.html">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">layers</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold tracking-widest mt-1">Studio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-gray-500 p-2 group transition-all scale-90 active:duration-75 hover:text-white" href="screen3-quote.html">
+<span class="material-symbols-outlined text-2xl">history</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold tracking-widest mt-1">Quote</span>
+</a>
+<a class="flex flex-col items-center justify-center text-gray-500 p-2 group transition-all scale-90 active:duration-75 hover:text-white" href="screen3-quote.html">
+<span class="material-symbols-outlined text-2xl">brand_awareness</span>
+<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold tracking-widest mt-1">Inquiry</span>
+</a>
+</nav>
+<!-- Mobile Menu Overlay -->
+<div id="wv-menu-overlay" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);padding:80px 32px 32px;">
+<button id="wv-menu-close" style="position:absolute;top:20px;right:24px;color:#FF6B00;font-size:28px;background:none;border:none;cursor:pointer;">✕</button>
+<nav style="display:flex;flex-direction:column;gap:24px;">
+<a href="screen1-upload.html" style="color:#e5e2e1;font-family:'Space Grotesk';font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;">🏠 Home</a>
+<a href="screen2-studio.html" style="color:#ffb693;font-family:'Space Grotesk';font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;">🎨 Studio</a>
+<a href="screen3-quote.html" style="color:#e5e2e1;font-family:'Space Grotesk';font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;">💰 Get Quote</a>
+<a href="screen4-confirmation.html" style="color:#e5e2e1;font-family:'Space Grotesk';font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;">✅ Booking</a>
+</nav>
+</div>
+<script src="a11y.js"></script>
+<script>
+(function(){
+  'use strict';
+  var API='http://localhost:3001';
+  var FMAP={'Matte':'matte','Gloss':'gloss','Satin':'satin','Chrome':'chrome','Colour Shift':'colour_shift','Carbon Fibre':'carbon_fibre','Brushed Metal':'brushed_metal','PPF Clear':'ppf_clear'};
+  var vehicleId=sessionStorage.getItem('wv_vehicle_id')||'land_cruiser_v8';
+  var vehicleLabel=sessionStorage.getItem('wv_vehicle_label')||'Toyota Land Cruiser V8/LC300';
+  var selFinish=sessionStorage.getItem('wv_finish_id')||'matte';
+  var selFinishLabel=sessionStorage.getItem('wv_finish_label')||'Matte';
+  var selColor=sessionStorage.getItem('wv_selected_color')||'#0D0D0D';
+
+  var nameEl=document.getElementById('wv-vehicle-name');
+  if(nameEl) nameEl.textContent=vehicleLabel.replace('Toyota ','').replace('/LC300','').toUpperCase();
+  var prevImg=document.getElementById('wv-preview-img');
+  var seg=sessionStorage.getItem('wv_segmented_image');
+  if(prevImg&&seg) prevImg.src=seg;
+
+  // Back button
+  document.getElementById('wv-back-btn').addEventListener('click',function(){window.location.href='screen1-upload.html';});
+
+  // Hamburger menu
+  var menuBtns=document.querySelectorAll('header button');
+  var menuBtn=menuBtns.length>1?menuBtns[menuBtns.length-1]:null;
+  var overlay=document.getElementById('wv-menu-overlay');
+  var closeBtn=document.getElementById('wv-menu-close');
+  if(menuBtn&&overlay){
+    menuBtn.addEventListener('click',function(){overlay.style.display='block';});
+    closeBtn.addEventListener('click',function(){overlay.style.display='none';});
+    overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
+  }
+
+  // Finish buttons - find by scanning all buttons for finish labels
+  var allBtns=document.querySelectorAll('button');
+  var finishBtns=[];
+  allBtns.forEach(function(btn){
+    var ls=btn.querySelector('span');
+    if(!ls) return;
+    var spans=btn.querySelectorAll('span');
+    spans.forEach(function(s){
+      var lab=s.textContent.trim();
+      if(FMAP[lab]){
+        finishBtns.push({el:btn,label:lab,id:FMAP[lab]});
+      }
+    });
+  });
+
+  finishBtns.forEach(function(fb){
+    fb.el.addEventListener('click',function(){
+      selFinish=fb.id; selFinishLabel=fb.label;
+      sessionStorage.setItem('wv_finish_id',fb.id);
+      sessionStorage.setItem('wv_finish_label',fb.label);
+      var sn=document.getElementById('wv-selection-name');
+      if(sn) sn.textContent=fb.label+' Black';
+      finishBtns.forEach(function(b){b.el.style.outline='';});
+      fb.el.style.outline='2px solid #FF6B00'; fb.el.style.outlineOffset='-2px';
+    });
+  });
+
+  // Color swatches - find buttons with bg-[#hex] class
+  var colorBtns=[];
+  document.querySelectorAll('button[class*="bg-[#"]').forEach(function(btn){
+    var cls=btn.getAttribute('class')||'';
+    var m=cls.match(/bg-\[#([0-9A-Fa-f]+)\]/);
+    if(m) colorBtns.push({el:btn,hex:'#'+m[1]});
+  });
+
+  colorBtns.forEach(function(cb){
+    cb.el.addEventListener('click',function(){
+      selColor=cb.hex; sessionStorage.setItem('wv_selected_color',cb.hex);
+      colorBtns.forEach(function(b){b.el.style.outline='';b.el.style.outlineOffset='';});
+      cb.el.style.outline='2px solid #ffb693'; cb.el.style.outlineOffset='3px';
+    });
+  });
+
+  // Vision input
+  var vi=document.getElementById('wv-vision-input');
+  var vs=document.getElementById('wv-vision-send');
+  if(vs&&vi) vs.addEventListener('click',function(){
+    var p=vi.value.trim(); if(p) sessionStorage.setItem('wv_design_prompt',p);
+  });
+
+  // Get My Quote
+  document.getElementById('wv-get-quote-btn').addEventListener('click',async function(){
+    var btn=this;
+    sessionStorage.setItem('wv_vehicle_id',vehicleId);
+    sessionStorage.setItem('wv_vehicle_label',vehicleLabel);
+    sessionStorage.setItem('wv_finish_id',selFinish);
+    sessionStorage.setItem('wv_finish_label',selFinishLabel);
+    sessionStorage.setItem('wv_selected_color',selColor);
+    if(vi&&vi.value.trim()) sessionStorage.setItem('wv_design_prompt',vi.value.trim());
+    btn.textContent='Calculating...'; btn.style.pointerEvents='none'; btn.style.opacity='0.6';
+    try{
+      var res=await fetch(API+'/api/estimate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vehicle_id:vehicleId,finish_id:selFinish,vinyl_brand:'3m',addons:[]})});
+      var data=await res.json();
+      if(data.success){
+        sessionStorage.setItem('wv_subtotal',data.subtotal);
+        sessionStorage.setItem('wv_deposit_amount',data.deposit_amount);
+        sessionStorage.setItem('wv_vinyl_amount',data.breakdown.vinyl_material.amount);
+        sessionStorage.setItem('wv_vinyl_label',data.breakdown.vinyl_material.label);
+        sessionStorage.setItem('wv_labour_amount',data.breakdown.labour.amount);
+        sessionStorage.setItem('wv_labour_label',data.breakdown.labour.label);
+        sessionStorage.setItem('wv_addons',JSON.stringify(data.breakdown.addons));
+        window.location.href='screen3-quote.html';
+      }else{
+        alert(data.message||'Could not get quote.');
+        btn.textContent='Get My Quote \u2192'; btn.style.pointerEvents=''; btn.style.opacity='';
+      }
+    }catch(err){
+      alert('Connection error. Is the server running?');
+      btn.textContent='Get My Quote \u2192'; btn.style.pointerEvents=''; btn.style.opacity='';
+    }
+  });
+})();
+</script>
+</body></html>

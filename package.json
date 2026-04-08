@@ -1,0 +1,10 @@
+{
+  "name": "wrapvisualizer",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Mobile-first vehicle wrap visualization and booking tool for Nairobi",
+  "scripts": {
+    "dev": "cd backend && node server.js",
+    "start": "cd backend && node server.js"
+  }
+}
