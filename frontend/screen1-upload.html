@@ -1,282 +1,291 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="en"><head>
+<html class="dark" lang="en">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>WrapVisualizer | Premium Vehicle Wraps Nairobi</title>
-<meta name="description" content="Visualize your dream vehicle wrap before you commit. Choose from premium finishes — Matte, Gloss, Satin, Chrome and more. Nairobi's top wrap specialists."/>
 <meta name="theme-color" content="#131313"/>
-<meta property="og:title" content="WrapVisualizer — Premium Vehicle Wraps Nairobi"/>
-<meta property="og:description" content="Visualize your dream vehicle wrap. Choose your finish, see an estimate, and chat with specialists on WhatsApp."/>
-<meta property="og:type" content="website"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "inverse-primary": "#a04100",
-                        "on-surface-variant": "#e2bfb0",
-                        "on-secondary-fixed": "#002109",
-                        "outline": "#a98a7d",
-                        "outline-variant": "#5a4136",
-                        "surface-tint": "#ffb693",
-                        "primary-container": "#ff6b00",
-                        "primary": "#ffb693",
-                        "surface-variant": "#353534",
-                        "inverse-on-surface": "#313030",
-                        "surface": "#131313",
-                        "on-tertiary-fixed": "#1a1c1c",
-                        "on-tertiary-container": "#2f3132",
-                        "surface-dim": "#131313",
-                        "inverse-surface": "#e5e2e1",
-                        "tertiary-fixed": "#e2e2e2",
-                        "secondary-container": "#06c85d",
-                        "surface-container-high": "#2a2a2a",
-                        "tertiary-container": "#989999",
-                        "on-primary-fixed-variant": "#7a3000",
-                        "surface-container": "#201f1f",
-                        "primary-fixed-dim": "#ffb693",
-                        "on-tertiary-fixed-variant": "#454747",
-                        "secondary-fixed": "#66ff8e",
-                        "on-tertiary": "#2f3131",
-                        "surface-container-low": "#1c1b1b",
-                        "on-error-container": "#ffdad6",
-                        "surface-container-lowest": "#0e0e0e",
-                        "on-secondary": "#003915",
-                        "on-error": "#690005",
-                        "error": "#ffb4ab",
-                        "background": "#131313",
-                        "on-primary": "#561f00",
-                        "error-container": "#93000a",
-                        "tertiary": "#c6c6c7",
-                        "surface-bright": "#3a3939",
-                        "surface-container-highest": "#353534",
-                        "on-primary-container": "#572000",
-                        "on-secondary-fixed-variant": "#005322",
-                        "on-secondary-container": "#004d1f",
-                        "secondary": "#41e575",
-                        "secondary-fixed-dim": "#3de273",
-                        "on-background": "#e5e2e1",
-                        "on-surface": "#e5e2e1",
-                        "primary-fixed": "#ffdbcc",
-                        "tertiary-fixed-dim": "#c6c6c7",
-                        "on-primary-fixed": "#351000"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "fontFamily": {
-                        "headline": ["Space Grotesk"],
-                        "body": ["Manrope"],
-                        "label": ["Manrope"]
-                    }
-                },
-            },
-        }
-    </script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "inverse-primary":"#a04100","on-surface-variant":"#e2bfb0","on-secondary-fixed":"#002109",
+        "outline":"#a98a7d","outline-variant":"#5a4136","surface-tint":"#ffb693",
+        "primary-container":"#ff6b00","primary":"#ffb693","surface-variant":"#353534",
+        "inverse-on-surface":"#313030","surface":"#131313","on-tertiary-fixed":"#1a1c1c",
+        "on-tertiary-container":"#2f3132","surface-dim":"#131313","inverse-surface":"#e5e2e1",
+        "tertiary-fixed":"#e2e2e2","secondary-container":"#06c85d",
+        "surface-container-high":"#2a2a2a","tertiary-container":"#989999",
+        "on-primary-fixed-variant":"#7a3000","surface-container":"#201f1f",
+        "primary-fixed-dim":"#ffb693","on-tertiary-fixed-variant":"#454747",
+        "secondary-fixed":"#66ff8e","on-tertiary":"#2f3131",
+        "surface-container-low":"#1c1b1b","on-error-container":"#ffdad6",
+        "surface-container-lowest":"#0e0e0e","on-secondary":"#003915",
+        "on-error":"#690005","error":"#ffb4ab","background":"#131313",
+        "on-primary":"#561f00","error-container":"#93000a","tertiary":"#c6c6c7",
+        "surface-bright":"#3a3939","surface-container-highest":"#353534",
+        "on-primary-container":"#572000","on-secondary-fixed-variant":"#005322",
+        "on-secondary-container":"#004d1f","secondary":"#41e575",
+        "secondary-fixed-dim":"#3de273","on-background":"#e5e2e1","on-surface":"#e5e2e1",
+        "primary-fixed":"#ffdbcc","tertiary-fixed-dim":"#c6c6c7","on-primary-fixed":"#351000"
+      },
+      borderRadius: { DEFAULT:"0.125rem", lg:"0.25rem", xl:"0.5rem", full:"0.75rem" },
+      fontFamily: { headline:["Space Grotesk"], body:["Manrope"], label:["Manrope"] }
+    },
+  },
+}
+</script>
+<title>WrapVisualizer | Premium Vehicle Wraps Nairobi</title>
+<meta name="description" content="Visualize your dream vehicle wrap before you commit. Choose from premium finishes. Nairobi top wrap specialists."/>
 <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .signature-gradient {
-            background: linear-gradient(135deg, #FF6B00 0%, #7A3000 100%);
-        }
-        .glass-overlay {
-            background: rgba(58, 57, 57, 0.6);
-            backdrop-filter: blur(24px);
-        }
-    </style>
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+.signature-gradient { background: linear-gradient(135deg, #FF6B00 0%, #7A3000 100%); }
+body { min-height: 100dvh; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+.fade-up { animation: fadeUp 0.6s ease-out both; }
+.fade-up-d1 { animation-delay: 0.1s; }
+.fade-up-d2 { animation-delay: 0.2s; }
+.fade-up-d3 { animation-delay: 0.35s; }
+</style>
 <style>
-        body {
-            min-height: max(884px, 100dvh);
-        }
-    </style>
+.template-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.template-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(255,107,0,0.12); }
+.template-card.selected { border-color: #FF6B00 !important; box-shadow: 0 0 0 1px #FF6B00, 0 12px 40px rgba(255,107,0,0.15); }
+</style>
 </head>
-<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-white">
-<!-- TopAppBar -->
-<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#131313] dark:bg-[#131313]">
-<div class="flex items-center">
-<h1 class="text-xl font-black text-[#FF6B00] tracking-tighter font-['Space_Grotesk'] uppercase">WRAP VISUALIZER</h1>
-</div>
-<button class="hover:opacity-80 scale-95 active:duration-100 text-gray-400">
-<span class="material-symbols-outlined">menu</span>
-</button>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-white overflow-x-hidden">
+
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-5 sm:px-8 h-16 bg-background/90 backdrop-blur-xl border-b border-white/5">
+  <a href="screen1-upload.html" class="flex items-center gap-2">
+    <div class="w-8 h-8 signature-gradient flex items-center justify-center">
+      <span class="material-symbols-outlined text-white text-lg" style="font-variation-settings:'FILL' 1;">palette</span>
+    </div>
+    <h1 class="text-lg font-black text-white tracking-tighter font-headline uppercase">WRAP<span class="text-primary-container">VISUALIZER</span></h1>
+  </a>
+  <button id="wv-menu-btn" class="w-10 h-10 flex items-center justify-center hover:bg-white/5 transition-colors" aria-label="Open navigation menu">
+    <span class="material-symbols-outlined text-on-surface-variant">menu</span>
+  </button>
 </header>
-<main class="pt-16 pb-24 min-h-screen">
-<!-- Hero Section: The Midnight Showroom -->
-<section class="relative h-[530px] w-full overflow-hidden">
-<div class="absolute inset-0 bg-cover bg-center" data-alt="Sleek black luxury SUV parked in a dramatic dark showroom with overhead neon orange lighting reflecting off the metallic finish" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAtHib03Y8xfStKqUs-yanFXGkAZj0uQrVhj2DR4mvzKESpHHv7EtigJiJoFkeFj4e1c3hdiAWWHUeaBz83sKWStrAPlPgk_d646F9XNaJp6ivns0NfEGWY9_41ca--8iiEdHQE1zasaZ5YGQkuhiueLiwnmA6DJrCvBeOHHC5UaqnzaC_BaFGgyWM0B5dftLZs_OjJsrQqssd_SkdtxN_VmYUVU_adByjKNwwL-WB7oZcc9voPIUeCx2nF7zoLgLa-puy4IDJLpTia')">
-</div>
-<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
-<div class="relative h-full flex flex-col justify-end px-6 pb-12 max-w-7xl mx-auto">
-<span class="font-headline text-[10px] uppercase tracking-[0.4em] text-primary mb-2">Private Atelier • Nairobi</span>
-<h2 class="font-headline text-5xl md:text-7xl font-bold text-white tracking-tighter leading-none mb-6">
-                    BEYOND<br/>SURFACES.
-                </h2>
-</div>
+
+<main class="pt-16 pb-28">
+
+<!-- HERO -->
+<section class="relative w-full overflow-hidden" style="min-height:clamp(480px,75vh,700px);">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=1400&auto=format&q=80" alt="Luxury vehicle in dramatic lighting" class="w-full h-full object-cover" loading="eager"/>
+    <div class="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/20"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent"></div>
+  </div>
+  <div class="relative h-full flex flex-col justify-end px-5 sm:px-8 pb-12 max-w-6xl mx-auto" style="min-height:clamp(480px,75vh,700px);">
+    <div class="max-w-xl">
+      <span class="inline-flex items-center gap-2 text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-4 fade-up">
+        <span class="w-8 h-px bg-primary-container"></span>Nairobi&#39;s Premier Wrap Studio
+      </span>
+      <h2 class="font-headline text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight leading-[1.05] mb-5 fade-up fade-up-d1">
+        Transform Your<br/>Vehicle&#39;s Identity
+      </h2>
+      <p class="text-on-surface-variant text-base sm:text-lg leading-relaxed mb-8 max-w-md fade-up fade-up-d2">
+        Premium vinyl wraps, PPF protection, and bespoke color changes. Visualize it here, perfect it with our specialists.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 fade-up fade-up-d3">
+        <a href="#upload" class="h-14 px-8 signature-gradient text-white font-headline font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all">
+          Start Customizing <span class="material-symbols-outlined text-lg">arrow_forward</span>
+        </a>
+        <a href="#gallery" class="h-14 px-8 border border-white/15 text-white font-headline font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 hover:bg-white/5 active:scale-[0.98] transition-all">
+          View Our Work
+        </a>
+      </div>
+    </div>
+  </div>
 </section>
-<!-- Main Interaction Area -->
-<div class="max-w-7xl mx-auto px-6 -mt-8 relative z-10">
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-<!-- Primary Upload: The Ignition System -->
-<div class="lg:col-span-7 bg-surface-container-low p-8 rounded-none border-l-2 border-primary-container">
-<div class="mb-8">
-<h3 class="font-headline text-2xl font-bold mb-2 uppercase tracking-tight">Visualize Your Vision</h3>
-<p class="text-on-surface-variant text-sm font-light max-w-md">Upload a high-resolution photo of your vehicle. Our AI-driven showroom will map the lighting of Nairobi's streets to your chosen finish.</p>
+
+<!-- TRUST BAR -->
+<div class="border-y border-white/5 bg-surface-container-lowest">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-5 flex flex-wrap justify-center gap-x-10 gap-y-3">
+    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-primary-container text-base" style="font-variation-settings:'FILL' 1;">verified</span>3M Certified</div>
+    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-primary-container text-base" style="font-variation-settings:'FILL' 1;">shield</span>7-Year Warranty</div>
+    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-primary-container text-base" style="font-variation-settings:'FILL' 1;">star</span>500+ Wraps Done</div>
+    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-secondary-container text-base" style="font-variation-settings:'FILL' 1;">chat</span>WhatsApp Support</div>
+  </div>
 </div>
-<div class="group relative flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/30 bg-surface-container-lowest h-64 hover:border-primary-container/50 transition-colors cursor-pointer">
-<input id="wv-file-input" class="absolute inset-0 opacity-0 cursor-pointer" type="file" accept="image/*"/>
-<div id="wv-upload-prompt" class="flex flex-col items-center gap-4">
-<span class="material-symbols-outlined text-4xl text-primary" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
-<span class="font-headline text-sm font-bold tracking-widest uppercase">Select Car Image</span>
-</div>
-</div>
-<button id="wv-init-btn" class="w-full mt-6 h-[56px] signature-gradient text-white font-headline font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 rounded-sm scale-100 active:scale-95 transition-transform">
-<span>Initialize Customizer</span>
-<span class="material-symbols-outlined">bolt</span>
-</button>
-</div>
-<!-- Premium Templates: The Nairobi Fleet -->
-<div class="lg:col-span-5 space-y-6">
-<div class="flex justify-between items-end">
-<h3 class="font-headline text-lg font-bold uppercase tracking-widest">Premium Templates</h3>
-<span class="text-[10px] text-primary font-bold uppercase tracking-[0.2em]">Select Model</span>
-</div>
-<div class="space-y-4">
-<!-- Template Card: Toyota LC300 -->
-<div class="bg-surface-container-high p-4 flex gap-4 group cursor-pointer hover:bg-surface-container-highest transition-colors">
-<div class="w-24 h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0">
-<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" loading="lazy" data-alt="Front profile of a modern white Toyota Land Cruiser LC300 under professional studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQW_vvzEq6qtPVQmVG0CL6awDVh1P_4px7KFyQe01Mink-qIpVdwjttrY2DxU5wmO4SVFp1rGxl6mKriIQ2Qvq4aw1wcrJwK99I2aNPqu3W_ukg1ArPHbm6B_9iDpbeBnaRVDcf85UV0F-1MXzZjZERon3kbUtVq4lOMmuzSV-AbZ8Ms-2Tp67EBv00eaQc64XWBFtUNUBCeXdvCQr9qGVpa8EhwqOyCUOjLdY_Ac8lDFuheoPMVZYhyKuHYL-KZLFyYqBfGkYZhtH"/>
-</div>
-<div class="flex flex-col justify-center">
-<h4 class="font-headline text-base font-bold text-white tracking-tight">Toyota Land Cruiser V8/LC300</h4>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">4.5L Twin Turbo</p>
-</div>
-</div>
-<!-- Template Card: Range Rover Vogue -->
-<div class="bg-surface-container-high p-4 flex gap-4 group cursor-pointer hover:bg-surface-container-highest transition-colors">
-<div class="w-24 h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0">
-<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" loading="lazy" data-alt="Side profile of a sleek Range Rover Vogue in matte black finish within a minimalist warehouse" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8yOORBibwHAzOiQ8DGAZk9BHxjdqge2SnjkuHKFAHaD7yy1Ip_4BnUSIAsHQakHrL8uuxiPp59-13CrtuIzBcBTkrgwtSA6COJeEzf6Q_SpOu3RkGMi3Y5RviW-5XiJAc1YXq8fEhilhsmkFjyef8MsCWriONd9UO4OpkgmurZmE--2YKWWxvUSDorzPWD6TpNcAw9nFwsuC-IQ5Fwyg8XoA4fpbvZL6DYAU-tdPya6cdOFri95oViWvNKXzCjvwSq2mE4qttJTbr"/>
-</div>
-<div class="flex flex-col justify-center">
-<h4 class="font-headline text-base font-bold text-white tracking-tight">Range Rover Vogue</h4>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">LWB Edition</p>
-</div>
-</div>
-<!-- Template Card: Lexus LX600 -->
-<div class="bg-surface-container-high p-4 flex gap-4 group cursor-pointer hover:bg-surface-container-highest transition-colors">
-<div class="w-24 h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0">
-<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" loading="lazy" data-alt="Aggressive front grille of a Lexus LX600 luxury SUV in dark blue chrome finish" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq1Da1S-aX76F6xAOO3R8REsgi5eQaEo04xe0WtpoyNvK2LImc3RaILFmmsUyghOsYUxo4rogeTf5Dd2Ic9BRPaaiIXCcjzz8IUPLLkRDqY7LgiTePMse-4KWuFtipqdSlYtkqyTNQhuFuveZD2b9TmoSUAV7ImzjyX676iQV3k8VBfqCxNTP8IbTR4JHZtqiHl5sDQb7jokH1wQRVeYIrwyH-ROhtDy3CVowOxI1hmRbJz_33yZ53EchQ0LmAA6FV2Ns6SDyXjqRh"/>
-</div>
-<div class="flex flex-col justify-center">
-<h4 class="font-headline text-base font-bold text-white tracking-tight">Lexus LX600</h4>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">Ultra Luxury Pkg</p>
-</div>
-</div>
-<!-- Template Card: Toyota Land Cruiser Prado -->
-<div class="bg-surface-container-high p-4 flex gap-4 group cursor-pointer hover:bg-surface-container-highest transition-colors">
-<div class="w-24 h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0">
-<img alt="Toyota Prado" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQW_vvzEq6qtPVQmVG0CL6awDVh1P_4px7KFyQe01Mink-qIpVdwjttrY2DxU5wmO4SVFp1rGxl6mKriIQ2Qvq4aw1wcrJwK99I2aNPqu3W_ukg1ArPHbm6B_9iDpbeBnaRVDcf85UV0F-1MXzZjZERon3kbUtVq4lOMmuzSV-AbZ8Ms-2Tp67EBv00eaQc64XWBFtUNUBCeXdvCQr9qGVpa8EhwqOyCUOjLdY_Ac8lDFuheoPMVZYhyKuHYL-KZLFyYqBfGkYZhtH"/>
-</div>
-<div class="flex flex-col justify-center">
-<h4 class="font-headline text-base font-bold text-white tracking-tight">Toyota Land Cruiser Prado</h4>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">TX-L EDITION</p>
-</div>
-</div>
-<!-- Template Card: Mercedes-Benz GLE -->
-<div class="bg-surface-container-high p-4 flex gap-4 group cursor-pointer hover:bg-surface-container-highest transition-colors">
-<div class="w-24 h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0">
-<img alt="Mercedes GLE" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8yOORBibwHAzOiQ8DGAZk9BHxjdqge2SnjkuHKFAHaD7yy1Ip_4BnUSIAsHQakHrL8uuxiPp59-13CrtuIzBcBTkrgwtSA6COJeEzf6Q_SpOu3RkGMi3Y5RviW-5XiJAc1YXq8fEhilhsmkFjyef8MsCWriONd9UO4OpkgmurZmE--2YKWWxvUSDorzPWD6TpNcAw9nFwsuC-IQ5Fwyg8XoA4fpbvZL6DYAU-tdPya6cdOFri95oViWvNKXzCjvwSq2mE4qttJTbr"/>
-</div>
-<div class="flex flex-col justify-center">
-<h4 class="font-headline text-base font-bold text-white tracking-tight">Mercedes-Benz GLE</h4>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">4MATIC LUXURY</p>
-</div>
-</div>
-<!-- Template Card: BMW 7 Series -->
-<div class="bg-surface-container-high p-4 flex gap-4 group cursor-pointer hover:bg-surface-container-highest transition-colors">
-<div class="w-24 h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0">
-<img alt="BMW 7 Series" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq1Da1S-aX76F6xAOO3R8REsgi5eQaEo04xe0WtpoyNvK2LImc3RaILFmmsUyghOsYUxo4rogeTf5Dd2Ic9BRPaaiIXCcjzz8IUPLLkRDqY7LgiTePMse-4KWuFtipqdSlYtkqyTNQhuFuveZD2b9TmoSUAV7ImzjyX676iQV3k8VBfqCxNTP8IbTR4JHZtqiHl5sDQb7jokH1wQRVeYIrwyH-ROhtDy3CVowOxI1hmRbJz_33yZ53EchQ0LmAA6FV2Ns6SDyXjqRh"/>
-</div>
-<div class="flex flex-col justify-center">
-<h4 class="font-headline text-base font-bold text-white tracking-tight">BMW 7 Series</h4>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">740i M SPORT</p>
-</div>
-</div>
-<!-- Template Card: Subaru Outback -->
-<div class="bg-surface-container-high p-4 flex gap-4 group cursor-pointer hover:bg-surface-container-highest transition-colors">
-<div class="w-24 h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0">
-<img alt="Subaru Outback" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtHib03Y8xfStKqUs-yanFXGkAZj0uQrVhj2DR4mvzKESpHHv7EtigJiJoFkeFj4e1c3hdiAWWHUeaBz83sKWStrAPlPgk_d646F9XNaJp6ivns0NfEGWY9_41ca--8iiEdHQE1zasaZ5YGQkuhiueLiwnmA6DJrCvBeOHHC5UaqnzaC_BaFGgyWM0B5dftLZs_OjJsrQqssd_SkdtxN_VmYUVU_adByjKNwwL-WB7oZcc9voPIUeCx2nF7zoLgLa-puy4IDJLpTia"/>
-</div>
-<div class="flex flex-col justify-center">
-<h4 class="font-headline text-base font-bold text-white tracking-tight">Subaru Outback</h4>
-<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">2.5i TOURING</p>
-</div>
-</div>
-</div>
-<!-- Scroll More Indicator -->
-<div class="flex flex-col items-center gap-1 pt-4 text-outline">
-<span class="text-[10px] font-bold uppercase tracking-[0.3em]">Scroll for more</span>
-<span class="material-symbols-outlined text-sm">expand_more</span>
-</div>
-</div>
-</div>
-</div>
-<!-- WhatsApp CTA Teaser — Dual Partners -->
-<section class="max-w-7xl mx-auto px-6 mt-16 mb-12">
-<div class="bg-secondary-container/10 border border-secondary-container/20 p-8">
-<div class="mb-6">
-<h3 class="font-headline text-xl font-bold text-white uppercase tracking-tight">Need expert advice?</h3>
-<p class="text-on-surface-variant text-sm mt-1">Chat directly with our wrap specialists on WhatsApp for a personalized quote.</p>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-<button id="wv-teaser-wa1" aria-label="Chat with Partner 1" class="flex items-center justify-center gap-2 bg-secondary-container text-on-secondary px-6 py-3 rounded-sm font-bold text-xs uppercase tracking-widest cursor-pointer hover:brightness-110 active:scale-95 transition-all">
-<span class="material-symbols-outlined text-sm">chat</span>
-Line 1 — 0705 040 033
-</button>
-<button id="wv-teaser-wa2" aria-label="Chat with Partner 2" class="flex items-center justify-center gap-2 bg-secondary-container text-on-secondary px-6 py-3 rounded-sm font-bold text-xs uppercase tracking-widest cursor-pointer hover:brightness-110 active:scale-95 transition-all">
-<span class="material-symbols-outlined text-sm">chat</span>
-Line 2 — 0700 419 444
-</button>
-</div>
-</div>
+
+<!-- UPLOAD SECTION -->
+<section id="upload" class="max-w-6xl mx-auto px-5 sm:px-8 pt-16 pb-12">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+    <div>
+      <span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Step 1</span>
+      <h3 class="font-headline text-2xl sm:text-3xl font-bold tracking-tight mb-3">Upload Your Vehicle</h3>
+      <p class="text-on-surface-variant text-sm leading-relaxed mb-8 max-w-md">Snap a photo of your car or pick from our curated fleet below. We will map your chosen wrap finish onto it.</p>
+      <div class="group relative flex flex-col items-center justify-center border border-dashed border-outline-variant/30 bg-surface-container-lowest hover:border-primary-container/50 transition-all cursor-pointer" style="min-height:220px;">
+        <input id="wv-file-input" class="absolute inset-0 opacity-0 cursor-pointer z-10" type="file" accept="image/*"/>
+        <div id="wv-upload-prompt" class="flex flex-col items-center gap-3 pointer-events-none">
+          <div class="w-16 h-16 flex items-center justify-center bg-primary-container/10 border border-primary-container/20">
+            <span class="material-symbols-outlined text-3xl text-primary-container" style="font-variation-settings:'FILL' 1;">cloud_upload</span>
+          </div>
+          <span class="font-headline text-sm font-bold tracking-wide text-white">Drop image or tap to browse</span>
+          <span class="text-xs text-on-surface-variant">JPG, PNG up to 10MB</span>
+        </div>
+      </div>
+      <button id="wv-init-btn" class="w-full mt-5 h-14 signature-gradient text-white font-headline font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+        <span>Initialize Customizer</span>
+        <span class="material-symbols-outlined text-lg">bolt</span>
+      </button>
+    </div>
+    <div>
+      <div class="flex justify-between items-end mb-6">
+        <div>
+          <span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Or Choose</span>
+          <h3 class="font-headline text-2xl sm:text-3xl font-bold tracking-tight">Premium Templates</h3>
+        </div>
+        <span class="text-xs text-on-surface-variant font-medium">7 models</span>
+      </div>
+      <div class="space-y-3" id="wv-templates">
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Toyota Land Cruiser V8/LC300">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Toyota Land Cruiser V8/LC300" src="https://images.unsplash.com/photo-1625231334401-3a833bf49834?w=200&auto=format&q=75"/></div>
+          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Toyota Land Cruiser V8/LC300</h4><p class="text-[11px] text-on-surface-variant mt-1">4.5L Twin Turbo &middot; Full Body</p><span class="text-[10px] text-primary-container font-bold uppercase tracking-wider mt-2">From KES 148K</span></div>
+          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        </div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Range Rover Vogue">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Range Rover Vogue" src="https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=200&auto=format&q=75"/></div>
+          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Range Rover Vogue</h4><p class="text-[11px] text-on-surface-variant mt-1">LWB Edition &middot; Full Body</p><span class="text-[10px] text-primary-container font-bold uppercase tracking-wider mt-2">From KES 165K</span></div>
+          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        </div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Lexus LX600">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Lexus LX600" src="https://images.unsplash.com/photo-1619405399517-d7fce0f13302?w=200&auto=format&q=75"/></div>
+          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Lexus LX600</h4><p class="text-[11px] text-on-surface-variant mt-1">Ultra Luxury Pkg &middot; Full Body</p><span class="text-[10px] text-primary-container font-bold uppercase tracking-wider mt-2">From KES 155K</span></div>
+          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        </div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Toyota Land Cruiser Prado">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Toyota Land Cruiser Prado" src="https://images.unsplash.com/photo-1594611396620-b1ff516a5763?w=200&auto=format&q=75"/></div>
+          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Toyota Land Cruiser Prado</h4><p class="text-[11px] text-on-surface-variant mt-1">TX-L Edition &middot; Full Body</p><span class="text-[10px] text-primary-container font-bold uppercase tracking-wider mt-2">From KES 130K</span></div>
+          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        </div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Mercedes-Benz GLE">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Mercedes-Benz GLE" src="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=200&auto=format&q=75"/></div>
+          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Mercedes-Benz GLE</h4><p class="text-[11px] text-on-surface-variant mt-1">4MATIC Luxury &middot; Full Body</p><span class="text-[10px] text-primary-container font-bold uppercase tracking-wider mt-2">From KES 160K</span></div>
+          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        </div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="BMW 7 Series">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="BMW 7 Series" src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=200&auto=format&q=75"/></div>
+          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">BMW 7 Series</h4><p class="text-[11px] text-on-surface-variant mt-1">740i M Sport &middot; Full Body</p><span class="text-[10px] text-primary-container font-bold uppercase tracking-wider mt-2">From KES 145K</span></div>
+          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        </div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Subaru Outback">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Subaru Outback" src="https://images.unsplash.com/photo-1626668011687-8a114cf5a34c?w=200&auto=format&q=75"/></div>
+          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Subaru Outback</h4><p class="text-[11px] text-on-surface-variant mt-1">2.5i Touring &middot; Full Body</p><span class="text-[10px] text-primary-container font-bold uppercase tracking-wider mt-2">From KES 110K</span></div>
+          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINISHES PREVIEW -->
+<section class="bg-surface-container-lowest border-y border-white/5 py-16">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="text-center mb-10">
+      <span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">What We Offer</span>
+      <h3 class="font-headline text-2xl sm:text-3xl font-bold tracking-tight">Premium Wrap Finishes</h3>
+      <p class="text-on-surface-variant text-sm mt-3 max-w-lg mx-auto">From stealth matte to mirror chrome &mdash; choose the finish that matches your personality. All wraps use 3M &amp; Avery premium vinyl.</p>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center hover:border-primary-container/30 transition-all"><div class="w-12 h-12 mx-auto mb-3 bg-[#1a1a1a] flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">texture</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Matte</h4><p class="text-[10px] text-on-surface-variant mt-1">Stealth look</p></div>
+      <div class="bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center hover:border-primary-container/30 transition-all"><div class="w-12 h-12 mx-auto mb-3 bg-[#111] flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">shutter_speed</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Gloss</h4><p class="text-[10px] text-on-surface-variant mt-1">Mirror finish</p></div>
+      <div class="bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center hover:border-primary-container/30 transition-all"><div class="w-12 h-12 mx-auto mb-3 bg-[#252525] flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">waves</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Satin</h4><p class="text-[10px] text-on-surface-variant mt-1">Soft sheen</p></div>
+      <div class="bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center hover:border-primary-container/30 transition-all"><div class="w-12 h-12 mx-auto mb-3 bg-white/10 flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">flare</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Chrome</h4><p class="text-[10px] text-on-surface-variant mt-1">Head-turner</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery" class="max-w-6xl mx-auto px-5 sm:px-8 py-16">
+  <div class="flex justify-between items-end mb-10">
+    <div><span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Portfolio</span><h3 class="font-headline text-2xl sm:text-3xl font-bold tracking-tight">Recent Transformations</h3></div>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&auto=format&q=80" alt="Gloss black sedan wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Gloss Black</p><p class="text-white/60 text-xs">Sedan &middot; Full Body</p></div></div></div>
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&auto=format&q=80" alt="Matte gray sports car" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Nardo Gray Matte</p><p class="text-white/60 text-xs">Sports Car &middot; Full Body</p></div></div></div>
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&q=80" alt="Chrome silver supercar" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Chrome Silver</p><p class="text-white/60 text-xs">Supercar &middot; Full Body</p></div></div></div>
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1542362567-b07e54358753?w=600&auto=format&q=80" alt="Satin blue SUV" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Satin Blue</p><p class="text-white/60 text-xs">SUV &middot; Full Body</p></div></div></div>
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=600&auto=format&q=80" alt="Military green wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Military Green</p><p class="text-white/60 text-xs">SUV &middot; Full Body</p></div></div></div>
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&auto=format&q=80" alt="Racing red coupe" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Racing Red</p><p class="text-white/60 text-xs">Coupe &middot; Full Body + Accents</p></div></div></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="bg-surface-container-lowest border-y border-white/5 py-16">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="text-center mb-12"><span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Process</span><h3 class="font-headline text-2xl sm:text-3xl font-bold tracking-tight">How It Works</h3></div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6">
+      <div class="text-center"><div class="w-14 h-14 mx-auto mb-4 signature-gradient flex items-center justify-center text-white font-headline font-bold text-xl">1</div><h4 class="font-headline text-sm font-bold uppercase tracking-wider text-white mb-2">Choose Your Vehicle</h4><p class="text-on-surface-variant text-xs leading-relaxed">Upload your car photo or select from our premium template fleet.</p></div>
+      <div class="text-center"><div class="w-14 h-14 mx-auto mb-4 signature-gradient flex items-center justify-center text-white font-headline font-bold text-xl">2</div><h4 class="font-headline text-sm font-bold uppercase tracking-wider text-white mb-2">Pick Your Finish</h4><p class="text-on-surface-variant text-xs leading-relaxed">Browse matte, gloss, satin, chrome, and more. See an instant estimate.</p></div>
+      <div class="text-center"><div class="w-14 h-14 mx-auto mb-4 bg-secondary-container flex items-center justify-center text-white font-headline font-bold text-xl">3</div><h4 class="font-headline text-sm font-bold uppercase tracking-wider text-white mb-2">Chat on WhatsApp</h4><p class="text-on-surface-variant text-xs leading-relaxed">Connect directly with our specialists for exact pricing and booking.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHATSAPP CTA -->
+<section class="max-w-6xl mx-auto px-5 sm:px-8 py-16">
+  <div class="bg-surface-container-low border border-white/5 p-6 sm:p-10">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div class="max-w-md"><h3 class="font-headline text-xl sm:text-2xl font-bold text-white tracking-tight mb-2">Need Expert Advice?</h3><p class="text-on-surface-variant text-sm leading-relaxed">Chat directly with our wrap specialists on WhatsApp. Get a personalized quote, discuss custom designs, or book an appointment.</p></div>
+      <div class="flex flex-col sm:flex-row gap-3 flex-shrink-0">
+        <button id="wv-teaser-wa1" aria-label="Chat on WhatsApp Line 1" class="h-12 px-6 bg-secondary-container text-white font-headline font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all"><span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">chat</span>Line 1 &mdash; 0705 040 033</button>
+        <button id="wv-teaser-wa2" aria-label="Chat on WhatsApp Line 2" class="h-12 px-6 bg-secondary-container text-white font-headline font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all"><span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">chat</span>Line 2 &mdash; 0700 419 444</button>
+      </div>
+    </div>
+  </div>
 </section>
 </main>
-<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center pb-safe h-20 px-4 bg-[#131313]/90 backdrop-blur-xl border-t border-white/5 shadow-2xl shadow-orange-900/20">
-<a class="flex flex-col items-center justify-center text-[#FF6B00] p-2 group transition-all scale-90 active:duration-75" href="screen1-upload.html">
-<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">palette</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold tracking-widest mt-1">Studio</span>
-</a>
-<a class="flex flex-col items-center justify-center text-gray-500 p-2 group transition-all scale-90 active:duration-75 hover:text-white" href="screen2-studio.html">
-<span class="material-symbols-outlined text-2xl">layers</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold tracking-widest mt-1">Finishes</span>
-</a>
-<a class="flex flex-col items-center justify-center text-gray-500 p-2 group transition-all scale-90 active:duration-75 hover:text-white" href="screen3-quote.html">
-<span class="material-symbols-outlined text-2xl">history</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold tracking-widest mt-1">Quote</span>
-</a>
-<a class="flex flex-col items-center justify-center text-gray-500 p-2 group transition-all scale-90 active:duration-75 hover:text-white" href="screen3-quote.html">
-<span class="material-symbols-outlined text-2xl">brand_awareness</span>
-<span class="font-['Space_Grotesk'] text-[10px] uppercase font-bold tracking-widest mt-1">Inquiry</span>
-</a>
+
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-16 px-4 bg-background/95 backdrop-blur-xl border-t border-white/5" aria-label="Main navigation">
+  <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors" href="screen1-upload.html">
+    <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1;">palette</span>
+    <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Home</span>
+  </a>
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen2-studio.html">
+    <span class="material-symbols-outlined text-xl">layers</span>
+    <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Studio</span>
+  </a>
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
+    <span class="material-symbols-outlined text-xl">request_quote</span>
+    <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Quote</span>
+  </a>
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
+    <span class="material-symbols-outlined text-xl">support_agent</span>
+    <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Inquiry</span>
+  </a>
 </nav>
-<!-- Mobile Menu Overlay -->
-<div id="wv-menu-overlay" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);padding:80px 32px 32px;">
-<button id="wv-menu-close" style="position:absolute;top:20px;right:24px;color:#FF6B00;font-size:28px;background:none;border:none;cursor:pointer;">✕</button>
-<nav style="display:flex;flex-direction:column;gap:24px;">
-<a href="screen1-upload.html" style="color:#ffb693;font-family:'Space Grotesk';font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;">🏠 Home</a>
-<a href="screen2-studio.html" style="color:#e5e2e1;font-family:'Space Grotesk';font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;">🎨 Studio</a>
-<a href="screen3-quote.html" style="color:#e5e2e1;font-family:'Space Grotesk';font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;">💰 Get Quote</a>
-<a href="screen4-confirmation.html" style="color:#e5e2e1;font-family:'Space Grotesk';font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;">✅ Booking</a>
-</nav>
+<div id="wv-menu-overlay" class="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex flex-col" style="display:none;">
+  <div class="flex justify-between items-center px-5 sm:px-8 h-16 border-b border-white/5">
+    <h2 class="font-headline text-lg font-bold text-white uppercase tracking-tight">Menu</h2>
+    <button id="wv-menu-close" class="w-10 h-10 flex items-center justify-center hover:bg-white/5 transition-colors" aria-label="Close menu">
+      <span class="material-symbols-outlined text-primary-container">close</span>
+    </button>
+  </div>
+  <nav class="flex flex-col gap-1 px-5 sm:px-8 pt-6">
+    <a href="screen1-upload.html" class="flex items-center gap-4 py-4 px-4 hover:bg-white/5 text-on-surface font-headline text-base font-bold uppercase tracking-wider transition-colors"><span class="material-symbols-outlined">palette</span>Home</a>
+    <a href="screen2-studio.html" class="flex items-center gap-4 py-4 px-4 hover:bg-white/5 text-on-surface font-headline text-base font-bold uppercase tracking-wider transition-colors"><span class="material-symbols-outlined">layers</span>Studio</a>
+    <a href="screen3-quote.html" class="flex items-center gap-4 py-4 px-4 hover:bg-white/5 text-on-surface font-headline text-base font-bold uppercase tracking-wider transition-colors"><span class="material-symbols-outlined">request_quote</span>Get Quote</a>
+    <a href="screen4-confirmation.html" class="flex items-center gap-4 py-4 px-4 hover:bg-white/5 text-on-surface font-headline text-base font-bold uppercase tracking-wider transition-colors"><span class="material-symbols-outlined">check_circle</span>Booking</a>
+  </nav>
+  <div class="mt-auto px-5 sm:px-8 pb-8">
+    <div class="border-t border-white/5 pt-6">
+      <p class="text-on-surface-variant text-xs mb-3">Chat with us directly:</p>
+      <div class="flex flex-col gap-2">
+        <a href="https://wa.me/254705040033" target="_blank" class="flex items-center gap-3 py-3 px-4 bg-secondary-container/10 border border-secondary-container/20 text-secondary text-sm font-bold"><span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">chat</span>+254 705 040 033</a>
+        <a href="https://wa.me/254700419444" target="_blank" class="flex items-center gap-3 py-3 px-4 bg-secondary-container/10 border border-secondary-container/20 text-secondary text-sm font-bold"><span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">chat</span>+254 700 419 444</a>
+      </div>
+    </div>
+  </div>
 </div>
+
 <script src="a11y.js"></script>
 <script>
 (function(){
@@ -291,61 +300,47 @@ Line 2 — 0700 419 444
     'BMW 7 Series':'bmw_7_series',
     'Subaru Outback':'subaru_outback'
   };
-
   var fileInput=document.getElementById('wv-file-input');
   var uploadPrompt=document.getElementById('wv-upload-prompt');
   var initBtn=document.getElementById('wv-init-btn');
   var selectedFile=null,selVehicleId=null,selVehicleLabel=null;
 
-  // Hamburger menu
-  var menuBtn=document.querySelector('header button');
+  var menuBtn=document.getElementById('wv-menu-btn');
   var overlay=document.getElementById('wv-menu-overlay');
   var closeBtn=document.getElementById('wv-menu-close');
   if(menuBtn&&overlay){
-    menuBtn.addEventListener('click',function(){overlay.style.display='block';});
+    menuBtn.addEventListener('click',function(){overlay.style.display='flex';});
     closeBtn.addEventListener('click',function(){overlay.style.display='none';});
     overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
   }
 
-  // File input
   fileInput.addEventListener('change',function(e){
     var f=e.target.files[0]; if(!f) return;
     selectedFile=f;
-    var ns=uploadPrompt.querySelector('span:last-child');
-    if(ns) ns.textContent=f.name;
-    var ic=uploadPrompt.querySelector('.material-symbols-outlined');
-    if(ic) ic.textContent='check_circle';
+    var iconEl=uploadPrompt.querySelector('.material-symbols-outlined');
+    var textEl=uploadPrompt.querySelector('.font-headline');
+    var hintEl=uploadPrompt.querySelectorAll('.text-xs');
+    if(iconEl) iconEl.textContent='check_circle';
+    if(textEl) textEl.textContent=f.name;
+    if(hintEl.length) hintEl[hintEl.length-1].textContent='Ready to customize';
   });
 
-  // Template cards — find ALL divs that contain an h4 with a vehicle name
-  var allCards=document.querySelectorAll('div[class*="cursor-pointer"]');
-  var templateCards=[];
-  allCards.forEach(function(card){
-    var h4=card.querySelector('h4');
-    if(h4&&VMAP[h4.textContent.trim()]) templateCards.push(card);
-  });
-
+  var templateCards=document.querySelectorAll('.template-card');
   templateCards.forEach(function(card){
     card.addEventListener('click',function(){
-      var h4=card.querySelector('h4'); if(!h4) return;
-      var label=h4.textContent.trim();
+      var label=card.getAttribute('data-vehicle');
       var vid=VMAP[label]; if(!vid) return;
       selVehicleId=vid; selVehicleLabel=label;
-      // Highlight selected card
-      templateCards.forEach(function(c){c.style.borderLeft='';c.style.boxShadow='';});
-      card.style.borderLeft='3px solid #FF6B00';
-      card.style.boxShadow='0 0 20px rgba(255,107,0,0.15)';
-      // Auto-store and navigate after brief delay so user sees feedback
+      templateCards.forEach(function(c){c.classList.remove('selected');});
+      card.classList.add('selected');
       sessionStorage.setItem('wv_vehicle_id',vid);
       sessionStorage.setItem('wv_vehicle_label',label);
       setTimeout(function(){window.location.href='screen2-studio.html';},400);
     });
   });
 
-  // Initialize Customizer button
   initBtn.addEventListener('click',async function(){
     if(!selVehicleId&&!selectedFile){
-      // Default to first vehicle if nothing selected
       selVehicleId='land_cruiser_v8';
       selVehicleLabel='Toyota Land Cruiser V8/LC300';
     }
@@ -366,16 +361,16 @@ Line 2 — 0700 419 444
     window.location.href='screen2-studio.html';
   });
 
-  // WhatsApp teaser — dual partners (direct links)
   var teaserPartners={'wv-teaser-wa1':'254705040033','wv-teaser-wa2':'254700419444'};
   Object.keys(teaserPartners).forEach(function(id){
     var btn=document.getElementById(id);
     if(btn) btn.addEventListener('click',function(){
       var v=selVehicleLabel||'General Inquiry';
-      var msg=encodeURIComponent('🚗 Hi, I\'m interested in a vehicle wrap.\nVehicle: '+v+'\n\nCould you help me with options and pricing?');
+      var msg=encodeURIComponent('Hi, I am interested in a vehicle wrap.\nVehicle: '+v+'\n\nCould you help me with options and pricing?');
       window.open('https://wa.me/'+teaserPartners[id]+'?text='+msg,'_blank');
     });
   });
 })();
 </script>
-</body></html>
+</body>
+</html>
