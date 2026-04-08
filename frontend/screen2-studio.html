@@ -312,7 +312,22 @@ body { min-height: 100dvh; }
       });
       var data=await res.json();
       if(data.success){
-        sessionStorage.setItem('wv_estimate',JSON.stringify(data));
+        var vCost=data.breakdown.vinyl_material.amount;
+        var lCost=data.breakdown.labour.amount;
+        var addonTotal=0;
+        if(data.breakdown.addons){data.breakdown.addons.forEach(function(a){addonTotal+=a.amount;});}
+        var sub=data.subtotal||vCost+lCost+addonTotal;
+        sessionStorage.setItem('wv_estimate',JSON.stringify({
+          success:true,
+          estimate_low:Math.floor(sub*0.85),
+          estimate_high:Math.ceil(sub*1.15),
+          vinyl_cost:vCost,
+          labor_cost:lCost,
+          ppf_cost:0,
+          vehicle_id:vehicleId,
+          finish:selFinish,
+          color:selColor
+        }));
       }else{
         console.warn('[WV] API returned success:false:',data.message);
         sessionStorage.setItem('wv_estimate',JSON.stringify({
