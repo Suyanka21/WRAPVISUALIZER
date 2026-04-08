@@ -249,6 +249,12 @@ body { min-height: 100dvh; }
 
   var selFinish='Matte', selFinishPrice=85000, selColor='Black', selHex='#0a0a0a';
 
+  // Map finish labels to backend finish_id keys (must match backend/data/pricing.json)
+  var FMAP={'Matte':'matte','Gloss':'gloss','Satin':'satin','Chrome':'chrome','Colour Shift':'colour_shift','Carbon Fibre':'carbon_fibre','Brushed Metal':'brushed_metal','PPF Clear':'ppf_clear'};
+
+  // Default PPF add-on cost (matches backend/data/pricing.json ppf_coating price)
+  var PPF_DEFAULT=35000;
+
   var menuBtn=document.getElementById('wv-menu-btn');
   var overlay=document.getElementById('wv-menu-overlay');
   var closeBtn=document.getElementById('wv-menu-close');
@@ -302,14 +308,42 @@ body { min-height: 100dvh; }
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify({
           vehicle_id:vehicleId,
-          finish:selFinish,
-          color:selColor,
-          vision:document.getElementById('wv-vision').value||''
+          finish_id:FMAP[selFinish]||selFinish.toLowerCase().replace(/\s+/g,'_'),
+          vinyl_brand:'3m',
+          addons:[]
         })
       });
       var data=await res.json();
       if(data.success){
-        sessionStorage.setItem('wv_estimate',JSON.stringify(data));
+        var vCost=data.breakdown.vinyl_material.amount;
+        var lCost=data.breakdown.labour.amount;
+        var addonTotal=0;
+        if(data.breakdown.addons){data.breakdown.addons.forEach(function(a){addonTotal+=a.amount;});}
+        var sub=data.subtotal||vCost+lCost+addonTotal;
+        sessionStorage.setItem('wv_estimate',JSON.stringify({
+          success:true,
+          estimate_low:Math.floor(sub*0.85),
+          estimate_high:Math.ceil(sub*1.15),
+          vinyl_cost:vCost,
+          labor_cost:lCost,
+          ppf_cost:PPF_DEFAULT,
+          vehicle_id:vehicleId,
+          finish:selFinish,
+          color:selColor
+        }));
+      }else{
+        console.warn('[WV] API returned success:false:',data.message);
+        sessionStorage.setItem('wv_estimate',JSON.stringify({
+          success:true,
+          estimate_low:selFinishPrice,
+          estimate_high:Math.round(selFinishPrice*1.4),
+          vinyl_cost:Math.round(selFinishPrice*0.4),
+          labor_cost:Math.round(selFinishPrice*0.35),
+          ppf_cost:PPF_DEFAULT,
+          vehicle_id:vehicleId,
+          finish:selFinish,
+          color:selColor
+        }));
       }
     }catch(err){
       console.warn('[WV] Estimate API error:',err.message);
@@ -319,7 +353,7 @@ body { min-height: 100dvh; }
         estimate_high:Math.round(selFinishPrice*1.4),
         vinyl_cost:Math.round(selFinishPrice*0.4),
         labor_cost:Math.round(selFinishPrice*0.35),
-        ppf_cost:0,
+        ppf_cost:PPF_DEFAULT,
         vehicle_id:vehicleId,
         finish:selFinish,
         color:selColor
