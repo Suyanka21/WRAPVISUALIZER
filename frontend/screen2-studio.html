@@ -252,6 +252,9 @@ body { min-height: 100dvh; }
   // Map finish labels to backend finish_id keys (must match backend/data/pricing.json)
   var FMAP={'Matte':'matte','Gloss':'gloss','Satin':'satin','Chrome':'chrome','Colour Shift':'colour_shift','Carbon Fibre':'carbon_fibre','Brushed Metal':'brushed_metal','PPF Clear':'ppf_clear'};
 
+  // Default PPF add-on cost (matches backend/data/pricing.json ppf_coating price)
+  var PPF_DEFAULT=35000;
+
   var menuBtn=document.getElementById('wv-menu-btn');
   var overlay=document.getElementById('wv-menu-overlay');
   var closeBtn=document.getElementById('wv-menu-close');
@@ -323,7 +326,7 @@ body { min-height: 100dvh; }
           estimate_high:Math.ceil(sub*1.15),
           vinyl_cost:vCost,
           labor_cost:lCost,
-          ppf_cost:0,
+          ppf_cost:PPF_DEFAULT,
           vehicle_id:vehicleId,
           finish:selFinish,
           color:selColor
@@ -336,7 +339,7 @@ body { min-height: 100dvh; }
           estimate_high:Math.round(selFinishPrice*1.4),
           vinyl_cost:Math.round(selFinishPrice*0.4),
           labor_cost:Math.round(selFinishPrice*0.35),
-          ppf_cost:0,
+          ppf_cost:PPF_DEFAULT,
           vehicle_id:vehicleId,
           finish:selFinish,
           color:selColor
@@ -350,7 +353,7 @@ body { min-height: 100dvh; }
         estimate_high:Math.round(selFinishPrice*1.4),
         vinyl_cost:Math.round(selFinishPrice*0.4),
         labor_cost:Math.round(selFinishPrice*0.35),
-        ppf_cost:0,
+        ppf_cost:PPF_DEFAULT,
         vehicle_id:vehicleId,
         finish:selFinish,
         color:selColor
