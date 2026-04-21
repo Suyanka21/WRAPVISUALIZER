@@ -1,11 +1,14 @@
 /**
- * WrapVisualizer — Express Backend Server
- * 
- * Central API relay layer for the vehicle wrap visualization
- * and booking tool. Handles image segmentation, cost estimation,
- * M-Pesa payments, and WhatsApp booking.
- * 
- * All monetary values are in KES (Kenyan Shillings).
+ * WrapVisualizer — Express backend
+ *
+ * Minimal relay for the one thing that genuinely needs a server:
+ * hiding the Replicate API token used for AI-assisted car segmentation.
+ *
+ * Everything else (pricing, M-Pesa deposits, WhatsApp URL building)
+ * has been removed — this app is a WhatsApp-only lead generator. No
+ * prices are shown anywhere in the UI; the shop replies to the user
+ * with a tailored quote over WhatsApp.
+ *
  * Mobile-first: every function must work on a 375px viewport.
  */
 
@@ -18,14 +21,12 @@ import { fileURLToPath } from 'url';
 const __filename_env = fileURLToPath(import.meta.url);
 const __dirname_env = path.dirname(__filename_env);
 
-// Load environment variables from the project root .env.local
+// Load environment variables from the project root .env.local (dev only;
+// platform env vars on Railway/Fly take precedence).
 dotenv.config({ path: path.resolve(__dirname_env, '..', '.env.local') });
 
 // Route modules
-import estimateRouter from './routes/estimate.js';
 import segmentRouter from './routes/segment.js';
-import mpesaRouter from './routes/mpesa.js';
-import whatsappRouter from './routes/whatsapp.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,9 +39,10 @@ const PORT = process.env.PORT || 3001;
 // ---------------------------------------------------------------------------
 
 /**
- * Configure CORS to allow requests from the frontend files.
- * In development, the frontend is served from file:// or a local server.
- * In production, it's served from the Vercel deployment URL.
+ * Configure CORS to allow requests from the frontend.
+ * In development, the frontend is served from the same origin (Express
+ * static) or localhost dev servers. In production, the frontend origin
+ * must be declared via the FRONTEND_URL env var.
  */
 const allowedOrigins = [
   'http://localhost:3000',
@@ -49,34 +51,30 @@ const allowedOrigins = [
   'http://127.0.0.1:3001',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
-  process.env.FRONTEND_URL,    // Vercel production URL
+  process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (file://, mobile apps, Postman, etc.)
+    // Same-origin browser requests have no Origin header — allow them.
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error(`CORS: Origin ${origin} not allowed`));
   },
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
 }));
 
-// Parse JSON request bodies (limit 2MB for general requests)
+// Parse JSON request bodies (capped at 2 MB; segment.js handles multipart).
 app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
-// Parse URL-encoded bodies (for M-Pesa callbacks)
-app.use(express.urlencoded({ extended: true }));
-
-// Serve the frontend HTML files as static assets (both at /frontend and at root)
+// Serve the frontend HTML files as static assets.
 const frontendPath = path.join(__dirname, '..', 'frontend');
-app.use('/frontend', express.static(frontendPath));
 app.use(express.static(frontendPath));
 
 // Root URL → opens the upload screen directly
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.sendFile(path.join(frontendPath, 'screen1-upload.html'));
 });
 
@@ -84,18 +82,15 @@ app.get('/', (req, res) => {
 // API Routes
 // ---------------------------------------------------------------------------
 
-app.use('/api/estimate', estimateRouter);
 app.use('/api/segment', segmentRouter);
-app.use('/api/mpesa', mpesaRouter);
-app.use('/api/whatsapp', whatsappRouter);
 
 // ---------------------------------------------------------------------------
 // Health Check
 // ---------------------------------------------------------------------------
 
 /**
- * Returns server status and uptime. Used by Railway/Vercel
- * for health monitoring and by the frontend for connectivity checks.
+ * Returns server status. Reports whether the Replicate token is
+ * configured — without this, /api/segment will fail on every call.
  */
 app.get('/api/health', (_req, res) => {
   res.json({
@@ -103,6 +98,7 @@ app.get('/api/health', (_req, res) => {
     service: 'WrapVisualizer API',
     uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
+    replicate_configured: Boolean(process.env.REPLICATE_API_TOKEN),
   });
 });
 
@@ -113,7 +109,7 @@ app.get('/api/health', (_req, res) => {
 app.use((_req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Endpoint not found. Check the API documentation.',
+    message: 'Endpoint not found.',
   });
 });
 
@@ -129,11 +125,10 @@ app.use((_req, res) => {
 app.use((err, _req, res, _next) => {
   console.error('[Server Error]', err.message);
 
-  // CORS errors get a specific message
   if (err.message && err.message.startsWith('CORS:')) {
     return res.status(403).json({
       success: false,
-      message: 'Cross-origin request blocked. Access denied.',
+      message: 'Cross-origin request blocked.',
     });
   }
 
@@ -147,9 +142,17 @@ app.use((err, _req, res, _next) => {
 // Start Server
 // ---------------------------------------------------------------------------
 
-app.listen(PORT, () => {
-  console.log(`\n🚀 WrapVisualizer running on http://localhost:${PORT}`);
-  console.log(`❤️  Health check: http://localhost:${PORT}/api/health\n`);
+const server = app.listen(PORT, () => {
+  console.log(`[WrapVisualizer] Listening on :${PORT}`);
+  console.log(`[WrapVisualizer] Replicate token configured: ${Boolean(process.env.REPLICATE_API_TOKEN)}`);
 });
 
-export default app;
+// Graceful shutdown — let in-flight Replicate polls finish.
+function shutdown(signal) {
+  console.log(`[WrapVisualizer] ${signal} received — shutting down`);
+  server.close(() => process.exit(0));
+  // Hard-kill after 10s if close stalls.
+  setTimeout(() => process.exit(1), 10_000).unref();
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
