@@ -258,7 +258,10 @@ body { min-height: 100dvh; }
 <script>
 (function(){
   'use strict';
-  var API='http://localhost:3001';
+  // API base is the same origin that served this page — the backend
+  // hosts the frontend as static assets, so relative '/api/*' URLs
+  // work in every environment (local dev, Railway, Fly, etc.).
+  var API='';
   var VMAP={
     'Toyota Land Cruiser V8/LC300':'land_cruiser_v8',
     'Range Rover Vogue':'range_rover_vogue',

@@ -15,6 +15,8 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -34,9 +36,85 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust the first proxy hop (Railway / Fly / similar PaaS) so that
+// req.ip reflects the real client IP and express-rate-limit can key
+// off it instead of the proxy's loopback address.
+app.set('trust proxy', 1);
+
 // ---------------------------------------------------------------------------
 // Middleware
 // ---------------------------------------------------------------------------
+
+/**
+ * Helmet with a minimal Content Security Policy.
+ *
+ * The frontend is served from the same origin as the API, uses inline
+ * `<style>` and `<script>` blocks (plus `style="..."` attributes), and
+ * pulls in Google Fonts (fonts.googleapis.com / fonts.gstatic.com) for
+ * the typefaces and Material Symbols icon set.
+ *
+ * Rationale for each directive:
+ *   default-src 'self'           — lock everything to same-origin by default
+ *   img-src 'self' data: https:  — `data:` for FileReader previews and
+ *                                   base64 uploads; `https:` so Replicate-
+ *                                   hosted segmented-mask URLs render
+ *   script-src 'self' 'unsafe-inline' — inline <script> blocks in all four
+ *                                   HTML screens; no external CDNs remain
+ *   style-src  'self' 'unsafe-inline' https://fonts.googleapis.com
+ *                                   — inline <style> + style="" attrs, and
+ *                                   Google Fonts' CSS file
+ *   font-src   'self' https://fonts.gstatic.com
+ *                                   — actual woff2 font files
+ *   connect-src 'self'           — only talk to our own /api/* endpoints
+ *   object-src 'none'            — defense-in-depth: block <embed>/<object>
+ *   frame-ancestors 'none'       — no framing (clickjacking)
+ *
+ * Tradeoff: `'unsafe-inline'` for scripts and styles is required because
+ * the HTML screens ship with inline code; switching to external files or
+ * nonces is out of scope for Stage E. The remaining directives still
+ * prevent loading attacker-controlled scripts from arbitrary origins.
+ */
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        connectSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+      },
+    },
+    // Keep COEP disabled — Google Fonts would otherwise be blocked on
+    // some browsers because the font files don't set the required CORP
+    // headers.
+    crossOriginEmbedderPolicy: false,
+    // Google Fonts responses also need to be readable cross-origin.
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }),
+);
+
+/**
+ * Rate limit the expensive /api/segment endpoint so a single client
+ * can't burn through Replicate credits. Uses `trust proxy` above to key
+ * off the real client IP when deployed behind Railway/Fly.
+ */
+const segmentRateLimit = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 segmentations per client per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many requests. Please wait a moment and try again.',
+  },
+});
 
 /**
  * Configure CORS to allow requests from the frontend.
@@ -47,8 +125,6 @@ const PORT = process.env.PORT || 3001;
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'http://localhost:3001',
-  'http://127.0.0.1:3001',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5173',
   process.env.FRONTEND_URL,
@@ -82,7 +158,7 @@ app.get('/', (_req, res) => {
 // API Routes
 // ---------------------------------------------------------------------------
 
-app.use('/api/segment', segmentRouter);
+app.use('/api/segment', segmentRateLimit, segmentRouter);
 
 // ---------------------------------------------------------------------------
 // Health Check
@@ -140,6 +216,16 @@ app.use((err, _req, res, _next) => {
 // ---------------------------------------------------------------------------
 // Start Server
 // ---------------------------------------------------------------------------
+
+// Warn loudly (but don't crash) if the Replicate token is missing.
+// The health endpoint reports this too, but a clear startup log makes
+// the misconfiguration obvious in deployment logs.
+if (!process.env.REPLICATE_API_TOKEN) {
+  console.warn(
+    '[WrapVisualizer] WARNING: REPLICATE_API_TOKEN is not set. ' +
+      '/api/segment will return a 500 for every request until it is configured.',
+  );
+}
 
 const server = app.listen(PORT, () => {
   console.log(`[WrapVisualizer] Listening on :${PORT}`);
