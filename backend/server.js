@@ -14,7 +14,6 @@
 
 import dotenv from 'dotenv';
 import express from 'express';
-import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -25,8 +24,12 @@ const __dirname_env = path.dirname(__filename_env);
 // platform env vars on Railway/Fly take precedence).
 dotenv.config({ path: path.resolve(__dirname_env, '..', '.env.local') });
 
-// Route modules
+// Route modules and middleware
 import segmentRouter from './routes/segment.js';
+import { securityMiddleware } from './middleware/security.js';
+import { segmentRateLimit } from './middleware/rateLimits.js';
+import { corsMiddleware } from './middleware/cors.js';
+import { notFoundHandler, errorHandler } from './middleware/errors.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,36 +37,20 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust the first proxy hop (Railway / Fly / similar PaaS) so that
+// req.ip reflects the real client IP and express-rate-limit can key
+// off it instead of the proxy's loopback address.
+app.set('trust proxy', 1);
+
 // ---------------------------------------------------------------------------
 // Middleware
 // ---------------------------------------------------------------------------
 
-/**
- * Configure CORS to allow requests from the frontend.
- * In development, the frontend is served from the same origin (Express
- * static) or localhost dev servers. In production, the frontend origin
- * must be declared via the FRONTEND_URL env var.
- */
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'http://localhost:3001',
-  'http://127.0.0.1:3001',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:5173',
-  process.env.FRONTEND_URL,
-].filter(Boolean);
+// Helmet + Content Security Policy (see middleware/security.js).
+app.use(securityMiddleware);
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Same-origin browser requests have no Origin header — allow them.
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS: Origin ${origin} not allowed`));
-  },
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+// CORS allowlist (see middleware/cors.js).
+app.use(corsMiddleware);
 
 // Parse JSON request bodies (capped at 2 MB; segment.js handles multipart).
 app.use(express.json({ limit: '2mb' }));
@@ -82,7 +69,7 @@ app.get('/', (_req, res) => {
 // API Routes
 // ---------------------------------------------------------------------------
 
-app.use('/api/segment', segmentRouter);
+app.use('/api/segment', segmentRateLimit, segmentRouter);
 
 // ---------------------------------------------------------------------------
 // Health Check
@@ -101,45 +88,23 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// 404 Handler
-// ---------------------------------------------------------------------------
-
-app.use((_req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Endpoint not found.',
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Global Error Handler
-// ---------------------------------------------------------------------------
-
-/**
- * Catches all unhandled errors and returns a user-friendly message.
- * Raw error codes and stack traces are never sent to the client.
- */
-// eslint-disable-next-line no-unused-vars
-app.use((err, _req, res, _next) => {
-  console.error('[Server Error]', err.message);
-
-  if (err.message && err.message.startsWith('CORS:')) {
-    return res.status(403).json({
-      success: false,
-      message: 'Cross-origin request blocked.',
-    });
-  }
-
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.userMessage || 'Something went wrong on our end. Please try again.',
-  });
-});
+// 404 + global error handler (see middleware/errors.js).
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 // ---------------------------------------------------------------------------
 // Start Server
 // ---------------------------------------------------------------------------
+
+// Warn loudly (but don't crash) if the Replicate token is missing.
+// The health endpoint reports this too, but a clear startup log makes
+// the misconfiguration obvious in deployment logs.
+if (!process.env.REPLICATE_API_TOKEN) {
+  console.warn(
+    '[WrapVisualizer] WARNING: REPLICATE_API_TOKEN is not set. ' +
+      '/api/segment will return a 500 for every request until it is configured.',
+  );
+}
 
 const server = app.listen(PORT, () => {
   console.log(`[WrapVisualizer] Listening on :${PORT}`);
