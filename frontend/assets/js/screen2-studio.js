@@ -4,6 +4,24 @@
   document.getElementById('wv-vehicle-name').textContent=vehicleLabel;
   document.getElementById('wv-sum-vehicle').textContent=vehicleLabel;
 
+  // Non-blocking banner: screen1 sets `wv_segment_error` when /api/segment
+  // fails so the user knows the AI step didn't run. Reading the flag here
+  // clears it so a later revisit to screen2 doesn't re-show it.
+  var segErrEl=document.getElementById('wv-segment-error');
+  if(segErrEl){
+    var segErr=sessionStorage.getItem('wv_segment_error');
+    if(segErr){
+      var segErrMsg=document.getElementById('wv-segment-error-msg');
+      if(segErrMsg && segErr.length<200) segErrMsg.textContent=segErr;
+      segErrEl.classList.remove('hidden');
+      sessionStorage.removeItem('wv_segment_error');
+    }
+    var segErrClose=document.getElementById('wv-segment-error-close');
+    if(segErrClose){
+      segErrClose.addEventListener('click',function(){ segErrEl.classList.add('hidden'); });
+    }
+  }
+
   // Render the vehicle image that was picked on screen1 (template asset
   // path or uploaded-photo data URL). Keep the hardcoded src as a visual
   // fallback so the preview is never empty if sessionStorage is cleared.
