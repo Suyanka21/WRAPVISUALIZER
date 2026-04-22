@@ -79,10 +79,17 @@ router.post('/', handleUpload, async (req, res) => {
     const dataUri = `data:${req.file.mimetype};base64,${base64}`;
 
     // Call Replicate SAM2 service
+    const sizeKb = Math.round(req.file.size / 1024);
+    console.info(
+      `[Segment] Request accepted size=${sizeKb}KB mime=${req.file.mimetype}`,
+    );
     const result = await segmentImage(dataUri, token);
 
     // Empty mask = no vehicle detected
     if (!result.combinedMask) {
+      console.warn(
+        `[Segment] No vehicle detected size=${sizeKb}KB mime=${req.file.mimetype}`,
+      );
       return res.status(422).json({
         success: false,
         message:
@@ -93,6 +100,9 @@ router.post('/', handleUpload, async (req, res) => {
 
     // Success — `segmented_image` is the single canonical key the
     // frontend stores at sessionStorage.wv_segmented_image.
+    console.info(
+      `[Segment] Success size=${sizeKb}KB processingTime=${result.processingTime}ms`,
+    );
     return res.json({
       success: true,
       segmented_image: result.combinedMask,
@@ -102,7 +112,10 @@ router.post('/', handleUpload, async (req, res) => {
     });
   } catch (error) {
     const detail = error.response?.data?.detail || error.response?.data?.message;
-    console.error('[Segment Error]', error.message, detail || '');
+    const status = error.response?.status;
+    console.error(
+      `[Segment Error] ${error.message}${status ? ` status=${status}` : ''}${detail ? ` detail=${detail}` : ''}`,
+    );
 
     if (error.message === 'TIMEOUT') {
       return res.status(503).json({

@@ -99,6 +99,12 @@
       sessionStorage.setItem('wv_vehicle_label',selVehicleLabel||'Your vehicle');
       initBtn.querySelector('span:first-child').textContent='Processing...';
       initBtn.style.pointerEvents='none'; initBtn.style.opacity='0.6';
+      initBtn.setAttribute('aria-busy','true');
+      initBtn.disabled=true;
+      // Block re-entry through the file picker or a template card while the
+      // segmentation call is in flight.
+      if(fileInput) fileInput.disabled=true;
+      templateCards.forEach(function(c){ c.style.pointerEvents='none'; c.setAttribute('aria-disabled','true'); });
       // Persist the user-uploaded photo so screen2 can preview it. sessionStorage
       // is capped (~5 MB in most browsers); wrap in try/catch so an over-size
       // upload doesn't block navigation.
@@ -111,15 +117,28 @@
       }
       // Clear any stale mask from a previous upload so screen2 never
       // renders a segmentation result that belongs to a different photo.
+      // Also clear any stale error flag from an earlier attempt.
       sessionStorage.removeItem('wv_segmented_image');
+      sessionStorage.removeItem('wv_segment_error');
       try{
         var fd=new FormData(); fd.append('image',selectedFile);
         var res=await fetch(API+'/api/segment',{method:'POST',body:fd});
-        var data=await res.json();
-        if(data.success&&data.segmented_image){
+        var data=null; try{ data=await res.json(); }catch(_parse){ data=null; }
+        if(data&&data.success&&data.segmented_image){
           sessionStorage.setItem('wv_segmented_image',data.segmented_image);
+        }else{
+          // Non-blocking failure: keep the user moving through the flow
+          // with their raw upload, but surface a dismissible banner on
+          // screen2 so they know the AI step didn't run.
+          var errMsg=(data&&data.message)||'Image processing failed. You can still continue.';
+          console.warn('[WV] Segmentation failed:',errMsg);
+          sessionStorage.setItem('wv_segment_error',errMsg);
         }
-      }catch(err){ console.warn('[WV] Segmentation skipped:',err.message); }
+      }catch(err){
+        var networkMsg=(err&&err.message)||'Network error';
+        console.warn('[WV] Segmentation skipped:',networkMsg);
+        sessionStorage.setItem('wv_segment_error','Image processing failed. You can still continue.');
+      }
     }
     window.location.href='screen2-studio.html';
   });

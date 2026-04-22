@@ -44,6 +44,17 @@ body { min-height: 100dvh; }
 </header>
 
 <main class="pt-16 pb-28">
+  <!-- SEGMENTATION ERROR BANNER (hidden unless screen1 set wv_segment_error) -->
+  <div id="wv-segment-error" role="status" aria-live="polite" class="hidden border-b border-primary-container/30 bg-primary-container/10">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 py-3 flex items-start gap-3">
+      <span class="material-symbols-outlined text-primary-container text-lg mt-0.5" style="font-variation-settings:'FILL' 1;">info</span>
+      <p id="wv-segment-error-msg" class="flex-1 text-xs sm:text-sm text-on-surface">Image processing failed. You can still continue.</p>
+      <button id="wv-segment-error-close" type="button" class="text-on-surface-variant hover:text-on-surface transition-colors" aria-label="Dismiss message">
+        <span class="material-symbols-outlined text-lg">close</span>
+      </button>
+    </div>
+  </div>
+
   <!-- VEHICLE CONTEXT BAR -->
   <div class="bg-surface-container-lowest border-b border-white/5">
     <div class="max-w-6xl mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
