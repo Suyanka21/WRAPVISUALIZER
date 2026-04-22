@@ -23,8 +23,12 @@
   // Read an uploaded file as a data URL so the chosen photo can persist
   // across screens via sessionStorage. Resolves to null on quota or IO
   // errors so the flow continues with the default/template image.
+  // Enforces the same 10 MB cap as the backend so oversized files never
+  // get base64-inflated (~1.35x) into memory and sessionStorage.
+  var MAX_UPLOAD_BYTES=10*1024*1024;
   function readFileAsDataUrl(file){
     return new Promise(function(resolve){
+      if(!file||file.size>MAX_UPLOAD_BYTES){ resolve(null); return; }
       try{
         var r=new FileReader();
         r.onload=function(){resolve(r.result);};
@@ -83,8 +87,16 @@
       sessionStorage.setItem('wv_vehicle_id',selVehicleId);
       sessionStorage.setItem('wv_vehicle_label',selVehicleLabel);
       if(selVehicleImg) sessionStorage.setItem('wv_vehicle_image',selVehicleImg);
+      // Template/default path: this is a known asset, not a user upload.
+      // Clear any stale uploaded flag from a previous session.
+      sessionStorage.removeItem('wv_vehicle_image_uploaded');
     }
     if(selectedFile){
+      // Upload path: user-supplied photo takes precedence over any template
+      // id that may have been selected earlier in the same session.
+      sessionStorage.removeItem('wv_vehicle_id');
+      sessionStorage.removeItem('wv_vehicle_image_uploaded');
+      sessionStorage.setItem('wv_vehicle_label',selVehicleLabel||'Your vehicle');
       initBtn.querySelector('span:first-child').textContent='Processing...';
       initBtn.style.pointerEvents='none'; initBtn.style.opacity='0.6';
       // Persist the user-uploaded photo so screen2 can preview it. sessionStorage
@@ -95,7 +107,6 @@
         try{
           sessionStorage.setItem('wv_vehicle_image',uploadDataUrl);
           sessionStorage.setItem('wv_vehicle_image_uploaded','true');
-          if(!selVehicleLabel) sessionStorage.setItem('wv_vehicle_label','Your vehicle');
         }catch(_quota){ console.warn('[WV] Upload preview too large to persist'); }
       }
       // Clear any stale mask from a previous upload so screen2 never
