@@ -1,0 +1,7 @@
+/* Tailwind source for WrapVisualizer.
+ * Compiled into frontend/assets/css/tailwind.css via `npm run build:css`.
+ * No custom layers yet — per-screen styles remain inline in each HTML file. */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
