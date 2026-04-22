@@ -39,7 +39,7 @@
   var closeBtn=document.getElementById('wv-menu-close');
   if(menuBtn&&overlay){
     menuBtn.addEventListener('click',function(){overlay.style.display='flex';});
-    closeBtn.addEventListener('click',function(){overlay.style.display='none';});
+    if(closeBtn) closeBtn.addEventListener('click',function(){overlay.style.display='none';});
     overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
   }
 
@@ -98,11 +98,16 @@
           if(!selVehicleLabel) sessionStorage.setItem('wv_vehicle_label','Your vehicle');
         }catch(_quota){ console.warn('[WV] Upload preview too large to persist'); }
       }
+      // Clear any stale mask from a previous upload so screen2 never
+      // renders a segmentation result that belongs to a different photo.
+      sessionStorage.removeItem('wv_segmented_image');
       try{
         var fd=new FormData(); fd.append('image',selectedFile);
         var res=await fetch(API+'/api/segment',{method:'POST',body:fd});
         var data=await res.json();
-        if(data.success&&data.segmented_image) sessionStorage.setItem('wv_segmented_image',data.segmented_image);
+        if(data.success&&data.segmented_image){
+          sessionStorage.setItem('wv_segmented_image',data.segmented_image);
+        }
       }catch(err){ console.warn('[WV] Segmentation skipped:',err.message); }
     }
     window.location.href='screen2-studio.html';

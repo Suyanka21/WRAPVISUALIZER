@@ -14,11 +14,14 @@
   var closeBtn=document.getElementById('wv-menu-close');
   if(menuBtn&&overlay){
     menuBtn.addEventListener('click',function(){overlay.style.display='flex';});
-    closeBtn.addEventListener('click',function(){overlay.style.display='none';});
+    if(closeBtn) closeBtn.addEventListener('click',function(){overlay.style.display='none';});
     overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
   }
 
-  document.getElementById('wv-wa-again').addEventListener('click',function(){
-    window.open('https://wa.me/'+partner,'_blank');
-  });
+  var waAgainBtn=document.getElementById('wv-wa-again');
+  if(waAgainBtn){
+    waAgainBtn.addEventListener('click',function(){
+      window.open('https://wa.me/'+partner,'_blank','noopener');
+    });
+  }
 })();

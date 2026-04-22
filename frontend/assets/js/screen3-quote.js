@@ -21,7 +21,7 @@
   var closeBtn=document.getElementById('wv-menu-close');
   if(menuBtn&&overlay){
     menuBtn.addEventListener('click',function(){overlay.style.display='flex';});
-    closeBtn.addEventListener('click',function(){overlay.style.display='none';});
+    if(closeBtn) closeBtn.addEventListener('click',function(){overlay.style.display='none';});
     overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
   }
 
