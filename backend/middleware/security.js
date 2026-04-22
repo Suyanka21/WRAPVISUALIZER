@@ -1,31 +1,31 @@
 /**
  * Security middleware — Helmet + Content Security Policy.
  *
- * The frontend is served from the same origin as the API, uses inline
- * `<style>` and `<script>` blocks (plus `style="..."` attributes), and
- * pulls in Google Fonts (fonts.googleapis.com / fonts.gstatic.com) for
- * the typefaces and Material Symbols icon set.
+ * The frontend is served from the same origin as the API. All screen-
+ * specific JavaScript lives in `frontend/assets/js/*.js` and is linked
+ * via `<script src="...">` tags, so `'unsafe-inline'` is NOT needed on
+ * script-src. Google Fonts (fonts.googleapis.com / fonts.gstatic.com)
+ * are still pulled in for typefaces and the Material Symbols icon set.
  *
  * Rationale for each directive:
  *   default-src 'self'           — lock everything to same-origin by default
- *   img-src 'self' data: https:  — `data:` for FileReader previews and
- *                                   base64 uploads; `https:` so Replicate-
- *                                   hosted segmented-mask URLs render
- *   script-src 'self' 'unsafe-inline' — inline <script> blocks in all four
- *                                   HTML screens; no external CDNs remain
+ *   img-src 'self' data:         — `data:` for FileReader previews and
+ *                                   base64 uploads served to screen2
+ *       https://replicate.delivery https://*.replicate.com
+ *                                   — Replicate-hosted segmented-mask URLs
+ *   script-src 'self'            — external files only; no inline <script>
  *   style-src  'self' 'unsafe-inline' https://fonts.googleapis.com
  *                                   — inline <style> + style="" attrs, and
- *                                   Google Fonts' CSS file
+ *                                   Google Fonts' CSS file. `'unsafe-inline'`
+ *                                   is a known remaining gap for styles;
+ *                                   tightening it is deferred to a later
+ *                                   stage because many screens still rely
+ *                                   on style="" attributes.
  *   font-src   'self' https://fonts.gstatic.com
  *                                   — actual woff2 font files
  *   connect-src 'self'           — only talk to our own /api/* endpoints
  *   object-src 'none'            — defense-in-depth: block <embed>/<object>
  *   frame-ancestors 'none'       — no framing (clickjacking)
- *
- * Tradeoff: `'unsafe-inline'` for scripts and styles is required because
- * the HTML screens ship with inline code; switching to external files or
- * nonces is a separate stage. The remaining directives still prevent
- * loading attacker-controlled scripts from arbitrary origins.
  */
 
 import helmet from 'helmet';
@@ -35,8 +35,13 @@ export const securityMiddleware = helmet({
     useDefaults: true,
     directives: {
       defaultSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: [
+        "'self'",
+        'data:',
+        'https://replicate.delivery',
+        'https://*.replicate.com',
+      ],
+      scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
       connectSrc: ["'self'"],
