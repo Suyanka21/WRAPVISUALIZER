@@ -41,7 +41,7 @@ tailwind.config = {
   },
 }
 </script>
-<title>WrapVisualizer | Your Quote</title>
+<title>WrapVisualizer | Review &amp; Send</title>
 <style>
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
 .signature-gradient { background: linear-gradient(135deg, #FF6B00 0%, #7A3000 100%); }
@@ -68,12 +68,12 @@ body { min-height: 100dvh; }
 </header>
 
 <main class="pt-16 pb-28">
-  <!-- QUOTE HERO -->
+  <!-- REVIEW HERO -->
   <section class="bg-surface-container-lowest border-b border-white/5">
     <div class="max-w-6xl mx-auto px-5 sm:px-8 py-10 text-center">
-      <span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Your Estimate</span>
-      <h2 class="font-headline text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">Quote Summary</h2>
-      <p class="text-on-surface-variant text-sm max-w-md mx-auto">This is a ballpark estimate. Final pricing depends on vehicle condition, complexity, and material selection. Chat with us for exact pricing.</p>
+      <span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Step 3</span>
+      <h2 class="font-headline text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">Review &amp; Send</h2>
+      <p class="text-on-surface-variant text-sm max-w-md mx-auto">Confirm your selection below. When you&rsquo;re happy, tap a WhatsApp button to send it to our specialists &mdash; they&rsquo;ll reply with a tailored quote.</p>
     </div>
   </section>
 
@@ -105,34 +105,31 @@ body { min-height: 100dvh; }
     </div>
   </section>
 
-  <!-- PRICING -->
+  <!-- DESIGN NOTES (if provided) -->
+  <section id="wv-notes-section" class="max-w-2xl mx-auto px-5 sm:px-8 pb-4" style="display:none;">
+    <div class="bg-surface-container-low border border-white/5 p-5">
+      <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-2">Your Design Notes</p>
+      <p id="wv-q-notes" class="text-sm text-white leading-relaxed whitespace-pre-wrap"></p>
+    </div>
+  </section>
+
+  <!-- NEXT STEPS -->
   <section class="max-w-2xl mx-auto px-5 sm:px-8 pb-4">
     <div class="bg-surface-container-low border border-white/5 p-5">
-      <div class="text-center mb-6">
-        <p class="text-on-surface-variant text-xs uppercase tracking-widest mb-2">Estimated Range</p>
-        <p class="font-headline text-3xl sm:text-4xl font-bold text-white tracking-tight">
-          KES <span id="wv-q-low">-</span> &ndash; <span id="wv-q-high">-</span>
-        </p>
-      </div>
-
-      <!-- PPF Toggle -->
-      <div class="flex items-center justify-between bg-surface-container-lowest border border-white/5 p-4 mb-5">
-        <div>
-          <p class="font-headline text-sm font-bold text-white">Add PPF Protection</p>
-          <p class="text-[10px] text-on-surface-variant mt-0.5">Paint Protection Film &middot; 7-year warranty</p>
+      <p class="text-[10px] text-on-surface-variant uppercase tracking-widest mb-3">What happens next</p>
+      <div class="space-y-3">
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-primary-container text-base mt-0.5" style="font-variation-settings:'FILL' 1;">chat</span>
+          <p class="text-sm text-on-surface leading-relaxed">Tap a <span class="text-white font-medium">WhatsApp line</span> below &mdash; your selection is pre-filled in the message.</p>
         </div>
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" id="wv-ppf-toggle" class="sr-only peer"/>
-          <div class="w-11 h-6 bg-surface-container-high peer-checked:bg-primary-container transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-        </label>
-      </div>
-
-      <!-- Breakdown -->
-      <div class="space-y-3 text-sm">
-        <div class="flex justify-between text-on-surface-variant"><span>Vinyl Material</span><span id="wv-q-vinyl" class="text-white font-medium">-</span></div>
-        <div class="flex justify-between text-on-surface-variant"><span>Labor &amp; Installation</span><span id="wv-q-labor" class="text-white font-medium">-</span></div>
-        <div id="wv-ppf-row" class="flex justify-between text-on-surface-variant" style="display:none;"><span>PPF Protection</span><span id="wv-q-ppf" class="text-white font-medium">-</span></div>
-        <div class="border-t border-white/5 pt-3 flex justify-between font-bold"><span class="text-white">Total Estimate</span><span id="wv-q-total" class="text-primary-container font-headline">-</span></div>
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-primary-container text-base mt-0.5" style="font-variation-settings:'FILL' 1;">verified</span>
+          <p class="text-sm text-on-surface leading-relaxed">Our specialists reply with a <span class="text-white font-medium">tailored quote</span>, usually within 30 minutes during business hours.</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-primary-container text-base mt-0.5" style="font-variation-settings:'FILL' 1;">event_available</span>
+          <p class="text-sm text-on-surface leading-relaxed">Once confirmed, we schedule your wrap appointment at our Nairobi workshop.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -214,40 +211,17 @@ body { min-height: 100dvh; }
   var finish=sessionStorage.getItem('wv_finish')||'Matte';
   var color=sessionStorage.getItem('wv_color')||'Black';
   var colorHex=sessionStorage.getItem('wv_color_hex')||'#0a0a0a';
-  var estRaw=sessionStorage.getItem('wv_estimate');
-  var est=estRaw?JSON.parse(estRaw):null;
+  var vision=(sessionStorage.getItem('wv_vision')||'').trim();
 
   document.getElementById('wv-q-vehicle').textContent=vehicleLabel;
   document.getElementById('wv-q-finish').textContent=finish;
   document.getElementById('wv-q-color').textContent=color;
   document.getElementById('wv-q-color-dot').style.background=colorHex;
 
-  var vinylCost=est?est.vinyl_cost:34000;
-  var laborCost=est?est.labor_cost:29750;
-  var ppfCost=est?(est.ppf_cost!=null?est.ppf_cost:35000):35000;
-  var lowBase=est?est.estimate_low:85000;
-  var highBase=est?est.estimate_high:119000;
-  var ppfOn=false;
-
-  function fmt(n){ return n.toLocaleString(); }
-
-  function render(){
-    var low=ppfOn?lowBase+ppfCost:lowBase;
-    var high=ppfOn?highBase+ppfCost:highBase;
-    document.getElementById('wv-q-low').textContent=fmt(low);
-    document.getElementById('wv-q-high').textContent=fmt(high);
-    document.getElementById('wv-q-vinyl').textContent='KES '+fmt(vinylCost);
-    document.getElementById('wv-q-labor').textContent='KES '+fmt(laborCost);
-    document.getElementById('wv-q-ppf').textContent='KES '+fmt(ppfCost);
-    document.getElementById('wv-ppf-row').style.display=ppfOn?'flex':'none';
-    document.getElementById('wv-q-total').textContent='KES '+fmt(low)+' - '+fmt(high);
+  if(vision){
+    document.getElementById('wv-q-notes').textContent=vision;
+    document.getElementById('wv-notes-section').style.display='block';
   }
-  render();
-
-  document.getElementById('wv-ppf-toggle').addEventListener('change',function(){
-    ppfOn=this.checked;
-    render();
-  });
 
   var menuBtn=document.getElementById('wv-menu-btn');
   var overlay=document.getElementById('wv-menu-overlay');
@@ -258,27 +232,33 @@ body { min-height: 100dvh; }
     overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
   }
 
+  // Build the WhatsApp pre-filled message. No prices — the shop replies
+  // with the tailored quote over chat. Keep notes short so the wa.me URL
+  // stays under the ~2 KB limit some Android builds enforce.
   function buildMsg(){
-    var lines=['Hi, I would like to get a wrap done.'];
-    lines.push('Vehicle: '+vehicleLabel);
-    lines.push('Finish: '+finish);
-    lines.push('Color: '+color);
-    if(ppfOn) lines.push('PPF Protection: Yes');
-    var vision=sessionStorage.getItem('wv_vision');
-    if(vision) lines.push('Notes: '+vision);
+    var lines=[
+      'Hi, I would like a wrap quote for my vehicle.',
+      'Vehicle: '+vehicleLabel,
+      'Finish: '+finish,
+      'Color: '+color
+    ];
+    if(vision){
+      var trimmed=vision.length>400?vision.slice(0,400)+'…':vision;
+      lines.push('Notes: '+trimmed);
+    }
     lines.push('');
-    lines.push('Estimated range: KES '+(ppfOn?fmt(lowBase+ppfCost):fmt(lowBase))+' - '+(ppfOn?fmt(highBase+ppfCost):fmt(highBase)));
-    lines.push('');
-    lines.push('Could you provide exact pricing?');
+    lines.push('Could you share a tailored quote and next steps?');
     return encodeURIComponent(lines.join('\n'));
   }
 
   var partners={'wv-wa1':'254705040033','wv-wa2':'254700419444'};
   Object.keys(partners).forEach(function(id){
-    document.getElementById(id).addEventListener('click',function(){
+    var btn=document.getElementById(id);
+    if(!btn) return;
+    btn.addEventListener('click',function(){
       sessionStorage.setItem('wv_wa_sent','true');
       sessionStorage.setItem('wv_wa_partner',partners[id]);
-      window.open('https://wa.me/'+partners[id]+'?text='+buildMsg(),'_blank');
+      window.open('https://wa.me/'+partners[id]+'?text='+buildMsg(),'_blank','noopener');
       setTimeout(function(){window.location.href='screen4-confirmation.html';},800);
     });
   });
