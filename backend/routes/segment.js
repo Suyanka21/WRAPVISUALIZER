@@ -31,18 +31,36 @@ const upload = multer({
   },
 });
 
+/**
+ * Wrap multer so upload errors (missing file, wrong MIME, oversize)
+ * return a consistent 400 JSON response instead of falling through to
+ * the global 500 handler. Stack traces are logged server-side only.
+ */
+const handleUpload = (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) {
+      console.warn('[Segment] Upload rejected:', err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid upload.',
+      });
+    }
+    next();
+  });
+};
+
 // ---------------------------------------------------------------------------
 // POST /api/segment
 // ---------------------------------------------------------------------------
 
 /** Segments a vehicle image and returns the combined mask URL. */
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', handleUpload, async (req, res) => {
   try {
     // Validate upload
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: 'No image uploaded. Please select a car photo.',
+        message: 'Invalid upload.',
       });
     }
 
@@ -73,10 +91,11 @@ router.post('/', upload.single('image'), async (req, res) => {
       });
     }
 
-    // Success
+    // Success — `segmented_image` is the single canonical key the
+    // frontend stores at sessionStorage.wv_segmented_image.
     return res.json({
       success: true,
-      maskedImageUrl: result.combinedMask,
+      segmented_image: result.combinedMask,
       individualMasks: result.individualMasks,
       vehicleArea: 68,
       processingTime: result.processingTime,
@@ -85,12 +104,6 @@ router.post('/', upload.single('image'), async (req, res) => {
     const detail = error.response?.data?.detail || error.response?.data?.message;
     console.error('[Segment Error]', error.message, detail || '');
 
-    if (error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({
-        success: false,
-        message: 'Please upload a smaller image (max 10MB).',
-      });
-    }
     if (error.message === 'TIMEOUT') {
       return res.status(503).json({
         success: false,

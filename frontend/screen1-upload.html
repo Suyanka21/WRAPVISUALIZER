@@ -357,7 +357,7 @@ body { min-height: 100dvh; }
         var fd=new FormData(); fd.append('image',selectedFile);
         var res=await fetch(API+'/api/segment',{method:'POST',body:fd});
         var data=await res.json();
-        if(data.success&&data.mask_url) sessionStorage.setItem('wv_segmented_image',data.mask_url);
+        if(data.success&&data.segmented_image) sessionStorage.setItem('wv_segmented_image',data.segmented_image);
       }catch(err){ console.warn('[WV] Segmentation skipped:',err.message); }
     }
     window.location.href='screen2-studio.html';

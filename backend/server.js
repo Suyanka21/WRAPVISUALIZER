@@ -89,15 +89,14 @@ app.use('/api/segment', segmentRouter);
 // ---------------------------------------------------------------------------
 
 /**
- * Returns server status. Reports whether the Replicate token is
- * configured — without this, /api/segment will fail on every call.
+ * Returns server status. Reports whether REPLICATE_API_TOKEN is
+ * configured — without it, /api/segment will fail on every call.
+ * Intentionally does NOT call any external APIs so it stays fast
+ * and cheap to poll.
  */
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
-    service: 'WrapVisualizer API',
-    uptime: Math.floor(process.uptime()),
-    timestamp: new Date().toISOString(),
     replicate_configured: Boolean(process.env.REPLICATE_API_TOKEN),
   });
 });
