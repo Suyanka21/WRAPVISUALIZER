@@ -6,41 +6,9 @@
 <meta name="theme-color" content="#131313"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="stylesheet" href="assets/css/tailwind.css"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-tailwind.config = {
-  darkMode: "class",
-  theme: {
-    extend: {
-      colors: {
-        "inverse-primary":"#a04100","on-surface-variant":"#e2bfb0","on-secondary-fixed":"#002109",
-        "outline":"#a98a7d","outline-variant":"#5a4136","surface-tint":"#ffb693",
-        "primary-container":"#ff6b00","primary":"#ffb693","surface-variant":"#353534",
-        "inverse-on-surface":"#313030","surface":"#131313","on-tertiary-fixed":"#1a1c1c",
-        "on-tertiary-container":"#2f3132","surface-dim":"#131313","inverse-surface":"#e5e2e1",
-        "tertiary-fixed":"#e2e2e2","secondary-container":"#06c85d",
-        "surface-container-high":"#2a2a2a","tertiary-container":"#989999",
-        "on-primary-fixed-variant":"#7a3000","surface-container":"#201f1f",
-        "primary-fixed-dim":"#ffb693","on-tertiary-fixed-variant":"#454747",
-        "secondary-fixed":"#66ff8e","on-tertiary":"#2f3131",
-        "surface-container-low":"#1c1b1b","on-error-container":"#ffdad6",
-        "surface-container-lowest":"#0e0e0e","on-secondary":"#003915",
-        "on-error":"#690005","error":"#ffb4ab","background":"#131313",
-        "on-primary":"#561f00","error-container":"#93000a","tertiary":"#c6c6c7",
-        "surface-bright":"#3a3939","surface-container-highest":"#353534",
-        "on-primary-container":"#572000","on-secondary-fixed-variant":"#005322",
-        "on-secondary-container":"#004d1f","secondary":"#41e575",
-        "secondary-fixed-dim":"#3de273","on-background":"#e5e2e1","on-surface":"#e5e2e1",
-        "primary-fixed":"#ffdbcc","tertiary-fixed-dim":"#c6c6c7","on-primary-fixed":"#351000"
-      },
-      borderRadius: { DEFAULT:"0.125rem", lg:"0.25rem", xl:"0.5rem", full:"0.75rem" },
-      fontFamily: { headline:["Space Grotesk"], body:["Manrope"], label:["Manrope"] }
-    },
-  },
-}
-</script>
 <title>WrapVisualizer | Premium Vehicle Wraps Nairobi</title>
 <meta name="description" content="Visualize your dream vehicle wrap before you commit. Choose from premium finishes. Nairobi top wrap specialists."/>
 <style>
@@ -146,38 +114,38 @@ body { min-height: 100dvh; }
         <span class="text-xs text-on-surface-variant font-medium">7 models</span>
       </div>
       <div class="space-y-3" id="wv-templates">
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Toyota Land Cruiser V8/LC300">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Toyota Land Cruiser V8/LC300" src="https://images.unsplash.com/photo-1625231334401-3a833bf49834?w=200&auto=format&q=75"/></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Toyota Land Cruiser V8/LC300" data-vehicle-img="assets/vehicles/land_cruiser_v8.jpg">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Toyota Land Cruiser V8/LC300" src="assets/vehicles/land_cruiser_v8.jpg"/></div>
           <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Toyota Land Cruiser V8/LC300</h4><p class="text-[11px] text-on-surface-variant mt-1">4.5L Twin Turbo &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Large SUV</span></div>
           <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Range Rover Vogue">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Range Rover Vogue" src="https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=200&auto=format&q=75"/></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Range Rover Vogue" data-vehicle-img="assets/vehicles/range_rover_vogue.jpg">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Range Rover Vogue" src="assets/vehicles/range_rover_vogue.jpg"/></div>
           <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Range Rover Vogue</h4><p class="text-[11px] text-on-surface-variant mt-1">LWB Edition &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Luxury SUV</span></div>
           <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Lexus LX600">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Lexus LX600" src="https://images.unsplash.com/photo-1619405399517-d7fce0f13302?w=200&auto=format&q=75"/></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Lexus LX600" data-vehicle-img="assets/vehicles/lexus_lx600.jpg">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Lexus LX600" src="assets/vehicles/lexus_lx600.jpg"/></div>
           <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Lexus LX600</h4><p class="text-[11px] text-on-surface-variant mt-1">Ultra Luxury Pkg &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Luxury SUV</span></div>
           <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Toyota Land Cruiser Prado">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Toyota Land Cruiser Prado" src="https://images.unsplash.com/photo-1594611396620-b1ff516a5763?w=200&auto=format&q=75"/></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Toyota Land Cruiser Prado" data-vehicle-img="assets/vehicles/prado.jpg">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Toyota Land Cruiser Prado" src="assets/vehicles/prado.jpg"/></div>
           <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Toyota Land Cruiser Prado</h4><p class="text-[11px] text-on-surface-variant mt-1">TX-L Edition &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Mid SUV</span></div>
           <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Mercedes-Benz GLE">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Mercedes-Benz GLE" src="https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=200&auto=format&q=75"/></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Mercedes-Benz GLE" data-vehicle-img="assets/vehicles/mercedes_gle.jpg">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Mercedes-Benz GLE" src="assets/vehicles/mercedes_gle.jpg"/></div>
           <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Mercedes-Benz GLE</h4><p class="text-[11px] text-on-surface-variant mt-1">4MATIC Luxury &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Luxury SUV</span></div>
           <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="BMW 7 Series">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="BMW 7 Series" src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=200&auto=format&q=75"/></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="BMW 7 Series" data-vehicle-img="assets/vehicles/bmw_7_series.jpg">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="BMW 7 Series" src="assets/vehicles/bmw_7_series.jpg"/></div>
           <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">BMW 7 Series</h4><p class="text-[11px] text-on-surface-variant mt-1">740i M Sport &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Luxury Sedan</span></div>
           <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Subaru Outback">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Subaru Outback" src="https://images.unsplash.com/photo-1626668011687-8a114cf5a34c?w=200&auto=format&q=75"/></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Subaru Outback" data-vehicle-img="assets/vehicles/subaru_outback.jpg">
+          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Subaru Outback" src="assets/vehicles/subaru_outback.jpg"/></div>
           <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Subaru Outback</h4><p class="text-[11px] text-on-surface-variant mt-1">2.5i Touring &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Crossover</span></div>
           <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
         </div>
@@ -209,12 +177,12 @@ body { min-height: 100dvh; }
     <div><span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Portfolio</span><h3 class="font-headline text-2xl sm:text-3xl font-bold tracking-tight">Recent Transformations</h3></div>
   </div>
   <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&auto=format&q=80" alt="Gloss black sedan wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Gloss Black</p><p class="text-white/60 text-xs">Sedan &middot; Full Body</p></div></div></div>
-    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&auto=format&q=80" alt="Matte gray sports car" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Nardo Gray Matte</p><p class="text-white/60 text-xs">Sports Car &middot; Full Body</p></div></div></div>
-    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&q=80" alt="Chrome silver supercar" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Chrome Silver</p><p class="text-white/60 text-xs">Supercar &middot; Full Body</p></div></div></div>
-    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1542362567-b07e54358753?w=600&auto=format&q=80" alt="Satin blue SUV" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Satin Blue</p><p class="text-white/60 text-xs">SUV &middot; Full Body</p></div></div></div>
-    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=600&auto=format&q=80" alt="Military green wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Military Green</p><p class="text-white/60 text-xs">SUV &middot; Full Body</p></div></div></div>
-    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&auto=format&q=80" alt="Racing red coupe" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Racing Red</p><p class="text-white/60 text-xs">Coupe &middot; Full Body + Accents</p></div></div></div>
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="assets/gallery/gloss_black_sedan.jpg" alt="Gloss black sedan wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Gloss Black</p><p class="text-white/60 text-xs">Sedan &middot; Full Body</p></div></div></div>
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="assets/gallery/nardo_gray_sports.jpg" alt="Nardo gray sports car wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Nardo Gray Matte</p><p class="text-white/60 text-xs">Sports Car &middot; Full Body</p></div></div></div>
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="assets/gallery/chrome_silver_supercar.jpg" alt="Chrome silver supercar wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Chrome Silver</p><p class="text-white/60 text-xs">Supercar &middot; Full Body</p></div></div></div>
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="assets/gallery/satin_blue_suv.jpg" alt="Satin blue SUV wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Satin Blue</p><p class="text-white/60 text-xs">SUV &middot; Full Body</p></div></div></div>
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="assets/gallery/military_green_suv.jpg" alt="Military green SUV wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Military Green</p><p class="text-white/60 text-xs">SUV &middot; Full Body</p></div></div></div>
+    <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="assets/gallery/racing_red_coupe.jpg" alt="Racing red coupe wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Racing Red</p><p class="text-white/60 text-xs">Coupe &middot; Full Body + Accents</p></div></div></div>
   </div>
 </section>
 
@@ -303,7 +271,23 @@ body { min-height: 100dvh; }
   var fileInput=document.getElementById('wv-file-input');
   var uploadPrompt=document.getElementById('wv-upload-prompt');
   var initBtn=document.getElementById('wv-init-btn');
-  var selectedFile=null,selVehicleId=null,selVehicleLabel=null;
+  var selectedFile=null,selVehicleId=null,selVehicleLabel=null,selVehicleImg=null;
+  // Default vehicle image for the "Initialize Customizer" fallback path.
+  var DEFAULT_VEHICLE_IMG='assets/vehicles/land_cruiser_v8.jpg';
+
+  // Read an uploaded file as a data URL so the chosen photo can persist
+  // across screens via sessionStorage. Resolves to null on quota or IO
+  // errors so the flow continues with the default/template image.
+  function readFileAsDataUrl(file){
+    return new Promise(function(resolve){
+      try{
+        var r=new FileReader();
+        r.onload=function(){resolve(r.result);};
+        r.onerror=function(){resolve(null);};
+        r.readAsDataURL(file);
+      }catch(_e){ resolve(null); }
+    });
+  }
 
   var menuBtn=document.getElementById('wv-menu-btn');
   var overlay=document.getElementById('wv-menu-overlay');
@@ -330,11 +314,16 @@ body { min-height: 100dvh; }
     card.addEventListener('click',function(){
       var label=card.getAttribute('data-vehicle');
       var vid=VMAP[label]; if(!vid) return;
-      selVehicleId=vid; selVehicleLabel=label;
+      var img=card.getAttribute('data-vehicle-img')||DEFAULT_VEHICLE_IMG;
+      selVehicleId=vid; selVehicleLabel=label; selVehicleImg=img;
       templateCards.forEach(function(c){c.classList.remove('selected');});
       card.classList.add('selected');
       sessionStorage.setItem('wv_vehicle_id',vid);
       sessionStorage.setItem('wv_vehicle_label',label);
+      sessionStorage.setItem('wv_vehicle_image',img);
+      // Template cards carry a known asset, not a user upload — clear any
+      // stale uploaded photo from a previous session so screen2 doesn't mix them.
+      sessionStorage.removeItem('wv_vehicle_image_uploaded');
       setTimeout(function(){window.location.href='screen2-studio.html';},400);
     });
   });
@@ -343,14 +332,27 @@ body { min-height: 100dvh; }
     if(!selVehicleId&&!selectedFile){
       selVehicleId='land_cruiser_v8';
       selVehicleLabel='Toyota Land Cruiser V8/LC300';
+      selVehicleImg=DEFAULT_VEHICLE_IMG;
     }
     if(selVehicleId){
       sessionStorage.setItem('wv_vehicle_id',selVehicleId);
       sessionStorage.setItem('wv_vehicle_label',selVehicleLabel);
+      if(selVehicleImg) sessionStorage.setItem('wv_vehicle_image',selVehicleImg);
     }
     if(selectedFile){
       initBtn.querySelector('span:first-child').textContent='Processing...';
       initBtn.style.pointerEvents='none'; initBtn.style.opacity='0.6';
+      // Persist the user-uploaded photo so screen2 can preview it. sessionStorage
+      // is capped (~5 MB in most browsers); wrap in try/catch so an over-size
+      // upload doesn't block navigation.
+      var uploadDataUrl=await readFileAsDataUrl(selectedFile);
+      if(uploadDataUrl){
+        try{
+          sessionStorage.setItem('wv_vehicle_image',uploadDataUrl);
+          sessionStorage.setItem('wv_vehicle_image_uploaded','true');
+          if(!selVehicleLabel) sessionStorage.setItem('wv_vehicle_label','Your vehicle');
+        }catch(_quota){ console.warn('[WV] Upload preview too large to persist'); }
+      }
       try{
         var fd=new FormData(); fd.append('image',selectedFile);
         var res=await fetch(API+'/api/segment',{method:'POST',body:fd});

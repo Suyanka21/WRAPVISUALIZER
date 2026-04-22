@@ -5,6 +5,13 @@
   "description": "Mobile-first vehicle wrap visualization and booking tool for Nairobi",
   "scripts": {
     "dev": "cd backend && node server.js",
-    "start": "cd backend && node server.js"
+    "start": "cd backend && node server.js",
+    "build:css": "tailwindcss -c frontend/tailwind.config.js -i frontend/src/input.css -o frontend/assets/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -c frontend/tailwind.config.js -i frontend/src/input.css -o frontend/assets/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.14",
+    "@tailwindcss/forms": "^0.5.9",
+    "@tailwindcss/container-queries": "^0.1.1"
   }
 }
