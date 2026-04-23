@@ -79,9 +79,14 @@
 
   initBtn.addEventListener('click',async function(){
     if(!selVehicleId&&!selectedFile){
-      selVehicleId='land_cruiser_v8';
-      selVehicleLabel='Toyota Land Cruiser V8/LC300';
-      selVehicleImg=DEFAULT_VEHICLE_IMG;
+      // No selection and no upload: show a brief visual prompt.
+      initBtn.style.outline='2px solid #FF6B00';
+      initBtn.querySelector('span:first-child').textContent='Select a vehicle or upload a photo';
+      setTimeout(function(){
+        initBtn.style.outline='';
+        initBtn.querySelector('span:first-child').textContent='Initialize Customizer';
+      },2500);
+      return;
     }
     if(selVehicleId){
       sessionStorage.setItem('wv_vehicle_id',selVehicleId);
@@ -143,13 +148,19 @@
     window.location.href='screen2-studio.html';
   });
 
-  var teaserPartners={'wv-teaser-wa1':'254705040033','wv-teaser-wa2':'254700419444'};
-  Object.keys(teaserPartners).forEach(function(id){
-    var btn=document.getElementById(id);
-    if(btn) btn.addEventListener('click',function(){
+  var partners=window.WV_PARTNERS||[];
+  var teaserContainer=document.getElementById('wv-teaser-buttons');
+  partners.forEach(function(p){
+    if(!teaserContainer) return;
+    var btn=document.createElement('button');
+    btn.setAttribute('aria-label','Chat on WhatsApp '+p.label);
+    btn.className='h-12 px-6 bg-secondary-container text-white font-headline font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all';
+    btn.innerHTML='<span class="material-symbols-outlined text-base" style="font-variation-settings:\'FILL\' 1;">chat</span>'+p.label+' \u2014 '+p.display.replace('+254 ','0');
+    btn.addEventListener('click',function(){
       var v=selVehicleLabel||'General Inquiry';
       var msg=encodeURIComponent('Hi, I am interested in a vehicle wrap.\nVehicle: '+v+'\n\nCould you share options and next steps?');
-      window.open('https://wa.me/'+teaserPartners[id]+'?text='+msg,'_blank');
+      window.open('https://wa.me/'+p.number+'?text='+msg,'_blank');
     });
+    teaserContainer.appendChild(btn);
   });
 })();

@@ -3,7 +3,9 @@
   var vehicleLabel=sessionStorage.getItem('wv_vehicle_label')||'Vehicle';
   var finish=sessionStorage.getItem('wv_finish')||'Matte';
   var color=sessionStorage.getItem('wv_color')||'Black';
-  var partner=sessionStorage.getItem('wv_wa_partner')||'254705040033';
+  var partners=window.WV_PARTNERS||[];
+  var defaultPartner=partners.length?partners[0].number:'254705040033';
+  var partner=sessionStorage.getItem('wv_wa_partner')||defaultPartner;
 
   document.getElementById('wv-c-vehicle').textContent=vehicleLabel;
   document.getElementById('wv-c-finish').textContent=finish;

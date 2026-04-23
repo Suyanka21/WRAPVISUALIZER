@@ -44,15 +44,64 @@
     return encodeURIComponent(lines.join('\n'));
   }
 
-  var partners={'wv-wa1':'254705040033','wv-wa2':'254700419444'};
-  Object.keys(partners).forEach(function(id){
-    var btn=document.getElementById(id);
-    if(!btn) return;
+  // Read partner numbers from the centralized config (partners.js).
+  var partners=window.WV_PARTNERS||[];
+  var btnContainer=document.getElementById('wv-wa-buttons');
+  var fallbackEl=document.getElementById('wv-wa-fallback');
+  var fallbackNumberEl=document.getElementById('wv-fallback-number');
+  var copyBtn=document.getElementById('wv-copy-number');
+  var copyConfirm=document.getElementById('wv-copy-confirm');
+
+  // Track which partner was last tapped so the fallback shows
+  // the correct number.
+  var lastPartner=null;
+
+  // Render one WhatsApp button per partner, driven by WV_PARTNERS.
+  partners.forEach(function(p){
+    var btn=document.createElement('button');
+    btn.className='w-full h-14 bg-secondary-container text-white font-headline font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all';
+    btn.innerHTML=
+      '<span class="material-symbols-outlined text-base" style="font-variation-settings:\'FILL\' 1;">chat</span>'+
+      'Chat '+p.label+' \u2014 '+p.display.replace('+254 ','0');
     btn.addEventListener('click',function(){
-      sessionStorage.setItem('wv_wa_sent','true');
-      sessionStorage.setItem('wv_wa_partner',partners[id]);
-      window.open('https://wa.me/'+partners[id]+'?text='+buildMsg(),'_blank','noopener');
-      setTimeout(function(){window.location.href='screen4-confirmation.html';},800);
+      lastPartner=p;
+      // Attempt to open WhatsApp
+      window.open('https://wa.me/'+p.number+'?text='+buildMsg(),'_blank','noopener');
+      // Show the copy-number fallback so users on desktop without
+      // WhatsApp (or in-app browsers) can manually copy the number.
+      if(fallbackEl&&fallbackNumberEl){
+        fallbackNumberEl.textContent=p.display;
+        fallbackEl.style.display='block';
+      }
+      // Store which partner was contacted
+      sessionStorage.setItem('wv_wa_partner',p.number);
+      // Navigate to screen4 after a 5 s delay — long enough for the
+      // user to see the fallback and copy the number if needed.
+      setTimeout(function(){
+        sessionStorage.setItem('wv_wa_sent','true');
+        window.location.href='screen4-confirmation.html';
+      },5000);
     });
+    if(btnContainer) btnContainer.appendChild(btn);
   });
+
+  // Copy-to-clipboard handler for the fallback banner.
+  if(copyBtn){
+    copyBtn.addEventListener('click',function(){
+      if(!lastPartner) return;
+      var num=lastPartner.display;
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(num).then(function(){
+          if(copyConfirm) copyConfirm.style.display='block';
+        });
+      }else{
+        // Fallback for older browsers / insecure contexts
+        var ta=document.createElement('textarea');
+        ta.value=num; ta.style.position='fixed'; ta.style.left='-9999px';
+        document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); if(copyConfirm) copyConfirm.style.display='block'; }catch(_e){}
+        document.body.removeChild(ta);
+      }
+    });
+  }
 })();

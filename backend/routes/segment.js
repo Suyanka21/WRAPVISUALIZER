@@ -23,7 +23,7 @@ const router = Router();
 /** Holds uploads in memory (never written to disk). */
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+  limits: { fileSize: 4 * 1024 * 1024 }, // 4 MB — keeps base64 under Replicate's inline limit
   fileFilter: (_req, file, cb) => {
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
     if (allowed.includes(file.mimetype)) return cb(null, true);
@@ -120,7 +120,7 @@ router.post('/', handleUpload, async (req, res) => {
     if (error.message === 'TIMEOUT') {
       return res.status(503).json({
         success: false,
-        message: 'AI processing is taking longer than usual. Please try again.',
+        message: 'AI processing timed out. Please try again with a smaller or clearer photo.',
       });
     }
     if (error.response?.status === 402) {

@@ -28,7 +28,7 @@ dotenv.config({ path: path.resolve(__dirname_env, '..', '.env.local') });
 import segmentRouter from './routes/segment.js';
 import { securityMiddleware } from './middleware/security.js';
 import { segmentRateLimit } from './middleware/rateLimits.js';
-import { corsMiddleware } from './middleware/cors.js';
+import { corsMiddleware, blockNoOriginMutations } from './middleware/cors.js';
 import { notFoundHandler, errorHandler } from './middleware/errors.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -69,7 +69,7 @@ app.get('/', (_req, res) => {
 // API Routes
 // ---------------------------------------------------------------------------
 
-app.use('/api/segment', segmentRateLimit, segmentRouter);
+app.use('/api/segment', blockNoOriginMutations, segmentRateLimit, segmentRouter);
 
 // ---------------------------------------------------------------------------
 // Health Check

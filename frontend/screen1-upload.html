@@ -205,10 +205,7 @@ body { min-height: 100dvh; }
   <div class="bg-surface-container-low border border-white/5 p-6 sm:p-10">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
       <div class="max-w-md"><h3 class="font-headline text-xl sm:text-2xl font-bold text-white tracking-tight mb-2">Need Expert Advice?</h3><p class="text-on-surface-variant text-sm leading-relaxed">Chat directly with our wrap specialists on WhatsApp. Get a personalized quote, discuss custom designs, or book an appointment.</p></div>
-      <div class="flex flex-col sm:flex-row gap-3 flex-shrink-0">
-        <button id="wv-teaser-wa1" aria-label="Chat on WhatsApp Line 1" class="h-12 px-6 bg-secondary-container text-white font-headline font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all"><span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">chat</span>Line 1 &mdash; 0705 040 033</button>
-        <button id="wv-teaser-wa2" aria-label="Chat on WhatsApp Line 2" class="h-12 px-6 bg-secondary-container text-white font-headline font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all"><span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">chat</span>Line 2 &mdash; 0700 419 444</button>
-      </div>
+      <div id="wv-teaser-buttons" class="flex flex-col sm:flex-row gap-3 flex-shrink-0"></div>
     </div>
   </div>
 </section>
@@ -248,14 +245,12 @@ body { min-height: 100dvh; }
   <div class="mt-auto px-5 sm:px-8 pb-8">
     <div class="border-t border-white/5 pt-6">
       <p class="text-on-surface-variant text-xs mb-3">Chat with us directly:</p>
-      <div class="flex flex-col gap-2">
-        <a href="https://wa.me/254705040033" target="_blank" class="flex items-center gap-3 py-3 px-4 bg-secondary-container/10 border border-secondary-container/20 text-secondary text-sm font-bold"><span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">chat</span>+254 705 040 033</a>
-        <a href="https://wa.me/254700419444" target="_blank" class="flex items-center gap-3 py-3 px-4 bg-secondary-container/10 border border-secondary-container/20 text-secondary text-sm font-bold"><span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">chat</span>+254 700 419 444</a>
-      </div>
+        <div id="wv-partner-links" class="flex flex-col gap-2"></div>
     </div>
   </div>
 </div>
 
+<script src="assets/js/partners.js"></script>
 <script src="a11y.js"></script>
 <script src="assets/js/hero-scroll-video.js"></script>
 <script src="assets/js/screen1-upload.js"></script>
