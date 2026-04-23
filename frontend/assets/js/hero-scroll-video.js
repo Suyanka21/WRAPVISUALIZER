@@ -19,15 +19,27 @@
   var rafPending = false;
 
   // Clamp the scroll fraction into [0, duration] and write it to the video.
-  // We avoid unnecessary writes when `duration` is still NaN (metadata not
-  // loaded yet) to keep mobile Safari from stalling on the first scroll.
+  // Progress is measured against the hero's own height, not the full document:
+  // at scrollY 0 the video is on its first frame, and by the time the user
+  // has scrolled past the bottom of the hero section the video is on its
+  // last frame. The original `scrollY / (scrollHeight - innerHeight)` mapping
+  // squashed the whole 4-second animation into the first ~25% of the page
+  // scroll, so it looked static to the user. We also skip writes while
+  // `duration` is NaN so mobile Safari doesn't stall on the first scroll.
   function syncVideoToScroll() {
     rafPending = false;
     var duration = video.duration;
     if (!duration || isNaN(duration)) return;
 
-    var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    var fraction = maxScroll > 0 ? window.scrollY / maxScroll : 0;
+    var rect = video.getBoundingClientRect();
+    var scrollY = window.scrollY || window.pageYOffset || 0;
+    // Absolute position of the hero's bottom edge within the document. Once
+    // the user has scrolled past this point the hero has fully left the
+    // viewport, so the scrub should be complete.
+    var heroBottom = rect.bottom + scrollY;
+    if (heroBottom <= 0) return;
+
+    var fraction = scrollY / heroBottom;
     if (fraction < 0) fraction = 0;
     else if (fraction > 1) fraction = 1;
 
