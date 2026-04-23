@@ -34,6 +34,9 @@
     video.currentTime = duration * fraction;
   }
 
+  // Scroll / resize handler. Coalesces bursts of events into a single
+  // `syncVideoToScroll` call per animation frame via `rafPending`, and
+  // short-circuits entirely when the user prefers reduced motion.
   function onScroll() {
     if (rafPending || reduceMotion) return;
     rafPending = true;
@@ -44,6 +47,11 @@
   // sync so the first paint matches the user's current scroll position
   // (important for deep-links and back/forward cache restores).
   video.addEventListener('loadedmetadata', syncVideoToScroll);
+  // If metadata is already available (bfcache or a cached response beat
+  // our listener), `loadedmetadata` will not fire again — sync immediately.
+  if (video.readyState >= 1 /* HAVE_METADATA */) {
+    syncVideoToScroll();
+  }
 
   // Passive listeners — scroll should never block paint.
   window.addEventListener('scroll', onScroll, { passive: true });

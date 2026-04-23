@@ -14,12 +14,16 @@
 
 import cors from 'cors';
 
+// Build the allowlist at import time from the runtime PORT so the backend's
+// own host:port is always accepted — same-origin Chromium POSTs carry an
+// Origin header and would otherwise be rejected below.
+const runtimePort = process.env.PORT || 3001;
 const allowedOrigins = [
+  `http://localhost:${runtimePort}`,
+  `http://127.0.0.1:${runtimePort}`,
   'http://localhost:3000',
-  'http://localhost:3001',
   'http://localhost:5173',
   'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
   'http://127.0.0.1:5173',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
