@@ -46,7 +46,9 @@ body { min-height: 100dvh; }
 <!-- HERO -->
 <section class="relative w-full overflow-hidden" style="min-height:clamp(480px,75vh,700px);">
   <div class="absolute inset-0">
-    <img src="assets/hero/luxury-vehicle.jpg" alt="Luxury vehicle in dramatic lighting" class="w-full h-full object-cover" loading="eager"/>
+    <video id="hero-video" class="w-full h-full object-cover" preload="metadata" muted playsinline disablepictureinpicture poster="assets/hero/luxury-vehicle.jpg" aria-label="LC300 wrap transformation scrolling animation">
+      <source src="assets/video/lc300.mp4" type="video/mp4"/>
+    </video>
     <div class="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/20"></div>
     <div class="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent"></div>
   </div>
@@ -255,6 +257,7 @@ body { min-height: 100dvh; }
 </div>
 
 <script src="a11y.js"></script>
+<script src="assets/js/hero-scroll-video.js"></script>
 <script src="assets/js/screen1-upload.js"></script>
 </body>
 </html>
