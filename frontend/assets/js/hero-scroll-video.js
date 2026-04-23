@@ -32,14 +32,18 @@
     if (!duration || isNaN(duration)) return;
 
     var rect = video.getBoundingClientRect();
-    var scrollY = window.scrollY || window.pageYOffset || 0;
-    // Absolute position of the hero's bottom edge within the document. Once
-    // the user has scrolled past this point the hero has fully left the
-    // viewport, so the scrub should be complete.
-    var heroBottom = rect.bottom + scrollY;
-    if (heroBottom <= 0) return;
+    var heroHeight = rect.height;
+    if (heroHeight <= 0) return;
 
-    var fraction = scrollY / heroBottom;
+    var scrollY = window.scrollY || window.pageYOffset || 0;
+    // Absolute Y of the hero's top edge within the document. Progress is 0
+    // while the hero's top is still below the viewport top, and reaches 1
+    // once the hero has scrolled its full height past the viewport top.
+    // Deriving from the hero's own top (rather than document scroll or its
+    // bottom) keeps the mapping correct if anything is ever added above
+    // the hero in `screen1-upload.html`.
+    var heroTop = rect.top + scrollY;
+    var fraction = (scrollY - heroTop) / heroHeight;
     if (fraction < 0) fraction = 0;
     else if (fraction > 1) fraction = 1;
 
