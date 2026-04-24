@@ -1,87 +1,122 @@
 (function () {
   'use strict';
 
-  // Scroll-controlled frame animation for the landing hero. Replaces the
-  // previous <video>-based approach with a <canvas> driven by sequential
-  // JPEG frames from /lc30-morph/. Only every 2nd frame is loaded (odd
-  // numbered: 001, 003, 005, …, 239) to cap the total at 120 frames.
+  // Scroll-jacked hero animation. The outer `.hero-morph` section is tall
+  // (300vh), and the inner `.hero-morph__stage` is `position: sticky` so
+  // the car stays pinned to the viewport while the user scrolls. Scroll
+  // progress through the outer section is mapped 1:1 to the frame index
+  // of the LC300 morph sequence (all 240 ezgif JPGs in /lc30-morph/).
+  // Once the outer section ends, the stage unpins and the next section
+  // (trust bar / upload) scrolls in naturally.
 
+  var section = document.querySelector('.hero-morph');
   var canvas = document.getElementById('hero-canvas');
-  if (!canvas) return;
+  var overlay = document.getElementById('hero-overlay');
+  if (!section || !canvas) return;
 
-  var ctx = canvas.getContext('2d');
+  var ctx = canvas.getContext('2d', { alpha: false });
 
-  var TOTAL_FRAMES = 120;
+  // The source sequence in /lc30-morph/ has 240 JPGs named
+  // ezgif-frame-001.jpg … ezgif-frame-240.jpg. All 240 are used so the
+  // morph plays smoothly under scrub.
+  var TOTAL_FRAMES = 240;
   var frames = new Array(TOTAL_FRAMES);
   var loadedCount = 0;
   var firstFrameReady = false;
-  var currentFrame = 0;
+  var lastPaintedIndex = -1;
   var rafPending = false;
 
-  // Respect reduced-motion: show only the first frame, skip scroll listener.
   var reduceMotion =
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Build the file name for a given index (0-based). We use every 2nd
-  // source frame: index 0 → frame 001, index 1 → frame 003, etc.
   function framePath(index) {
-    var num = index * 2 + 1; // 1, 3, 5, …, 239
-    var padded = String(num).padStart(3, '0');
+    // index 0 → ezgif-frame-001.jpg, index 239 → ezgif-frame-240.jpg
+    var num = index + 1;
+    var padded = num < 10 ? '00' + num : num < 100 ? '0' + num : String(num);
     return '/lc30-morph/ezgif-frame-' + padded + '.jpg';
   }
 
-  // Draw a frame to the canvas, scaling to fill (object-cover behavior).
+  function sizeCanvas() {
+    var rect = canvas.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    if (dpr > 2) dpr = 2;
+    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+  }
+
+  // Cover-fit draw — scale to fill canvas, center-crop.
   function drawFrame(img) {
     if (!img || !img.naturalWidth) return;
-
     var cw = canvas.width;
     var ch = canvas.height;
     var iw = img.naturalWidth;
     var ih = img.naturalHeight;
-
-    // Cover: scale so the image fills the canvas, then center-crop.
     var scale = Math.max(cw / iw, ch / ih);
     var sw = cw / scale;
     var sh = ch / scale;
     var sx = (iw - sw) / 2;
     var sy = (ih - sh) / 2;
-
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, cw, ch);
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
   }
 
-  // Size the canvas to match its CSS layout dimensions (retina-aware).
-  function sizeCanvas() {
-    var rect = canvas.getBoundingClientRect();
-    var dpr = window.devicePixelRatio || 1;
-    // Cap DPR at 2 to keep memory usage reasonable on 3x screens.
-    if (dpr > 2) dpr = 2;
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+  // 0 at the moment the hero first touches the top of the viewport,
+  // 1 at the moment the hero's bottom edge leaves the top of the viewport.
+  function computeProgress() {
+    var rect = section.getBoundingClientRect();
+    var total = section.offsetHeight - window.innerHeight;
+    if (total <= 0) return 0;
+    var scrolled = -rect.top;
+    var p = scrolled / total;
+    if (p < 0) p = 0;
+    else if (p > 1) p = 1;
+    return p;
   }
 
-  // Map scroll position → frame index and paint.
+  // Pick the nearest frame already loaded to `idx` so scrubbing stays
+  // visually continuous while batches are still streaming in.
+  function pickFrame(idx) {
+    if (frames[idx] && frames[idx].naturalWidth) return frames[idx];
+    for (var d = 1; d < TOTAL_FRAMES; d++) {
+      var lo = idx - d;
+      var hi = idx + d;
+      if (lo >= 0 && frames[lo] && frames[lo].naturalWidth) return frames[lo];
+      if (hi < TOTAL_FRAMES && frames[hi] && frames[hi].naturalWidth)
+        return frames[hi];
+    }
+    return null;
+  }
+
   function syncFrameToScroll() {
     rafPending = false;
     if (!firstFrameReady) return;
 
-    var rect = canvas.getBoundingClientRect();
-    var heroHeight = rect.height;
-    if (heroHeight <= 0) return;
+    var p = computeProgress();
+    var idx = Math.round(p * (TOTAL_FRAMES - 1));
+    if (idx !== lastPaintedIndex) {
+      var img = pickFrame(idx);
+      if (img) {
+        drawFrame(img);
+        lastPaintedIndex = idx;
+      }
+    }
 
-    var scrollY = window.scrollY || window.pageYOffset || 0;
-    var heroTop = rect.top + scrollY;
-    var fraction = (scrollY - heroTop) / heroHeight;
-    if (fraction < 0) fraction = 0;
-    else if (fraction > 1) fraction = 1;
-
-    var idx = Math.floor(fraction * (TOTAL_FRAMES - 1));
-    if (idx === currentFrame && loadedCount > 1) return; // already painted
-    currentFrame = idx;
-
-    var img = frames[idx];
-    if (img && img.complete && img.naturalWidth) {
-      drawFrame(img);
+    if (overlay) {
+      // Text is fully visible while the car is still plain black, fades
+      // out through the middle of the morph (peaks of the transformation),
+      // and stays hidden through the glossy-red reveal.
+      var fadeStart = 0.25;
+      var fadeEnd = 0.55;
+      var t;
+      if (p <= fadeStart) t = 1;
+      else if (p >= fadeEnd) t = 0;
+      else t = 1 - (p - fadeStart) / (fadeEnd - fadeStart);
+      overlay.style.opacity = String(t);
+      // Subtle parallax lift so the text feels like it's being pushed
+      // off the stage rather than just flatly fading.
+      overlay.style.transform = 'translateY(' + (-24 * (1 - t)).toFixed(1) + 'px)';
     }
   }
 
@@ -91,54 +126,66 @@
     window.requestAnimationFrame(syncFrameToScroll);
   }
 
-  // Preload frames in batches to avoid blocking the main thread and network.
+  function onResize() {
+    sizeCanvas();
+    lastPaintedIndex = -1;
+    syncFrameToScroll();
+  }
+
+  // Preload frames in batches so we don't saturate the connection or
+  // starve the main thread. Prioritizes frame 0 so the hero shows
+  // immediately; the rest stream in while the user is still reading.
   function preloadFrames() {
-    var BATCH = 10;
+    var BATCH = 12;
     var idx = 0;
+
+    function loadOne(j, onDone) {
+      var img = new Image();
+      img.decoding = 'async';
+      img.loading = 'eager';
+      img.onload = function () {
+        frames[j] = img;
+        loadedCount++;
+        if (j === 0 && !firstFrameReady) {
+          firstFrameReady = true;
+          sizeCanvas();
+          drawFrame(img);
+          lastPaintedIndex = 0;
+        }
+        if (onDone) onDone();
+      };
+      img.onerror = function () {
+        loadedCount++;
+        if (onDone) onDone();
+      };
+      img.src = framePath(j);
+    }
 
     function loadBatch() {
       var end = Math.min(idx + BATCH, TOTAL_FRAMES);
       for (var i = idx; i < end; i++) {
-        (function (j) {
-          var img = new Image();
-          img.onload = function () {
-            frames[j] = img;
-            loadedCount++;
-            if (j === 0 && !firstFrameReady) {
-              firstFrameReady = true;
-              sizeCanvas();
-              drawFrame(img);
-            }
-          };
-          img.onerror = function () {
-            loadedCount++;
-          };
-          img.src = framePath(j);
-        })(i);
+        loadOne(i);
       }
       idx = end;
       if (idx < TOTAL_FRAMES) {
-        setTimeout(loadBatch, 100);
+        // Schedule next batch after a tick so decode stays off the
+        // critical rendering path.
+        setTimeout(loadBatch, 80);
+      } else {
+        // All frames in: repaint at the current scroll position.
+        syncFrameToScroll();
       }
     }
 
-    loadBatch();
+    // Load frame 0 first so the stage is never blank.
+    loadOne(0, loadBatch);
   }
 
-  // Resize handler — re-size canvas and repaint current frame.
-  function onResize() {
-    sizeCanvas();
-    var img = frames[currentFrame];
-    if (img && img.complete && img.naturalWidth) {
-      drawFrame(img);
-    }
-  }
-
-  // Initialize
   sizeCanvas();
   preloadFrames();
 
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onResize, { passive: true });
+  window.addEventListener('orientationchange', onResize, { passive: true });
   window.addEventListener('pageshow', syncFrameToScroll);
 })();
