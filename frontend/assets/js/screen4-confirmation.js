@@ -6,6 +6,11 @@
   var partners=window.WV_PARTNERS||[];
   var defaultPartner=partners.length?partners[0].number:'254705040033';
   var partner=sessionStorage.getItem('wv_wa_partner')||defaultPartner;
+  var track=window.wvTrack||function(){};
+
+  // Fires once per visit to screen4 so the lead-gen funnel's
+  // "conversion" event is observable in the /api/events stream.
+  track('inquiry_sent',{partner:partner});
 
   document.getElementById('wv-c-vehicle').textContent=vehicleLabel;
   document.getElementById('wv-c-finish').textContent=finish;
@@ -23,6 +28,7 @@
   var waAgainBtn=document.getElementById('wv-wa-again');
   if(waAgainBtn){
     waAgainBtn.addEventListener('click',function(){
+      track('wa_reopen',{screen:'screen4',partner:partner});
       window.open('https://wa.me/'+partner,'_blank','noopener');
     });
   }

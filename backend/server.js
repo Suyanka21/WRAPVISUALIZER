@@ -26,13 +26,23 @@ dotenv.config({ path: path.resolve(__dirname_env, '..', '.env.local') });
 
 // Route modules and middleware
 import segmentRouter from './routes/segment.js';
+import eventsRouter from './routes/events.js';
 import { securityMiddleware } from './middleware/security.js';
 import { segmentRateLimit } from './middleware/rateLimits.js';
 import { corsMiddleware, blockNoOriginMutations } from './middleware/cors.js';
 import { notFoundHandler, errorHandler } from './middleware/errors.js';
+import {
+  initSentry,
+  sentryRequestHandler,
+  sentryErrorHandler,
+} from './middleware/sentry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Initialize Sentry before the app is built so all middleware it adds
+// runs before any route handler. No-op if SENTRY_DSN is unset.
+initSentry();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -41,6 +51,9 @@ const PORT = process.env.PORT || 3001;
 // req.ip reflects the real client IP and express-rate-limit can key
 // off it instead of the proxy's loopback address.
 app.set('trust proxy', 1);
+
+// Sentry request context (pass-through if not initialized).
+app.use(sentryRequestHandler);
 
 // ---------------------------------------------------------------------------
 // Middleware
@@ -70,6 +83,7 @@ app.get('/', (_req, res) => {
 // ---------------------------------------------------------------------------
 
 app.use('/api/segment', blockNoOriginMutations, segmentRateLimit, segmentRouter);
+app.use('/api/events', blockNoOriginMutations, eventsRouter);
 
 // ---------------------------------------------------------------------------
 // Health Check
@@ -90,6 +104,8 @@ app.get('/api/health', (_req, res) => {
 
 // 404 + global error handler (see middleware/errors.js).
 app.use(notFoundHandler);
+// Sentry error capture runs first, then the user-facing response shaper.
+app.use(sentryErrorHandler);
 app.use(errorHandler);
 
 // ---------------------------------------------------------------------------

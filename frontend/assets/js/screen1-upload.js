@@ -4,6 +4,7 @@
   // hosts the frontend as static assets, so relative '/api/*' URLs
   // work in every environment (local dev, Railway, Fly, etc.).
   var API='';
+  var track=window.wvTrack||function(){};
   var VMAP={
     'Toyota Land Cruiser V8/LC300':'land_cruiser_v8',
     'Range Rover Vogue':'range_rover_vogue',
@@ -131,6 +132,7 @@
         var data=null; try{ data=await res.json(); }catch(_parse){ data=null; }
         if(data&&data.success&&data.segmented_image){
           sessionStorage.setItem('wv_segmented_image',data.segmented_image);
+          track('segment_success',{status:res.status});
         }else{
           // Non-blocking failure: keep the user moving through the flow
           // with their raw upload, but surface a dismissible banner on
@@ -138,11 +140,13 @@
           var errMsg=(data&&data.message)||'Image processing failed. You can still continue.';
           console.warn('[WV] Segmentation failed:',errMsg);
           sessionStorage.setItem('wv_segment_error',errMsg);
+          track('segment_failed',{status:res.status});
         }
       }catch(err){
         var networkMsg=(err&&err.message)||'Network error';
         console.warn('[WV] Segmentation skipped:',networkMsg);
         sessionStorage.setItem('wv_segment_error','Image processing failed. You can still continue.');
+        track('segment_failed',{reason:'network'});
       }
     }
     window.location.href='screen2-studio.html';
@@ -159,6 +163,7 @@
     btn.addEventListener('click',function(){
       var v=selVehicleLabel||'General Inquiry';
       var msg=encodeURIComponent('Hi, I am interested in a vehicle wrap.\nVehicle: '+v+'\n\nCould you share options and next steps?');
+      track('wa_click',{screen:'screen1',partner:p.id,has_vehicle:Boolean(selVehicleLabel)});
       window.open('https://wa.me/'+p.number+'?text='+msg,'_blank');
     });
     teaserContainer.appendChild(btn);
