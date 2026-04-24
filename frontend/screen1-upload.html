@@ -26,8 +26,40 @@ body { min-height: 100dvh; }
 .template-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(255,107,0,0.12); }
 .template-card.selected { border-color: #FF6B00 !important; box-shadow: 0 0 0 1px #FF6B00, 0 12px 40px rgba(255,107,0,0.15); }
 </style>
+<style>
+/* Scroll-jacked hero. The outer section is tall so the user has room to
+   scroll; the inner stage is `position: sticky` so the car stays pinned
+   while the scroll progress scrubs through the morph frame sequence.
+   Once the outer section ends, the stage unpins and the next section
+   (trust bar / upload) scrolls into view naturally.
+
+   Note: body uses overflow-x: clip (see override below). `overflow-x:
+   hidden` on an ancestor silently breaks position:sticky because it
+   promotes that ancestor into a scroll container; `clip` does not. */
+html, body { overflow-x: clip; overflow-y: visible; }
+/* No `overflow` on the outer section — `overflow: hidden` on a sticky
+   element's scroll-container ancestor turns that ancestor into a scroll
+   container, which pins the sticky child to the TOP of the section
+   (instead of to the viewport) and the morph never scrubs. The stage
+   itself handles clipping. */
+.hero-morph { position: relative; width: 100%; background: #000; height: 300vh; }
+.hero-morph__stage { position: sticky; top: 0; width: 100%; height: 100vh; height: 100dvh; background: #000; overflow: hidden; }
+.hero-morph__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.hero-morph__lighting { position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 60%, rgba(255,107,0,0.10), transparent 70%),
+    linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.85) 100%); }
+.hero-morph__overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 20px; will-change: opacity, transform; }
+.hero-morph__hint { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; color: rgba(255,255,255,0.55); font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; pointer-events: none; }
+.hero-morph__hint .material-symbols-outlined { animation: heroBounce 1.6s infinite; }
+@keyframes heroBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) {
+  .hero-morph { height: 100vh; height: 100dvh; }
+  .hero-morph__hint .material-symbols-outlined { animation: none; }
+}
+</style>
 </head>
-<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-white overflow-x-hidden">
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-white">
 
 <header class="fixed top-0 w-full z-50 flex justify-between items-center px-5 sm:px-8 h-16 bg-background/90 backdrop-blur-xl border-b border-white/5">
   <a href="screen1-upload.html" class="flex items-center gap-2">
@@ -43,25 +75,24 @@ body { min-height: 100dvh; }
 
 <main class="pt-16 pb-28">
 
-<!-- HERO -->
-<section class="relative w-full overflow-hidden" style="min-height:clamp(480px,75vh,700px);">
-  <div class="absolute inset-0 bg-cover bg-center" style="background-image:url('/lc30-morph/ezgif-frame-001.jpg');">
-    <canvas id="hero-canvas" class="w-full h-full object-cover" aria-label="LC300 wrap transformation scrolling animation"></canvas>
-    <div class="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/20"></div>
-    <div class="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent"></div>
-  </div>
-  <div class="relative h-full flex flex-col justify-end px-5 sm:px-8 pb-12 max-w-6xl mx-auto" style="min-height:clamp(480px,75vh,700px);">
-    <div class="max-w-xl">
-      <span class="inline-flex items-center gap-2 text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-4 fade-up">
+<!-- HERO (scroll-jacked LC300 morph) -->
+<section class="hero-morph" aria-label="LC300 wrap transformation">
+  <div class="hero-morph__stage">
+    <canvas id="hero-canvas" class="hero-morph__canvas" aria-hidden="true"></canvas>
+    <div class="hero-morph__lighting"></div>
+
+    <div id="hero-overlay" class="hero-morph__overlay">
+      <span class="inline-flex items-center gap-2 text-primary-container text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] mb-4">
         <span class="w-8 h-px bg-primary-container"></span>Nairobi&#39;s Premier Wrap Studio
       </span>
-      <h2 class="font-headline text-4xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight leading-[1.05] mb-5 fade-up fade-up-d1">
-        Transform Your<br/>Vehicle&#39;s Identity
-      </h2>
-      <p class="text-on-surface-variant text-base sm:text-lg leading-relaxed mb-8 max-w-md fade-up fade-up-d2">
-        Premium vinyl wraps, PPF protection, and bespoke color changes. Visualize it here, perfect it with our specialists.
+      <h1 class="font-headline text-4xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tight leading-[1.02]">
+        Transform Your Ride<br/>
+        <span class="signature-gradient bg-clip-text text-transparent">In Seconds</span>
+      </h1>
+      <p class="mt-5 text-on-surface-variant text-sm sm:text-lg max-w-xl leading-relaxed">
+        Premium vinyl wraps, visualized before you commit. Scroll to see the reveal.
       </p>
-      <div class="flex flex-col sm:flex-row gap-3 fade-up fade-up-d3">
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
         <a href="#upload" class="h-14 px-8 signature-gradient text-white font-headline font-bold uppercase tracking-wider text-sm flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all">
           Start Customizing <span class="material-symbols-outlined text-lg">arrow_forward</span>
         </a>
@@ -69,6 +100,11 @@ body { min-height: 100dvh; }
           View Our Work
         </a>
       </div>
+    </div>
+
+    <div class="hero-morph__hint" aria-hidden="true">
+      <span>Scroll</span>
+      <span class="material-symbols-outlined text-base">keyboard_arrow_down</span>
     </div>
   </div>
 </section>
