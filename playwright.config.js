@@ -6,7 +6,7 @@ import { defineConfig } from '@playwright/test';
  *
  * We run one project at the 375 × 667 viewport (iPhone-SE baseline) to
  * enforce GEMINI.md rule 8: every screen must work on a 375 px Android
- * Chrome viewport. The test suite boots the backend on port 3001 (same
+ * Chrome viewport. The test suite boots the backend on port 3000 (same
  * process used in production) and checks each screen for horizontal
  * overflow + critical element visibility.
  *
@@ -20,7 +20,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: [['list']],
   use: {
-    baseURL: 'http://127.0.0.1:3001',
+    baseURL: 'http://127.0.0.1:3000',
     trace: 'retain-on-failure',
   },
   projects: [
@@ -40,7 +40,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'node backend/server.js',
-    url: 'http://127.0.0.1:3001/api/health',
+    url: 'http://127.0.0.1:3000/api/health',
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,
     env: {
