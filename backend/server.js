@@ -46,7 +46,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // Trust the first proxy hop (Railway / Fly / similar PaaS) so that
 // req.ip reflects the real client IP and express-rate-limit can key
@@ -73,6 +73,10 @@ app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 // Serve the frontend HTML files as static assets.
 const frontendPath = path.join(__dirname, '..', 'frontend');
 app.use(express.static(frontendPath));
+
+// Serve LC300 morph frames for the scroll-driven hero animation.
+const morphPath = path.join(__dirname, '..', 'lc30-morph');
+app.use('/lc30-morph', express.static(morphPath, { maxAge: '7d' }));
 
 // Root URL → opens the upload screen directly
 app.get('/', (_req, res) => {
