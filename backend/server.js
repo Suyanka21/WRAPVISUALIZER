@@ -12,6 +12,12 @@
  * Mobile-first: every function must work on a 375px viewport.
  */
 
+// Sentry instrumentation MUST be imported first — before express and
+// any other auto-instrumented module. See backend/instrument.js for
+// the reasoning; @sentry/node 8.x requires init-before-import for
+// HTTP/Express spans to be captured at all.
+import './instrument.js';
+
 import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
@@ -26,10 +32,15 @@ dotenv.config({ path: path.resolve(__dirname_env, '..', '.env.local') });
 
 // Route modules and middleware
 import segmentRouter from './routes/segment.js';
+import eventsRouter from './routes/events.js';
 import { securityMiddleware } from './middleware/security.js';
 import { segmentRateLimit } from './middleware/rateLimits.js';
 import { corsMiddleware, blockNoOriginMutations } from './middleware/cors.js';
 import { notFoundHandler, errorHandler } from './middleware/errors.js';
+import {
+  sentryRequestHandler,
+  sentryErrorHandler,
+} from './middleware/sentry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,6 +52,9 @@ const PORT = process.env.PORT || 3001;
 // req.ip reflects the real client IP and express-rate-limit can key
 // off it instead of the proxy's loopback address.
 app.set('trust proxy', 1);
+
+// Sentry request context (pass-through if not initialized).
+app.use(sentryRequestHandler);
 
 // ---------------------------------------------------------------------------
 // Middleware
@@ -70,6 +84,7 @@ app.get('/', (_req, res) => {
 // ---------------------------------------------------------------------------
 
 app.use('/api/segment', blockNoOriginMutations, segmentRateLimit, segmentRouter);
+app.use('/api/events', blockNoOriginMutations, eventsRouter);
 
 // ---------------------------------------------------------------------------
 // Health Check
@@ -90,6 +105,8 @@ app.get('/api/health', (_req, res) => {
 
 // 404 + global error handler (see middleware/errors.js).
 app.use(notFoundHandler);
+// Sentry error capture runs first, then the user-facing response shaper.
+app.use(sentryErrorHandler);
 app.use(errorHandler);
 
 // ---------------------------------------------------------------------------

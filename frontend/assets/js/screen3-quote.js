@@ -16,6 +16,8 @@
     document.getElementById('wv-notes-section').style.display='block';
   }
 
+  var track=window.wvTrack||function(){};
+
   var menuBtn=document.getElementById('wv-menu-btn');
   var overlay=document.getElementById('wv-menu-overlay');
   var closeBtn=document.getElementById('wv-menu-close');
@@ -53,8 +55,15 @@
   var copyConfirm=document.getElementById('wv-copy-confirm');
 
   // Track which partner was last tapped so the fallback shows
-  // the correct number.
+  // the correct number, and so screen4 can retry the right chat.
   var lastPartner=null;
+
+  // Shared across every partner button: true while a previous click's
+  // visibilitychange gate is still waiting to settle. Rapid taps
+  // (partner A, then partner B within 3 s on mobile) would otherwise
+  // stack listeners and emit duplicate `wa_opened` events; this flag
+  // collapses them to the first click.
+  var waInFlight=false;
 
   // Render one WhatsApp button per partner, driven by WV_PARTNERS.
   partners.forEach(function(p){
@@ -64,23 +73,68 @@
       '<span class="material-symbols-outlined text-base" style="font-variation-settings:\'FILL\' 1;">chat</span>'+
       'Chat '+p.label+' \u2014 '+p.display.replace('+254 ','0');
     btn.addEventListener('click',function(){
+      if(waInFlight) return;
+      waInFlight=true;
       lastPartner=p;
-      // Attempt to open WhatsApp
-      window.open('https://wa.me/'+p.number+'?text='+buildMsg(),'_blank','noopener');
-      // Show the copy-number fallback so users on desktop without
-      // WhatsApp (or in-app browsers) can manually copy the number.
+      track('wa_click',{screen:'screen3',partner:p.id,has_vision:Boolean(vision)});
+
+      // Record the moment we triggered `window.open` so we can check,
+      // on the next `visibilitychange`, whether the tab actually
+      // backgrounded (i.e. WhatsApp or the WhatsApp Web tab opened).
+      var openedAt=Date.now();
+      sessionStorage.setItem('wv_wa_partner',p.number);
+
+      // Show the copy-number fallback immediately so users on desktop
+      // without WhatsApp (or in-app browsers) can copy the number by
+      // hand even if the deep-link never actually opens.
       if(fallbackEl&&fallbackNumberEl){
         fallbackNumberEl.textContent=p.display;
         fallbackEl.style.display='block';
       }
-      // Store which partner was contacted
-      sessionStorage.setItem('wv_wa_partner',p.number);
-      // Navigate to screen4 after a 5 s delay — long enough for the
-      // user to see the fallback and copy the number if needed.
-      setTimeout(function(){
+
+      window.open('https://wa.me/'+p.number+'?text='+buildMsg(),'_blank','noopener');
+
+      // Honest "Message Sent" gating: only mark the conversion and
+      // navigate to screen4 if the tab actually becomes hidden within
+      // 3 s of the click (i.e. WhatsApp / the browser handoff actually
+      // happened). If it never hides, the user is still on this screen
+      // with the copy-number banner shown — no false-positive screen4.
+      var settled=false;
+      var timeoutId;
+      function cleanup(){
+        document.removeEventListener('visibilitychange',onVis);
+        window.removeEventListener('blur',onBlur);
+        clearTimeout(timeoutId);
+      }
+      function markSent(reason){
+        if(settled) return;
+        settled=true;
+        cleanup();
+        waInFlight=false;
         sessionStorage.setItem('wv_wa_sent','true');
-        window.location.href='screen4-confirmation.html';
-      },5000);
+        track('wa_opened',{screen:'screen3',partner:p.id,reason:reason,latency_ms:Date.now()-openedAt});
+        // Brief delay so the native WhatsApp transition can finish
+        // before we swap the page under the user.
+        setTimeout(function(){
+          window.location.href='screen4-confirmation.html';
+        },400);
+      }
+      function onVis(){ if(document.hidden) markSent('visibilitychange'); }
+      function onBlur(){ markSent('blur'); }
+      document.addEventListener('visibilitychange',onVis);
+      window.addEventListener('blur',onBlur);
+
+      // Hard cap: if neither event fires within 3 s, treat the click
+      // as "deep-link didn't actually open" and release the in-flight
+      // lock so the user can try a different partner. The fallback
+      // banner is already visible for manual copy.
+      timeoutId=setTimeout(function(){
+        if(settled) return;
+        settled=true;
+        cleanup();
+        waInFlight=false;
+        track('wa_open_unverified',{screen:'screen3',partner:p.id,elapsed_ms:Date.now()-openedAt});
+      },3000);
     });
     if(btnContainer) btnContainer.appendChild(btn);
   });
@@ -90,6 +144,7 @@
     copyBtn.addEventListener('click',function(){
       if(!lastPartner) return;
       var num=lastPartner.display;
+      track('wa_copy_number',{screen:'screen3',partner:lastPartner.id});
       if(navigator.clipboard&&navigator.clipboard.writeText){
         navigator.clipboard.writeText(num).then(function(){
           if(copyConfirm) copyConfirm.style.display='block';

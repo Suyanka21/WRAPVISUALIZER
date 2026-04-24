@@ -1,122 +1,142 @@
 ---
 name: testing-e2e
 description: Use this skill when testing the WrapVisualizer 4-screen flow
-  end-to-end — from template selection through estimate display to WhatsApp
-  confirmation. Covers server startup, API verification, sessionStorage
-  flow, and PPF toggle behavior.
+  end-to-end — from template selection or photo upload to the WhatsApp
+  handoff and screen 4 confirmation. Covers server startup, API
+  verification, sessionStorage flow, and the 375 px viewport regression
+  suite.
 ---
 
 # E2E Testing Skill
 
 ## Goal
-Verify the full 4-screen wrap estimate flow works correctly:
-screen1 (upload/template) → screen2 (studio) → screen3 (quote) → screen4 (confirmation)
+Verify the full 4-screen lead-generation flow works correctly:
+screen1 (upload/template) → screen2 (studio) → screen3 (quote review)
+→ screen4 (confirmation). The app is WhatsApp-only — there are **no
+prices** in the UI; the shop replies with a tailored quote over chat.
 
 ## Prerequisites
 
 ### Start the Server
 ```bash
 cd /home/ubuntu/repos/WRAPVISUALIZER
-npm install
-npm start
-# Server runs on port 3001
+npm install --prefix backend
+node backend/server.js
+# Server runs on port 3001 and serves both the API and the static
+# frontend from the same origin.
 ```
 
 ### Devin Secrets Needed
-None — the app runs fully locally with no external auth.
+- `REPLICATE_API_TOKEN` (optional) — required only for live AI
+  segmentation on `/api/segment`. Without it the app still runs;
+  the segment call returns a 500 and screen 2 shows the dismissible
+  banner sourced from `wv_segment_error`.
+- `SENTRY_DSN` (optional) — if set, backend errors are forwarded to
+  Sentry. No-op otherwise.
 
 ## Testing Steps
 
 ### 1. Verify API Contract First (curl)
-Before testing the UI, verify the backend returns expected values:
+Before testing the UI, verify the backend endpoints respond correctly:
+
 ```bash
-curl -s -X POST http://localhost:3001/api/estimate \
+# Health check — reports whether Replicate is configured.
+curl -s http://localhost:3001/api/health | jq .
+
+# Events endpoint — fire a telemetry event (Origin header required).
+curl -s -o /dev/null -w '%{http_code}\n' \
+  -X POST http://localhost:3001/api/events \
   -H 'Content-Type: application/json' \
-  -d '{"vehicle_id":"land_cruiser_v8","finish_id":"chrome","vinyl_brand":"3m","addons":[]}' | jq .
+  -H 'Origin: http://localhost:3001' \
+  -d '{"event":"wa_click","props":{"screen":"test"}}'
+# → 204. Watch the server log for `[Event] {...}`.
+
+# No-Origin POSTs on mutating routes should be 403.
+curl -s -o /dev/null -w '%{http_code}\n' \
+  -X POST http://localhost:3001/api/events \
+  -H 'Content-Type: application/json' \
+  -d '{"event":"wa_click"}'
+# → 403 (blockNoOriginMutations).
+
+# Segment rate limit — more than 10 per minute/IP returns 429.
 ```
 
-Expected response shape:
-```json
-{
-  "success": true,
-  "breakdown": {
-    "vinyl_material": { "label": "...", "amount": 165000 },
-    "labour": { "label": "...", "amount": 45000 },
-    "addons": []
-  },
-  "subtotal": 210000,
-  "deposit_amount": 32000
-}
+### 2. Screen 1 → Screen 2
+- Open `http://localhost:3001/` (root redirects to screen 1).
+- Either click a template card (auto-advances) or pick a file and
+  click **Initialize Customizer**.
+- Clicking **Initialize Customizer** with *no* selection and no file
+  must NOT navigate — it should briefly show the "Select a vehicle
+  or upload a photo" prompt and stay on screen 1. (Audit §6.1.)
+- If a file was picked, screen 1 `POST`s `/api/segment` in the
+  background; the result (or a `wv_segment_error` banner) is surfaced
+  on screen 2.
+
+### 3. Screen 2 → Screen 3
+- Verify the vehicle name appears in the context bar.
+- Pick a finish (one of Matte, Satin, Gloss, Chrome, Carbon, PPF,
+  Metallic, Flat) and a color swatch.
+- Click **GET MY QUOTE** → navigates to screen 3.
+
+### 4. Screen 3 → Screen 4
+- Screen 3 is a pure **Review & Send** summary — vehicle, finish,
+  color, optional notes. **No price is computed or shown.**
+- Click a WhatsApp button. The app opens `wa.me/...`, emits a
+  `wa_click` telemetry event, and shows the "Didn't open? Copy the
+  number" fallback banner.
+- Screen 3 only navigates to screen 4 if the tab actually loses
+  visibility within 3 s of the click (indicating WhatsApp opened).
+  If it doesn't, the user stays on screen 3 with the copy-number
+  fallback — a `wa_open_unverified` event is emitted.
+- On successful handoff, a `wa_opened` event is emitted and
+  `wv_wa_sent='true'` is written before navigating.
+
+### 5. Screen 4 — Confirmation
+- Shows the vehicle / finish / color summary pulled from
+  sessionStorage.
+- **Open WhatsApp Again** re-opens the same partner chat and
+  emits `wa_reopen`.
+- **Start New Configuration** returns to screen 1.
+- An `inquiry_sent` event fires once on screen 4 load.
+
+### 6. Console Error Check
+- Open browser console on each screen.
+- There should be **no** TypeError / uncaught exceptions.
+- The only acceptable warning is the one-off `[WV] Segmentation
+  skipped/failed` log when Replicate is not configured.
+
+### 7. Automated 375 px viewport regression
+```bash
+npx playwright test
 ```
-
-### 2. Pre-Calculate Expected UI Values
-The frontend transforms the API response. For land_cruiser_v8 + chrome:
-- vinylCost = 22 sqm × 7,500 KES/sqm = **165,000**
-- labourCost (XL) = **45,000**
-- subtotal = **210,000**
-- estimate_low = floor(210,000 × 0.85) = **178,500**
-- estimate_high = ceil(210,000 × 1.15) = **241,500**
-- ppf_cost = **35,000** (from PPF_DEFAULT, matches pricing.json)
-- With PPF: low = **213,500**, high = **276,500**
-
-### 3. Screen 1 → Screen 2
-- Navigate to `http://localhost:3001/frontend/screen1-upload.html`
-- Click a template card (e.g., Toyota Land Cruiser V8/LC300)
-- Verify auto-navigation to screen2-studio.html
-
-### 4. Screen 2 → Screen 3
-- Verify vehicle name appears in context bar
-- Select a finish (e.g., Chrome)
-- Click "GET MY QUOTE" button
-- Verify navigation to screen3-quote.html
-
-### 5. Screen 3 — Estimate Verification
-- Verify estimate range matches pre-calculated values
-- Verify vinyl and labor cost breakdown
-- Toggle PPF ON → verify KES 35,000 added, range updates
-- Toggle PPF OFF → verify range returns to original
-
-### 6. Screen 3 → Screen 4
-- Click a WhatsApp button
-- Verify WhatsApp opens with pre-filled message
-- Verify screen4-confirmation.html loads with vehicle context
-
-### 7. Console Error Check
-- Open browser console on each screen
-- Only acceptable warnings: Tailwind CDN production warning
-- No TypeError or uncaught exceptions should appear
+Runs the suite in `tests/viewport.spec.js` at 375 × 667:
+- Each screen must have no horizontal overflow.
+- Each screen's primary CTA must be attached.
+- The screen-1 no-selection guard must fire.
+- `/api/events` must 204 on a valid event.
 
 ## Common Gotchas
 
-### API Parameter Mapping
-The frontend uses display labels (e.g., "Chrome") but the API expects
-snake_case keys (e.g., "chrome"). The `FMAP` object in screen2-studio.html
-handles this mapping. If estimates look wrong, check that FMAP keys match
-`backend/data/pricing.json` finish keys.
-
-### PPF Cost Handling
-- `PPF_DEFAULT` in screen2 must match `pricing.json → addons → ppf_coating → price`
-- screen3 uses a null check (`est.ppf_cost != null`) not a falsy check (`||`)
-  because ppf_cost of 0 is a valid value that `||` would incorrectly override
-- Both screen2 and screen3 fallback values must be the same (currently 35000)
-
-### API Response Transformation
-The backend returns `breakdown.vinyl_material.amount` but screen3 expects
-`vinyl_cost`. Screen2's success handler transforms the response shape.
-If screen3 shows fallback values despite API success, check the
-transformation in screen2's fetch callback.
-
 ### sessionStorage Keys
 All keys use the `wv_` prefix:
-- `wv_estimate` — JSON with estimate data (set by screen2, read by screen3)
-- `wv_selected_vehicle` — vehicle label
-- `wv_selected_finish` — finish label
-- `wv_selected_color` — color label
+- `wv_vehicle_id`, `wv_vehicle_label`, `wv_vehicle_image`,
+  `wv_vehicle_image_uploaded` — screen 1 → screen 2
+- `wv_finish`, `wv_color`, `wv_color_hex`, `wv_vision`
+  — screen 2 → screen 3
+- `wv_segmented_image` — screen 1 (`POST /api/segment`) → screen 2
+- `wv_segment_error` — screen 1 → screen 2 (dismissible banner)
+- `wv_wa_partner`, `wv_wa_sent` — screen 3 → screen 4
 
-## Test Vehicles for Quick Verification
+### Telemetry
+`window.wvTrack(name, props)` posts a JSON line to
+`/api/events` using `navigator.sendBeacon` (or `fetch` with
+`keepalive: true`) so click handlers that immediately navigate
+still deliver the event. Events are logged to stdout as
+`[Event] {...}` lines; an operator can pipe these into any
+analytics backend.
 
-| Vehicle | ID | Size | Sqm | Chrome vinyl cost |
-|---------|-----|------|-----|-------------------|
-| Land Cruiser V8 | land_cruiser_v8 | XL | 22 | 165,000 |
-| Subaru Outback | subaru_outback | M | 15 | 112,500 |
-| BMW 7 Series | bmw_7_series | L | 16 | 120,000 |
+### Segmentation Failures
+- The `/api/segment` route returns a user-friendly JSON error for
+  401 (bad token), 402 (no credits), TIMEOUT, and 500 (generic).
+- The frontend never blocks navigation on a segmentation failure —
+  it surfaces the message via `wv_segment_error` on screen 2.
