@@ -45,10 +45,8 @@ body { min-height: 100dvh; }
 
 <!-- HERO -->
 <section class="relative w-full overflow-hidden" style="min-height:clamp(480px,75vh,700px);">
-  <div class="absolute inset-0">
-    <video id="hero-video" class="w-full h-full object-cover" preload="metadata" muted playsinline disablepictureinpicture poster="assets/hero/luxury-vehicle.jpg" aria-label="LC300 wrap transformation scrolling animation">
-      <source src="assets/video/lc300.mp4" type="video/mp4"/>
-    </video>
+  <div class="absolute inset-0 bg-cover bg-center" style="background-image:url('/lc30-morph/ezgif-frame-001.jpg');">
+    <canvas id="hero-canvas" class="w-full h-full object-cover" aria-label="LC300 wrap transformation scrolling animation"></canvas>
     <div class="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/20"></div>
     <div class="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent"></div>
   </div>
@@ -106,6 +104,10 @@ body { min-height: 100dvh; }
         <span>Initialize Customizer</span>
         <span class="material-symbols-outlined text-lg">bolt</span>
       </button>
+      <p class="flex items-center justify-center gap-1.5 text-on-surface-variant text-[11px] mt-3 tracking-wide">
+        <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">lock</span>
+        We don&#39;t store your photo &mdash; it&#39;s used once for visualisation and discarded.
+      </p>
     </div>
     <div>
       <div class="flex justify-between items-end mb-6">
@@ -253,7 +255,7 @@ body { min-height: 100dvh; }
 <script src="assets/js/partners.js"></script>
 <script src="assets/js/analytics.js"></script>
 <script src="a11y.js"></script>
-<script src="assets/js/hero-scroll-video.js"></script>
+<script src="assets/js/hero-scroll-animation.js"></script>
 <script src="assets/js/screen1-upload.js"></script>
 </body>
 </html>

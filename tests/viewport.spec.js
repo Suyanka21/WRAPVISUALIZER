@@ -69,7 +69,7 @@ test('screen1 Continue button prompts when nothing is selected', async ({ page }
 test('/api/events accepts valid event when Origin is set', async ({ request }) => {
   const ok = await request.post('/api/events', {
     data: { event: 'wa_click', props: { screen: 'test' } },
-    headers: { Origin: 'http://127.0.0.1:3001' },
+    headers: { Origin: 'http://127.0.0.1:3000' },
   });
   expect(ok.status()).toBe(204);
 });
@@ -83,7 +83,7 @@ test('/api/events rejects POST with no Origin header', async () => {
       {
         method: 'POST',
         host: '127.0.0.1',
-        port: 3001,
+        port: 3000,
         path: '/api/events',
         headers: {
           'Content-Type': 'application/json',
