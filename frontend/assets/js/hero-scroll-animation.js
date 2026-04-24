@@ -21,22 +21,33 @@
   // morph plays smoothly under scrub.
   var TOTAL_FRAMES = 240;
   var frames = new Array(TOTAL_FRAMES);
-  var loadedCount = 0;
   var firstFrameReady = false;
   var lastPaintedIndex = -1;
   var rafPending = false;
+  var fullPreloadStarted = false;
+  var scrollListenerAttached = false;
 
-  var reduceMotion =
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Captured once at init, but kept live via the matchMedia `change`
+  // listener below so OS-level preference toggles take effect without a
+  // page reload.
+  var motionQuery =
+    typeof window.matchMedia === 'function'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)')
+      : null;
+  var reduceMotion = !!(motionQuery && motionQuery.matches);
 
+  // Build the path for a given zero-based frame index. Maps index 0 →
+  // ezgif-frame-001.jpg and index 239 → ezgif-frame-240.jpg, padding
+  // the number to 3 digits so filenames sort correctly.
   function framePath(index) {
-    // index 0 → ezgif-frame-001.jpg, index 239 → ezgif-frame-240.jpg
     var num = index + 1;
     var padded = num < 10 ? '00' + num : num < 100 ? '0' + num : String(num);
     return '/lc30-morph/ezgif-frame-' + padded + '.jpg';
   }
 
+  // Resize the canvas backing store to match its CSS box so drawings
+  // stay crisp. Caps devicePixelRatio at 2 to avoid blowing memory on
+  // Retina/4K displays given we repaint across 240 frames.
   function sizeCanvas() {
     var rect = canvas.getBoundingClientRect();
     var dpr = window.devicePixelRatio || 1;
@@ -45,7 +56,9 @@
     canvas.height = Math.max(1, Math.floor(rect.height * dpr));
   }
 
-  // Cover-fit draw — scale to fill canvas, center-crop.
+  // Cover-fit draw — scale the image to fill the canvas and center-crop
+  // any overflow on the cross axis. Fills black first so letterboxing
+  // is never visible while images are still decoding.
   function drawFrame(img) {
     if (!img || !img.naturalWidth) return;
     var cw = canvas.width;
@@ -62,6 +75,7 @@
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
   }
 
+  // Return scroll progress through the outer section clamped to [0, 1]:
   // 0 at the moment the hero first touches the top of the viewport,
   // 1 at the moment the hero's bottom edge leaves the top of the viewport.
   function computeProgress() {
@@ -76,7 +90,8 @@
   }
 
   // Pick the nearest frame already loaded to `idx` so scrubbing stays
-  // visually continuous while batches are still streaming in.
+  // visually continuous while batches are still streaming in. Returns
+  // null only if literally nothing has loaded yet.
   function pickFrame(idx) {
     if (frames[idx] && frames[idx].naturalWidth) return frames[idx];
     for (var d = 1; d < TOTAL_FRAMES; d++) {
@@ -89,6 +104,10 @@
     return null;
   }
 
+  // rAF callback: reads current scroll progress, repaints the nearest
+  // loaded frame when the target index changes, and drives the text
+  // overlay's fade + parallax lift. Safe to call directly on resize /
+  // pageshow as a one-shot repaint.
   function syncFrameToScroll() {
     rafPending = false;
     if (!firstFrameReady) return;
@@ -120,46 +139,59 @@
     }
   }
 
+  // Scroll listener (rAF-throttled). No-op in reduced-motion mode —
+  // the stage stays on frame 0 and the overlay stays fully visible.
   function onScroll() {
     if (rafPending || reduceMotion) return;
     rafPending = true;
     window.requestAnimationFrame(syncFrameToScroll);
   }
 
+  // Re-measure the canvas backing store on viewport changes and force
+  // a repaint at the current scroll position so the cover-fit math
+  // matches the new size.
   function onResize() {
     sizeCanvas();
     lastPaintedIndex = -1;
     syncFrameToScroll();
   }
 
-  // Preload frames in batches so we don't saturate the connection or
-  // starve the main thread. Prioritizes frame 0 so the hero shows
-  // immediately; the rest stream in while the user is still reading.
+  // Load a single frame by index. `onDone` fires on both success and
+  // error so batch scheduling never stalls on a missing image.
+  // Frame 0 is fetched with fetchPriority='high' so it paints ASAP;
+  // the rest are marked 'low' to stay off the critical path.
+  function loadOne(j, onDone) {
+    var img = new Image();
+    img.decoding = 'async';
+    img.loading = 'eager';
+    if ('fetchPriority' in img) {
+      img.fetchPriority = j === 0 ? 'high' : 'low';
+    }
+    img.onload = function () {
+      frames[j] = img;
+      if (j === 0 && !firstFrameReady) {
+        firstFrameReady = true;
+        sizeCanvas();
+        drawFrame(img);
+        lastPaintedIndex = 0;
+      }
+      if (onDone) onDone();
+    };
+    img.onerror = function () {
+      if (onDone) onDone();
+    };
+    img.src = framePath(j);
+  }
+
+  // Preload the remaining frames in batches of BATCH so we don't
+  // saturate the connection or starve the main thread. Each batch is
+  // scheduled off the critical rendering path via setTimeout; once all
+  // frames are in we repaint at the current scroll position.
   function preloadFrames() {
+    if (fullPreloadStarted) return;
+    fullPreloadStarted = true;
     var BATCH = 12;
     var idx = 0;
-
-    function loadOne(j, onDone) {
-      var img = new Image();
-      img.decoding = 'async';
-      img.loading = 'eager';
-      img.onload = function () {
-        frames[j] = img;
-        loadedCount++;
-        if (j === 0 && !firstFrameReady) {
-          firstFrameReady = true;
-          sizeCanvas();
-          drawFrame(img);
-          lastPaintedIndex = 0;
-        }
-        if (onDone) onDone();
-      };
-      img.onerror = function () {
-        loadedCount++;
-        if (onDone) onDone();
-      };
-      img.src = framePath(j);
-    }
 
     function loadBatch() {
       var end = Math.min(idx + BATCH, TOTAL_FRAMES);
@@ -168,24 +200,52 @@
       }
       idx = end;
       if (idx < TOTAL_FRAMES) {
-        // Schedule next batch after a tick so decode stays off the
-        // critical rendering path.
         setTimeout(loadBatch, 80);
       } else {
-        // All frames in: repaint at the current scroll position.
         syncFrameToScroll();
       }
     }
 
-    // Load frame 0 first so the stage is never blank.
+    // Load frame 0 first so the stage is never blank, then kick off
+    // the rest in batches.
     loadOne(0, loadBatch);
   }
 
-  sizeCanvas();
-  preloadFrames();
+  // Attach the scroll listener exactly once. Called from init when
+  // reduced-motion is off, or later from the motionQuery change handler
+  // if the user disables reduced-motion mid-session.
+  function attachScrollListener() {
+    if (scrollListenerAttached) return;
+    scrollListenerAttached = true;
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
 
-  window.addEventListener('scroll', onScroll, { passive: true });
+  // Initial setup. In reduced-motion mode, only frame 0 is fetched and
+  // the scroll-driven animation is skipped entirely — the stage shows
+  // a static first frame. Resize/orientation/pageshow handling is kept
+  // in both modes so the static frame stays correctly sized.
+  sizeCanvas();
+  if (reduceMotion) {
+    loadOne(0);
+  } else {
+    preloadFrames();
+    attachScrollListener();
+  }
   window.addEventListener('resize', onResize, { passive: true });
   window.addEventListener('orientationchange', onResize, { passive: true });
   window.addEventListener('pageshow', syncFrameToScroll);
+
+  // Live-update reduceMotion when the OS preference toggles. Turning
+  // reduced-motion off mid-session upgrades the hero to the full
+  // scrub experience; turning it on just silences onScroll.
+  if (motionQuery && typeof motionQuery.addEventListener === 'function') {
+    motionQuery.addEventListener('change', function (e) {
+      reduceMotion = e.matches;
+      if (!reduceMotion) {
+        preloadFrames();
+        attachScrollListener();
+        syncFrameToScroll();
+      }
+    });
+  }
 })();
