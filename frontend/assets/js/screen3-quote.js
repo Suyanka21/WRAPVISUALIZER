@@ -58,6 +58,13 @@
   // the correct number, and so screen4 can retry the right chat.
   var lastPartner=null;
 
+  // Shared across every partner button: true while a previous click's
+  // visibilitychange gate is still waiting to settle. Rapid taps
+  // (partner A, then partner B within 3 s on mobile) would otherwise
+  // stack listeners and emit duplicate `wa_opened` events; this flag
+  // collapses them to the first click.
+  var waInFlight=false;
+
   // Render one WhatsApp button per partner, driven by WV_PARTNERS.
   partners.forEach(function(p){
     var btn=document.createElement('button');
@@ -66,6 +73,8 @@
       '<span class="material-symbols-outlined text-base" style="font-variation-settings:\'FILL\' 1;">chat</span>'+
       'Chat '+p.label+' \u2014 '+p.display.replace('+254 ','0');
     btn.addEventListener('click',function(){
+      if(waInFlight) return;
+      waInFlight=true;
       lastPartner=p;
       track('wa_click',{screen:'screen3',partner:p.id,has_vision:Boolean(vision)});
 
@@ -91,12 +100,17 @@
       // happened). If it never hides, the user is still on this screen
       // with the copy-number banner shown — no false-positive screen4.
       var settled=false;
-      function markSent(reason){
-        if(settled) return;
-        settled=true;
+      var timeoutId;
+      function cleanup(){
         document.removeEventListener('visibilitychange',onVis);
         window.removeEventListener('blur',onBlur);
         clearTimeout(timeoutId);
+      }
+      function markSent(reason){
+        if(settled) return;
+        settled=true;
+        cleanup();
+        waInFlight=false;
         sessionStorage.setItem('wv_wa_sent','true');
         track('wa_opened',{screen:'screen3',partner:p.id,reason:reason,latency_ms:Date.now()-openedAt});
         // Brief delay so the native WhatsApp transition can finish
@@ -111,13 +125,14 @@
       window.addEventListener('blur',onBlur);
 
       // Hard cap: if neither event fires within 3 s, treat the click
-      // as "deep-link didn't actually open" and stay on this screen.
-      // The fallback banner is already visible for manual copy.
-      var timeoutId=setTimeout(function(){
+      // as "deep-link didn't actually open" and release the in-flight
+      // lock so the user can try a different partner. The fallback
+      // banner is already visible for manual copy.
+      timeoutId=setTimeout(function(){
         if(settled) return;
         settled=true;
-        document.removeEventListener('visibilitychange',onVis);
-        window.removeEventListener('blur',onBlur);
+        cleanup();
+        waInFlight=false;
         track('wa_open_unverified',{screen:'screen3',partner:p.id,elapsed_ms:Date.now()-openedAt});
       },3000);
     });

@@ -8,9 +8,15 @@
   var partner=sessionStorage.getItem('wv_wa_partner')||defaultPartner;
   var track=window.wvTrack||function(){};
 
-  // Fires once per visit to screen4 so the lead-gen funnel's
-  // "conversion" event is observable in the /api/events stream.
-  track('inquiry_sent',{partner:partner});
+  // Fire the conversion event only when the user actually arrived
+  // here via screen3's gated handoff (visibilitychange within 3 s of
+  // the WhatsApp click). A refresh, back-navigation, or direct URL
+  // visit to this screen must NOT inflate the funnel, so we consume
+  // and clear the one-shot flag.
+  if(sessionStorage.getItem('wv_wa_sent')==='true'){
+    sessionStorage.removeItem('wv_wa_sent');
+    track('inquiry_sent',{partner:partner});
+  }
 
   document.getElementById('wv-c-vehicle').textContent=vehicleLabel;
   document.getElementById('wv-c-finish').textContent=finish;

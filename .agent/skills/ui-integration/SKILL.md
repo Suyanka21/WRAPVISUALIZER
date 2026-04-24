@@ -66,6 +66,15 @@ inline `<script>` blocks** (CSP `script-src 'self'` forbids them).
 - Fire `track('segment_success', {status})` / `track('segment_failed',
   {status|reason})`.
 
+### WhatsApp Teaser Buttons (Screen 1)
+The "Need Expert Advice?" section at the bottom of screen 1 renders one
+button per entry in `window.WV_PARTNERS` into the container
+`#wv-teaser-buttons` (see `assets/js/screen1-upload.js`). Each button
+opens a partner's `wa.me` link with a short "interested in a wrap" prefill
+and fires `track('wa_click', { screen: 'screen1', partner: p.id, … })`.
+There is no visibilitychange gating here — screen 1 never navigates away
+on teaser click; users who return continue the normal flow.
+
 ### Design Selection (Screen 2)
 - Finish buttons (`.finish-btn`) and color swatches (`.swatch`) use
   click listeners that only mutate text and the selected state.

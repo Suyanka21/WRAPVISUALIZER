@@ -12,6 +12,12 @@
  * Mobile-first: every function must work on a 375px viewport.
  */
 
+// Sentry instrumentation MUST be imported first — before express and
+// any other auto-instrumented module. See backend/instrument.js for
+// the reasoning; @sentry/node 8.x requires init-before-import for
+// HTTP/Express spans to be captured at all.
+import './instrument.js';
+
 import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
@@ -32,17 +38,12 @@ import { segmentRateLimit } from './middleware/rateLimits.js';
 import { corsMiddleware, blockNoOriginMutations } from './middleware/cors.js';
 import { notFoundHandler, errorHandler } from './middleware/errors.js';
 import {
-  initSentry,
   sentryRequestHandler,
   sentryErrorHandler,
 } from './middleware/sentry.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Initialize Sentry before the app is built so all middleware it adds
-// runs before any route handler. No-op if SENTRY_DSN is unset.
-initSentry();
 
 const app = express();
 const PORT = process.env.PORT || 3001;

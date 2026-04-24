@@ -1,5 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import http from 'node:http';
 
 /**
  * 375 px viewport regression suite.
@@ -65,18 +66,38 @@ test('screen1 Continue button prompts when nothing is selected', async ({ page }
   await expect(initBtn).toContainText(/Select a vehicle|upload a photo/i);
 });
 
-test('/api/events accepts valid event and rejects no-origin POST', async ({ request }) => {
-  // Good request with Origin: 204.
+test('/api/events accepts valid event when Origin is set', async ({ request }) => {
   const ok = await request.post('/api/events', {
     data: { event: 'wa_click', props: { screen: 'test' } },
     headers: { Origin: 'http://127.0.0.1:3001' },
   });
   expect(ok.status()).toBe(204);
+});
 
-  // No-Origin POST: 403 via blockNoOriginMutations.
-  // The default fetch sets Origin; override by sending from `node` via
-  // a raw HTTP agent. We simulate by hitting a path and stripping Origin
-  // via a redirected fetch — but Playwright's APIRequest always sends
-  // Origin. So we verify the positive case only here; the no-Origin
-  // guard is exercised by manual curl in the PR description.
+test('/api/events rejects POST with no Origin header', async () => {
+  // Playwright's APIRequest always sets Origin, so go through Node's raw
+  // http module to actually exercise the blockNoOriginMutations guard.
+  const status = await new Promise((resolve, reject) => {
+    const body = JSON.stringify({ event: 'wa_click' });
+    const req = http.request(
+      {
+        method: 'POST',
+        host: '127.0.0.1',
+        port: 3001,
+        path: '/api/events',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body),
+        },
+      },
+      (res) => {
+        res.resume();
+        res.on('end', () => resolve(res.statusCode));
+      },
+    );
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+  expect(status).toBe(403);
 });
