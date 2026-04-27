@@ -24,9 +24,10 @@
   // Read an uploaded file as a data URL so the chosen photo can persist
   // across screens via sessionStorage. Resolves to null on quota or IO
   // errors so the flow continues with the default/template image.
-  // Enforces the same 10 MB cap as the backend so oversized files never
-  // get base64-inflated (~1.35x) into memory and sessionStorage.
-  var MAX_UPLOAD_BYTES=10*1024*1024;
+  // Enforces the same 4 MB cap as the backend multer config so the
+  // frontend can't accept a photo the backend would silently reject
+  // with a generic "Invalid upload." error.
+  var MAX_UPLOAD_BYTES=4*1024*1024;
   function readFileAsDataUrl(file){
     return new Promise(function(resolve){
       if(!file||file.size>MAX_UPLOAD_BYTES){ resolve(null); return; }

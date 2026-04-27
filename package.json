@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "description": "Mobile-first vehicle wrap visualization and booking tool for Nairobi",
+  "engines": {
+    "node": ">=20 <23"
+  },
   "scripts": {
     "dev": "cd backend && node server.js",
     "start": "cd backend && node server.js",

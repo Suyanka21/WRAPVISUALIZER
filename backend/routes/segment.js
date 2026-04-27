@@ -124,15 +124,20 @@ router.post('/', handleUpload, async (req, res) => {
       });
     }
     if (error.response?.status === 402) {
+      // Real cause is logged above ("status=402"); surface a generic
+      // message so end-users don't see our provider name or billing
+      // state. Ops should watch for 402s in logs and top up credits.
       return res.status(503).json({
         success: false,
-        message: 'AI service billing is not active. Please add credits on Replicate.',
+        message: 'Our AI service is temporarily unavailable. Please try again in a moment.',
       });
     }
     if (error.response?.status === 401) {
+      // Same rationale — auth misconfiguration is an ops problem, not
+      // something to leak to end-users.
       return res.status(500).json({
         success: false,
-        message: 'AI service authentication failed. Check your API token.',
+        message: 'Our AI service is temporarily unavailable. Please try again in a moment.',
       });
     }
     return res.status(500).json({
