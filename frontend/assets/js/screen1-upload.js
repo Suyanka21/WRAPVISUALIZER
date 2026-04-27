@@ -49,15 +49,39 @@
     overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
   }
 
+  var OVERSIZE_HINT_TEXT='Photo must be under 4 MB';
+
   fileInput.addEventListener('change',function(e){
     var f=e.target.files[0]; if(!f) return;
-    selectedFile=f;
     var iconEl=uploadPrompt.querySelector('.material-symbols-outlined');
     var textEl=uploadPrompt.querySelector('.font-headline');
     var hintEl=uploadPrompt.querySelectorAll('.text-xs');
+    var lastHint=hintEl.length?hintEl[hintEl.length-1]:null;
+
+    // Reject oversized files up-front so we never waste a base64 round-trip
+    // to /api/segment only to have multer reject it with a generic 400. The
+    // 4 MB ceiling matches the backend multer config in routes/segment.js.
+    if(f.size>MAX_UPLOAD_BYTES){
+      selectedFile=null;
+      fileInput.value='';
+      if(iconEl) iconEl.textContent='error';
+      if(textEl) textEl.textContent='File too large';
+      if(lastHint){
+        lastHint.textContent=OVERSIZE_HINT_TEXT;
+        lastHint.classList.remove('text-on-surface-variant');
+        lastHint.classList.add('text-primary-container');
+      }
+      return;
+    }
+
+    selectedFile=f;
     if(iconEl) iconEl.textContent='check_circle';
     if(textEl) textEl.textContent=f.name;
-    if(hintEl.length) hintEl[hintEl.length-1].textContent='Ready to customize';
+    if(lastHint){
+      lastHint.textContent='Ready to customize';
+      lastHint.classList.remove('text-primary-container');
+      lastHint.classList.add('text-on-surface-variant');
+    }
   });
 
   var templateCards=document.querySelectorAll('.template-card');
