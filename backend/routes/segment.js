@@ -17,7 +17,9 @@ import { segmentImage } from '../services/replicate.js';
 const router = Router();
 
 // ---------------------------------------------------------------------------
-// Multer config — memory storage, 10 MB max, images only
+// Multer config — memory storage, 4 MB max, images only
+// Kept in sync with the frontend MAX_UPLOAD_BYTES gate in
+// frontend/assets/js/screen1-upload.js so the two caps never drift.
 // ---------------------------------------------------------------------------
 
 /** Holds uploads in memory (never written to disk). */
@@ -134,8 +136,10 @@ router.post('/', handleUpload, async (req, res) => {
     }
     if (error.response?.status === 401) {
       // Same rationale — auth misconfiguration is an ops problem, not
-      // something to leak to end-users.
-      return res.status(500).json({
+      // something to leak to end-users. 503 matches the 402 branch so
+      // any client banner keyed off status code treats them uniformly
+      // as "service temporarily unavailable".
+      return res.status(503).json({
         success: false,
         message: 'Our AI service is temporarily unavailable. Please try again in a moment.',
       });
