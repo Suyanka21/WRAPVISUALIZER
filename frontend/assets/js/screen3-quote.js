@@ -70,8 +70,9 @@
     {id:'wa1',number:'254705040033',display:'+254 705 040 033',label:'Line 1'},
     {id:'wa2',number:'254700419444',display:'+254 700 419 444',label:'Line 2'}
   ];
-  var partners=(window.WV_PARTNERS&&window.WV_PARTNERS.length)?window.WV_PARTNERS:WV_PARTNERS_FALLBACK;
-  if(!window.WV_PARTNERS||!window.WV_PARTNERS.length){
+  var hasPartnerList=Array.isArray(window.WV_PARTNERS)&&window.WV_PARTNERS.length>0;
+  var partners=hasPartnerList?window.WV_PARTNERS:WV_PARTNERS_FALLBACK;
+  if(!hasPartnerList){
     console.warn('[WV] partners.js missing or empty; using inline fallback on screen 3');
   }
   var btnContainer=document.getElementById('wv-wa-buttons');
