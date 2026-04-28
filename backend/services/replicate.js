@@ -25,10 +25,13 @@ const SAM2_MODEL = 'meta/sam-2';
 const SAM2_VERSION = process.env.REPLICATE_SAM2_VERSION || null;
 
 // Timeout and retry configuration
-const TIMEOUT_MS = 90_000; // 90 seconds (cold workers can take 40-60 s)
+const TIMEOUT_MS = 90_000; // 90 seconds total budget (cold workers can take 40-60 s)
+const REQUEST_TIMEOUT_MS = 60_000; // Per-request socket timeout
 const POLL_INTERVAL = 2_000;
+const POLL_REQUEST_TIMEOUT_MS = 10_000;
 const MAX_RETRIES = 2;
 const RETRY_BACKOFF_BASE = 2_000; // 2 s, 4 s
+const HEALTH_CHECK_TIMEOUT_MS = 5_000;
 
 /**
  * Determines whether an HTTP error response is retryable.
@@ -56,6 +59,7 @@ async function pollPrediction(predictionUrl, token) {
   while (Date.now() - start < TIMEOUT_MS) {
     const { data } = await axios.get(predictionUrl, {
       headers: { Authorization: `Bearer ${token}` },
+      timeout: POLL_REQUEST_TIMEOUT_MS,
     });
 
     if (data.status === 'succeeded') {
@@ -117,6 +121,11 @@ export async function segmentImage(dataUri, token) {
             'Content-Type': 'application/json',
             Prefer: 'wait',
           },
+          // Hard socket timeout so a stalled Replicate worker can't hold
+          // an Express handler (and its 4 MB multer buffer) open forever.
+          // Maps to the existing `TIMEOUT` error path which the route
+          // surfaces as 503 with a generic user message.
+          timeout: REQUEST_TIMEOUT_MS,
         },
       );
 
@@ -144,6 +153,14 @@ export async function segmentImage(dataUri, token) {
     } catch (error) {
       lastError = error;
 
+      // Axios surfaces socket-level timeouts with code ECONNABORTED.
+      // Normalize to the existing TIMEOUT sentinel so the route's 503
+      // branch (`error.message === 'TIMEOUT'`) handles both polling
+      // timeouts and request-level socket timeouts identically.
+      if (error.code === 'ECONNABORTED') {
+        throw new Error('TIMEOUT');
+      }
+
       // Only retry on transient server errors, not on client errors
       // like 401 (bad token) or 402 (no credits).
       if (attempt < MAX_RETRIES && isRetryable(error)) {
@@ -155,4 +172,47 @@ export async function segmentImage(dataUri, token) {
 
   // Should not reach here, but safety net.
   throw lastError;
+}
+
+/**
+ * Validates a Replicate API token by hitting GET /v1/account.
+ *
+ * Used at server boot so a typo'd, revoked, or wrong-scope token is
+ * caught before the first user upload — instead of silently passing
+ * the `replicate_configured: true` health check and returning 503 to
+ * every customer until ops looks at the logs.
+ *
+ * Resolves to:
+ *   { valid: true, account: <username> }
+ *   { valid: false, status: <http status | null>, reason: <string> }
+ *
+ * Never throws — callers can safely use the result to populate health
+ * state without try/catch.
+ */
+export async function validateToken(token) {
+  if (!token) {
+    return { valid: false, status: null, reason: 'missing_token' };
+  }
+  try {
+    const { data, status } = await axios.get(`${REPLICATE_API}/account`, {
+      headers: { Authorization: `Bearer ${token}` },
+      timeout: HEALTH_CHECK_TIMEOUT_MS,
+      // Don't throw on non-2xx — we want to inspect the status.
+      validateStatus: () => true,
+    });
+    if (status >= 200 && status < 300 && data && data.username) {
+      return { valid: true, account: data.username };
+    }
+    return {
+      valid: false,
+      status,
+      reason: status === 401 ? 'invalid_token' : 'unexpected_status',
+    };
+  } catch (error) {
+    return {
+      valid: false,
+      status: error.response?.status || null,
+      reason: error.code === 'ECONNABORTED' ? 'timeout' : 'network_error',
+    };
+  }
 }

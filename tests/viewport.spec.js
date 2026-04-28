@@ -14,23 +14,42 @@ const SCREENS = [
   {
     path: '/screen1-upload.html',
     cta: '#wv-init-btn',
+    needsFunnelState: false,
   },
   {
     path: '/screen2-studio.html',
     cta: '#wv-get-quote',
+    needsFunnelState: false,
   },
   {
     path: '/screen3-quote.html',
     cta: '#wv-wa-buttons',
+    needsFunnelState: true,
   },
   {
     path: '/screen4-confirmation.html',
     cta: '#wv-wa-again',
+    needsFunnelState: true,
   },
 ];
 
-for (const { path, cta } of SCREENS) {
+// Screens 3 and 4 enforce a funnel-state guard: a direct visit with no
+// `wv_vehicle_label` in sessionStorage redirects to screen 1 to prevent
+// placeholder leads. The viewport tests intentionally hit the URLs
+// directly, so we seed the same sessionStorage values screen 1 would
+// have written before navigation.
+async function seedFunnelState(page) {
+  await page.addInitScript(() => {
+    sessionStorage.setItem('wv_vehicle_label', 'Toyota Land Cruiser');
+    sessionStorage.setItem('wv_finish', 'Matte');
+    sessionStorage.setItem('wv_color', 'Black');
+    sessionStorage.setItem('wv_color_hex', '#0a0a0a');
+  });
+}
+
+for (const { path, cta, needsFunnelState } of SCREENS) {
   test(`screen ${path} has no horizontal overflow at 375px`, async ({ page }) => {
+    if (needsFunnelState) await seedFunnelState(page);
     await page.goto(path);
     // Let fonts / CSS settle before measuring.
     await page.waitForLoadState('networkidle');
@@ -47,12 +66,40 @@ for (const { path, cta } of SCREENS) {
   });
 
   test(`screen ${path} renders its primary CTA`, async ({ page }) => {
+    if (needsFunnelState) await seedFunnelState(page);
     await page.goto(path);
     await page.waitForLoadState('networkidle');
     const el = page.locator(cta);
     await expect(el).toBeAttached();
   });
 }
+
+test('screen3 redirects to screen1 when funnel state is missing', async ({ page }) => {
+  // Regression for trustless-audit C4 — a direct visit to screen 3
+  // without the funnel marker must not render a quote with placeholder
+  // values; it must bounce the user back to screen 1.
+  await page.goto('/screen3-quote.html');
+  await page.waitForURL(/screen1-upload\.html/);
+  await expect(page).toHaveURL(/screen1-upload\.html/);
+});
+
+test('screen4 redirects to screen1 when funnel state is missing', async ({ page }) => {
+  await page.goto('/screen4-confirmation.html');
+  await page.waitForURL(/screen1-upload\.html/);
+  await expect(page).toHaveURL(/screen1-upload\.html/);
+});
+
+test('/api/health reports replicate readiness fields', async ({ request }) => {
+  // Regression for trustless-audit C3 + MV2 — the new additive fields
+  // must always be present so monitors can rely on the contract.
+  const res = await request.get('/api/health');
+  expect(res.status()).toBe(200);
+  const body = await res.json();
+  expect(body).toHaveProperty('status', 'ok');
+  expect(body).toHaveProperty('replicate_configured');
+  expect(body).toHaveProperty('replicate_reachable');
+  expect(body).toHaveProperty('replicate_check_age_ms');
+});
 
 test('screen1 Continue button prompts when nothing is selected', async ({ page }) => {
   // Regression for audit §6.1 — clicking Continue with no vehicle and
