@@ -1,5 +1,19 @@
 (function(){
   'use strict';
+
+  // Funnel-state guard. Screen 3 only makes sense as a step inside the
+  // upload → customize → review flow. A direct URL visit, a refresh
+  // after sessionStorage was cleared (iOS Safari Private), or a stale
+  // bookmark would otherwise render the page with placeholder values
+  // ("Vehicle: Vehicle / Finish: Matte / Color: Black") and let the
+  // user fire a useless WhatsApp lead. wv_vehicle_label is set on
+  // every legitimate entry path through screen 1, so its absence is a
+  // reliable "you skipped the funnel" signal.
+  if (!sessionStorage.getItem('wv_vehicle_label')) {
+    window.location.replace('screen1-upload.html');
+    return;
+  }
+
   var vehicleLabel=sessionStorage.getItem('wv_vehicle_label')||'Vehicle';
   var finish=sessionStorage.getItem('wv_finish')||'Matte';
   var color=sessionStorage.getItem('wv_color')||'Black';
@@ -47,7 +61,19 @@
   }
 
   // Read partner numbers from the centralized config (partners.js).
-  var partners=window.WV_PARTNERS||[];
+  // If partners.js failed to load (network blip, CSP misconfig, stale
+  // cache poisoning), fall back to a hardcoded copy so screen 3 is
+  // never rendered with zero WhatsApp buttons — that would silently
+  // kill the conversion funnel with no operator-visible alert.
+  // partners.js remains the source of truth; this is a safety net.
+  var WV_PARTNERS_FALLBACK=[
+    {id:'wa1',number:'254705040033',display:'+254 705 040 033',label:'Line 1'},
+    {id:'wa2',number:'254700419444',display:'+254 700 419 444',label:'Line 2'}
+  ];
+  var partners=(window.WV_PARTNERS&&window.WV_PARTNERS.length)?window.WV_PARTNERS:WV_PARTNERS_FALLBACK;
+  if(!window.WV_PARTNERS||!window.WV_PARTNERS.length){
+    console.warn('[WV] partners.js missing or empty; using inline fallback on screen 3');
+  }
   var btnContainer=document.getElementById('wv-wa-buttons');
   var fallbackEl=document.getElementById('wv-wa-fallback');
   var fallbackNumberEl=document.getElementById('wv-fallback-number');

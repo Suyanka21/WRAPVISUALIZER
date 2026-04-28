@@ -177,7 +177,17 @@
     window.location.href='screen2-studio.html';
   });
 
-  var partners=window.WV_PARTNERS||[];
+  // Same fallback rationale as screens 3 and 4: if partners.js failed
+  // to load, the hero teaser must still render so the user has a way
+  // to start a chat. partners.js remains the source of truth.
+  var WV_PARTNERS_FALLBACK=[
+    {id:'wa1',number:'254705040033',display:'+254 705 040 033',label:'Line 1'},
+    {id:'wa2',number:'254700419444',display:'+254 700 419 444',label:'Line 2'}
+  ];
+  var partners=(window.WV_PARTNERS&&window.WV_PARTNERS.length)?window.WV_PARTNERS:WV_PARTNERS_FALLBACK;
+  if(!window.WV_PARTNERS||!window.WV_PARTNERS.length){
+    console.warn('[WV] partners.js missing or empty; using inline fallback on screen 1');
+  }
   var teaserContainer=document.getElementById('wv-teaser-buttons');
   partners.forEach(function(p){
     if(!teaserContainer) return;
