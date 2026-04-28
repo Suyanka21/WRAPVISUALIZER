@@ -119,7 +119,12 @@ if (!process.env.REPLICATE_API_TOKEN) {
   );
 }
 
-initReplicateReadiness(process.env.REPLICATE_API_TOKEN);
+initReplicateReadiness(process.env.REPLICATE_API_TOKEN).catch((error) => {
+  console.error(
+    '[Replicate] Unexpected error while initializing readiness state.',
+    error,
+  );
+});
 
 const server = app.listen(PORT, () => {
   console.log(`[WrapVisualizer] Listening on :${PORT}`);
