@@ -20,44 +20,24 @@
     {id:'wa2',number:'254700419444',display:'+254 700 419 444',label:'Line 2'}
   ];
 
-  // Coerce any of the three Kenyan phone formats accepted by GEMINI.md
-  // rule #4 (07XXXXXXXX, +2547XXXXXXXX, 2547XXXXXXXX) into the canonical
-  // wa.me/2547XXXXXXXX form (rule #5). Returns null if the input cannot
-  // be confidently normalized — callers must fall back when null.
-  function normalizePartnerNumber(raw){
-    if(raw==null) return null;
-    var digits=String(raw).replace(/\D/g,'');
-    if(/^07\d{8}$/.test(digits)) return '254'+digits.slice(1);
-    if(/^7\d{8}$/.test(digits))  return '254'+digits;
-    if(/^2547\d{8}$/.test(digits)) return digits;
-    return null;
-  }
-
-  // Validate one entry from window.WV_PARTNERS. Drops entries that
-  // aren't a plain object or don't carry a normalizable phone number.
-  // Returns a sanitized partner with safe-to-render display/label.
-  function validatePartner(p){
-    if(!p||typeof p!=='object') return null;
-    var number=normalizePartnerNumber(p.number);
-    if(!number) return null;
-    return {
-      id: typeof p.id==='string'&&p.id?p.id:'wa-'+number,
-      number: number,
-      display: typeof p.display==='string'&&p.display?p.display:'+'+number,
-      label: typeof p.label==='string'&&p.label?p.label:'WhatsApp'
-    };
-  }
+  // Shared validator (loaded by partners-validate.js, which every screen
+  // includes BEFORE its own script). Hard-fail to fallback if the validator
+  // module is somehow missing — same outcome as an all-malformed list.
+  var validator=window.WV_PARTNER_VALIDATE||{};
+  var normalizePartnerNumber=validator.normalizePartnerNumber||function(){return null;};
 
   var vehicleLabel=sessionStorage.getItem('wv_vehicle_label')||'Vehicle';
   var finish=sessionStorage.getItem('wv_finish')||'Matte';
   var color=sessionStorage.getItem('wv_color')||'Black';
 
-  // Sanitize the external partner list. An array with a present-but-
-  // malformed entry (e.g. {} or {number:'abc'}) used to slip past the
-  // `&&.length` guard and produce defaultPartner=undefined, which
-  // would build https://wa.me/undefined — a dead conversion link.
-  var rawPartners=Array.isArray(window.WV_PARTNERS)?window.WV_PARTNERS:[];
-  var sanitized=rawPartners.map(validatePartner).filter(Boolean);
+  // Sanitize the external partner list through the shared validator.
+  // An array with a present-but-malformed entry (e.g. {} or
+  // {number:'abc'}) used to slip past the `&&.length` guard and produce
+  // defaultPartner=undefined, which would build https://wa.me/undefined
+  // — a dead conversion link.
+  var sanitized=(typeof validator.validatePartners==='function')
+    ? validator.validatePartners(window.WV_PARTNERS)
+    : [];
   var partners=sanitized.length?sanitized:WV_PARTNERS_FALLBACK;
   if(!sanitized.length){
     console.warn('[WV] partners.js missing, empty, or all entries invalid; using inline fallback on screen 4');

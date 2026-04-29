@@ -61,18 +61,27 @@
   }
 
   // Read partner numbers from the centralized config (partners.js).
-  // If partners.js failed to load (network blip, CSP misconfig, stale
-  // cache poisoning), fall back to a hardcoded copy so screen 3 is
-  // never rendered with zero WhatsApp buttons — that would silently
-  // kill the conversion funnel with no operator-visible alert.
-  // partners.js remains the source of truth; this is a safety net.
+  // If partners.js failed to load OR every entry was malformed, fall
+  // back to a hardcoded copy so screen 3 is never rendered with zero
+  // WhatsApp buttons — that would silently kill the conversion funnel
+  // with no operator-visible alert. partners.js remains the source of
+  // truth; this is a safety net.
   var WV_PARTNERS_FALLBACK=[
     {id:'wa1',number:'254705040033',display:'+254 705 040 033',label:'Line 1'},
     {id:'wa2',number:'254700419444',display:'+254 700 419 444',label:'Line 2'}
   ];
-  var partners=(window.WV_PARTNERS&&window.WV_PARTNERS.length)?window.WV_PARTNERS:WV_PARTNERS_FALLBACK;
-  if(!window.WV_PARTNERS||!window.WV_PARTNERS.length){
-    console.warn('[WV] partners.js missing or empty; using inline fallback on screen 3');
+  // Re-validate window.WV_PARTNERS through the shared validator. partners.js
+  // already self-sanitizes, but defense-in-depth: a future build path that
+  // injects WV_PARTNERS from a different source still has its bad entries
+  // dropped here, so screen3 (the lead-firing screen) can never build a
+  // wa.me/undefined link.
+  var validator=window.WV_PARTNER_VALIDATE;
+  var sanitized=(validator&&typeof validator.validatePartners==='function')
+    ? validator.validatePartners(window.WV_PARTNERS)
+    : (Array.isArray(window.WV_PARTNERS)?window.WV_PARTNERS:[]);
+  var partners=sanitized.length?sanitized:WV_PARTNERS_FALLBACK;
+  if(!sanitized.length){
+    console.warn('[WV] partners.js missing, empty, or all entries invalid; using inline fallback on screen 3');
   }
   var btnContainer=document.getElementById('wv-wa-buttons');
   var fallbackEl=document.getElementById('wv-wa-fallback');
@@ -118,7 +127,10 @@
         fallbackEl.style.display='block';
       }
 
-      window.open('https://wa.me/'+p.number+'?text='+buildMsg(),'_blank','noopener');
+      // p.number is guaranteed /^2547\d{8}$/ by the validator above;
+      // encodeURIComponent is a no-op on success but blocks any future
+      // regression that allows non-digit content to reach the URL.
+      window.open('https://wa.me/'+encodeURIComponent(p.number)+'?text='+buildMsg(),'_blank','noopener');
 
       // Honest "Message Sent" gating: only mark the conversion and
       // navigate to screen4 if the tab actually becomes hidden within

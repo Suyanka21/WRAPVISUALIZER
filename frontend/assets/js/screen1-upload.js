@@ -178,15 +178,23 @@
   });
 
   // Same fallback rationale as screens 3 and 4: if partners.js failed
-  // to load, the hero teaser must still render so the user has a way
-  // to start a chat. partners.js remains the source of truth.
+  // to load OR every entry was malformed, the hero teaser must still
+  // render so the user has a way to start a chat. partners.js remains
+  // the source of truth; the fallback is the safety net.
   var WV_PARTNERS_FALLBACK=[
     {id:'wa1',number:'254705040033',display:'+254 705 040 033',label:'Line 1'},
     {id:'wa2',number:'254700419444',display:'+254 700 419 444',label:'Line 2'}
   ];
-  var partners=(window.WV_PARTNERS&&window.WV_PARTNERS.length)?window.WV_PARTNERS:WV_PARTNERS_FALLBACK;
-  if(!window.WV_PARTNERS||!window.WV_PARTNERS.length){
-    console.warn('[WV] partners.js missing or empty; using inline fallback on screen 1');
+  // Re-validate window.WV_PARTNERS through the shared validator. partners.js
+  // already self-sanitizes, but defense-in-depth: if a future build path
+  // injects WV_PARTNERS from a different source, we still drop bad entries.
+  var validator=window.WV_PARTNER_VALIDATE;
+  var sanitized=(validator&&typeof validator.validatePartners==='function')
+    ? validator.validatePartners(window.WV_PARTNERS)
+    : (Array.isArray(window.WV_PARTNERS)?window.WV_PARTNERS:[]);
+  var partners=sanitized.length?sanitized:WV_PARTNERS_FALLBACK;
+  if(!sanitized.length){
+    console.warn('[WV] partners.js missing, empty, or all entries invalid; using inline fallback on screen 1');
   }
   var teaserContainer=document.getElementById('wv-teaser-buttons');
   partners.forEach(function(p){
@@ -199,7 +207,9 @@
       var v=selVehicleLabel||'General Inquiry';
       var msg=encodeURIComponent('Hi, I am interested in a vehicle wrap.\nVehicle: '+v+'\n\nCould you share options and next steps?');
       track('wa_click',{screen:'screen1',partner:p.id,has_vehicle:Boolean(selVehicleLabel)});
-      window.open('https://wa.me/'+p.number+'?text='+msg,'_blank');
+      // p.number is guaranteed /^2547\d{8}$/ by the validator. encodeURIComponent
+      // is a no-op on success but blocks any future regression.
+      window.open('https://wa.me/'+encodeURIComponent(p.number)+'?text='+msg,'_blank','noopener');
     });
     teaserContainer.appendChild(btn);
   });
