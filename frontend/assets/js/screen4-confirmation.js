@@ -22,8 +22,10 @@
   var vehicleLabel=sessionStorage.getItem('wv_vehicle_label')||'Vehicle';
   var finish=sessionStorage.getItem('wv_finish')||'Matte';
   var color=sessionStorage.getItem('wv_color')||'Black';
-  var partners=(window.WV_PARTNERS&&window.WV_PARTNERS.length)?window.WV_PARTNERS:WV_PARTNERS_FALLBACK;
-  if(!window.WV_PARTNERS||!window.WV_PARTNERS.length){
+  var rawPartners=Array.isArray(window.WV_PARTNERS)?window.WV_PARTNERS.filter(function(p){return p&&typeof p.number==='string'&&p.number.length>0;}):[];
+  var hasPartnerList=rawPartners.length>0;
+  var partners=hasPartnerList?rawPartners:WV_PARTNERS_FALLBACK;
+  if(!hasPartnerList){
     console.warn('[WV] partners.js missing or empty; using inline fallback on screen 4');
   }
   var defaultPartner=partners[0].number;
