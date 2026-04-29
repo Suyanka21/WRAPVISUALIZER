@@ -16,6 +16,53 @@ import { segmentImage } from '../services/replicate.js';
 
 const router = Router();
 
+/**
+ * Sniff the first few bytes of an upload buffer and return one of
+ * 'image/jpeg' | 'image/png' | 'image/webp', or null if the magic
+ * bytes don't match a supported format.
+ *
+ * Audit V2: file.mimetype as reported by multer is the browser's
+ * Content-Type header — fully spoofable by a manual multipart POST.
+ * A malicious upload can carry mimetype=image/jpeg but contain a
+ * .exe payload, an SVG (which Replicate rejects), or random bytes
+ * that waste a paid SAM-2 inference and return a meaningless mask.
+ *
+ * The sniff costs a few bytes of comparison and gives us a real
+ * input-validation boundary instead of trusting the client header.
+ */
+function sniffImageType(buf) {
+  if (!buf || buf.length < 12) return null;
+  // JPEG: FF D8 FF
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'image/jpeg';
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (
+    buf[0] === 0x89 &&
+    buf[1] === 0x50 &&
+    buf[2] === 0x4e &&
+    buf[3] === 0x47 &&
+    buf[4] === 0x0d &&
+    buf[5] === 0x0a &&
+    buf[6] === 0x1a &&
+    buf[7] === 0x0a
+  ) {
+    return 'image/png';
+  }
+  // WebP: 'RIFF' .... 'WEBP'
+  if (
+    buf[0] === 0x52 &&
+    buf[1] === 0x49 &&
+    buf[2] === 0x46 &&
+    buf[3] === 0x46 &&
+    buf[8] === 0x57 &&
+    buf[9] === 0x45 &&
+    buf[10] === 0x42 &&
+    buf[11] === 0x50
+  ) {
+    return 'image/webp';
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Multer config — memory storage, 4 MB max, images only
 // Kept in sync with the frontend MAX_UPLOAD_BYTES gate in
@@ -72,6 +119,25 @@ router.post('/', handleUpload, async (req, res) => {
       });
     }
 
+    // Magic-byte content sniff (audit V2). The browser-supplied
+    // mimetype was already filtered by multer, but the *content* may
+    // not match — a curl with --form 'image=@evil.exe;type=image/jpeg'
+    // sails past the header check. Sniff the first 12 bytes and
+    // require an actual image header before we send anything to
+    // Replicate (or, worse, return our own "no_vehicle_detected"
+    // for what was never an image to begin with).
+    const sniffed = sniffImageType(req.file.buffer);
+    if (!sniffed || sniffed !== req.file.mimetype) {
+      console.warn(
+        `[Segment] Magic-byte sniff rejected upload mime=${req.file.mimetype} sniffed=${sniffed}`,
+      );
+      return res.status(400).json({
+        success: false,
+        code: 'invalid_image_content',
+        message: 'Only JPEG, PNG, and WebP images are supported.',
+      });
+    }
+
     // Validate API token
     const token = process.env.REPLICATE_API_TOKEN;
     if (!token) {
@@ -83,9 +149,11 @@ router.post('/', handleUpload, async (req, res) => {
       });
     }
 
-    // Convert buffer → base64 data URI
+    // Convert buffer → base64 data URI. Use the sniffed type so an
+    // attacker can't trick us into building a data:image/svg+xml URI
+    // by spoofing the multipart Content-Type header.
     const base64 = req.file.buffer.toString('base64');
-    const dataUri = `data:${req.file.mimetype};base64,${base64}`;
+    const dataUri = `data:${sniffed};base64,${base64}`;
 
     // Call Replicate SAM2 service
     const sizeKb = Math.round(req.file.size / 1024);
