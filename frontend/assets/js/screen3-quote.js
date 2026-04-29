@@ -14,10 +14,38 @@
     return;
   }
 
+  // Audit V1: whitelist sessionStorage values rendered into the
+  // quote summary AND into the WhatsApp message body. Without this,
+  // a tampered sessionStorage (or a stale value from a prior build's
+  // finish/color naming) would let arbitrary text reach the customer-
+  // facing summary card. The lists are kept in sync with the data-
+  // finish / data-color attributes in screen2-studio.html.
+  var ALLOWED_FINISHES=[
+    'Matte','Gloss','Satin','Chrome','Carbon Fibre',
+    'Brushed Metal','Colour Shift','PPF Clear'
+  ];
+  var ALLOWED_COLORS=[
+    'Black','White','Racing Red','Midnight Blue','British Racing Green',
+    'Sunset Orange','Gold','Tiffany Blue','Nardo Gray','Gunmetal',
+    'Espresso Brown','Purple Reign'
+  ];
+  function pickAllowed(value, allowed, fallback){
+    return allowed.indexOf(value)>=0 ? value : fallback;
+  }
+  // CSS color values destined for an inline style.background must be
+  // a strict #RRGGBB or #RGB form — anything else is dropped to a safe
+  // fallback. This blocks `'red; background:url(...)'` style escapes
+  // even though the modern style API generally rejects them.
+  function safeHex(value){
+    return /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(value)
+      ? value
+      : '#0a0a0a';
+  }
+
   var vehicleLabel=sessionStorage.getItem('wv_vehicle_label')||'Vehicle';
-  var finish=sessionStorage.getItem('wv_finish')||'Matte';
-  var color=sessionStorage.getItem('wv_color')||'Black';
-  var colorHex=sessionStorage.getItem('wv_color_hex')||'#0a0a0a';
+  var finish=pickAllowed(sessionStorage.getItem('wv_finish'),ALLOWED_FINISHES,'Matte');
+  var color=pickAllowed(sessionStorage.getItem('wv_color'),ALLOWED_COLORS,'Black');
+  var colorHex=safeHex(sessionStorage.getItem('wv_color_hex')||'#0a0a0a');
   var vision=(sessionStorage.getItem('wv_vision')||'').trim();
 
   document.getElementById('wv-q-vehicle').textContent=vehicleLabel;
@@ -61,20 +89,33 @@
   }
 
   // Read partner numbers from the centralized config (partners.js).
-  // If partners.js failed to load (network blip, CSP misconfig, stale
-  // cache poisoning), fall back to a hardcoded copy so screen 3 is
-  // never rendered with zero WhatsApp buttons — that would silently
-  // kill the conversion funnel with no operator-visible alert.
-  // partners.js remains the source of truth; this is a safety net.
+  // If partners.js failed to load OR every entry was malformed, fall
+  // back to a hardcoded copy so screen 3 is never rendered with zero
+  // WhatsApp buttons — that would silently kill the conversion funnel
+  // with no operator-visible alert. partners.js remains the source of
+  // truth; this is a safety net.
   var WV_PARTNERS_FALLBACK=[
     {id:'wa1',number:'254705040033',display:'+254 705 040 033',label:'Line 1'},
     {id:'wa2',number:'254700419444',display:'+254 700 419 444',label:'Line 2'}
   ];
-  var rawPartners=Array.isArray(window.WV_PARTNERS)?window.WV_PARTNERS.filter(function(p){return p&&typeof p.number==='string'&&p.number.length>0;}):[];
-  var hasPartnerList=rawPartners.length>0;
-  var partners=hasPartnerList?rawPartners:WV_PARTNERS_FALLBACK;
-  if(!hasPartnerList){
-    console.warn('[WV] partners.js missing or empty; using inline fallback on screen 3');
+  // Re-validate window.WV_PARTNERS through the shared validator. partners.js
+  // already self-sanitizes, but defense-in-depth: a future build path that
+  // injects WV_PARTNERS from a different source still has its bad entries
+  // dropped here, so screen3 (the lead-firing screen) can never build a
+  // wa.me/undefined link.
+  // CodeRabbit (PR #24): if partners-validate.js fails to load while
+  // partners.js still exposes data, the previous fallback would treat
+  // raw WV_PARTNERS as already-sanitized and could rebuild the
+  // wa.me/undefined link path. Treat a missing validator as "no valid
+  // partners" so WV_PARTNERS_FALLBACK takes over — screen3 fires the
+  // actual lead, so a dead link here is the worst place to regress.
+  var validator=window.WV_PARTNER_VALIDATE;
+  var sanitized=(validator&&typeof validator.validatePartners==='function')
+    ? validator.validatePartners(window.WV_PARTNERS)
+    : [];
+  var partners=sanitized.length?sanitized:WV_PARTNERS_FALLBACK;
+  if(!sanitized.length){
+    console.warn('[WV] partners.js missing, empty, or all entries invalid; using inline fallback on screen 3');
   }
   var btnContainer=document.getElementById('wv-wa-buttons');
   var fallbackEl=document.getElementById('wv-wa-fallback');
@@ -120,7 +161,10 @@
         fallbackEl.style.display='block';
       }
 
-      window.open('https://wa.me/'+p.number+'?text='+buildMsg(),'_blank','noopener');
+      // p.number is guaranteed /^2547\d{8}$/ by the validator above;
+      // encodeURIComponent is a no-op on success but blocks any future
+      // regression that allows non-digit content to reach the URL.
+      window.open('https://wa.me/'+encodeURIComponent(p.number)+'?text='+buildMsg(),'_blank','noopener');
 
       // Honest "Message Sent" gating: only mark the conversion and
       // navigate to screen4 if the tab actually becomes hidden within

@@ -12,7 +12,16 @@
     var segErr=sessionStorage.getItem('wv_segment_error');
     if(segErr){
       var segErrMsg=document.getElementById('wv-segment-error-msg');
-      if(segErrMsg && segErr.length<200) segErrMsg.textContent=segErr;
+      // Audit SF2: previously the message was silently dropped if the
+      // backend returned a >200-char string (e.g. a verbose Replicate
+      // detail in dev mode). Truncate-and-show is more honest — the
+      // user gets something to read, ops still see the full message
+      // upstream, and 200 chars is a sensible UI cap on a 375px banner.
+      if(segErrMsg){
+        segErrMsg.textContent=segErr.length>200
+          ? segErr.slice(0,197)+'...'
+          : segErr;
+      }
       segErrEl.classList.remove('hidden');
       sessionStorage.removeItem('wv_segment_error');
     }

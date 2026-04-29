@@ -1,18 +1,14 @@
 /**
- * Image Segmentation Route
- *
- * POST /api/segment
- *
- * Accepts a car photo upload (multipart/form-data), sends it to
- * the Replicate meta/sam-2 API for vehicle body panel segmentation,
- * and returns the masked image URL for wrap overlay on the frontend.
- *
- * File location: backend/routes/segment.js
+ * POST /api/segment — accepts a car photo upload (multipart/form-data),
+ * sends it to the Replicate meta/sam-2 API for vehicle body panel
+ * segmentation, and returns the masked image URL for wrap overlay.
  */
 
 import { Router } from 'express';
 import multer from 'multer';
 import { segmentImage } from '../services/replicate.js';
+import { sniffImageType } from '../utils/image-validation.js';
+import { handleSegmentError } from '../utils/segment-errors.js';
 
 const router = Router();
 
@@ -42,8 +38,13 @@ const handleUpload = (req, res, next) => {
   upload.single('image')(req, res, (err) => {
     if (err) {
       console.warn('[Segment] Upload rejected:', err.message);
+      // Multer's MulterError sets a `code`; LIMIT_FILE_SIZE is the
+      // common ops case worth distinguishing in the response.
+      const code =
+        err.code === 'LIMIT_FILE_SIZE' ? 'upload_too_large' : 'invalid_upload';
       return res.status(400).json({
         success: false,
+        code,
         message: 'Invalid upload.',
       });
     }
@@ -62,7 +63,27 @@ router.post('/', handleUpload, async (req, res) => {
     if (!req.file) {
       return res.status(400).json({
         success: false,
+        code: 'invalid_upload',
         message: 'Invalid upload.',
+      });
+    }
+
+    // Magic-byte content sniff (audit V2). The browser-supplied
+    // mimetype was already filtered by multer, but the *content* may
+    // not match — a curl with --form 'image=@evil.exe;type=image/jpeg'
+    // sails past the header check. Sniff the first 12 bytes and
+    // require an actual image header before we send anything to
+    // Replicate (or, worse, return our own "no_vehicle_detected"
+    // for what was never an image to begin with).
+    const sniffed = sniffImageType(req.file.buffer);
+    if (!sniffed || sniffed !== req.file.mimetype) {
+      console.warn(
+        `[Segment] Magic-byte sniff rejected upload mime=${req.file.mimetype} sniffed=${sniffed}`,
+      );
+      return res.status(400).json({
+        success: false,
+        code: 'invalid_image_content',
+        message: 'Only JPEG, PNG, and WebP images are supported.',
       });
     }
 
@@ -72,13 +93,16 @@ router.post('/', handleUpload, async (req, res) => {
       console.error('[Segment] REPLICATE_API_TOKEN is missing');
       return res.status(500).json({
         success: false,
+        code: 'service_misconfigured',
         message: 'AI service is not configured. Please contact support.',
       });
     }
 
-    // Convert buffer → base64 data URI
+    // Convert buffer → base64 data URI. Use the sniffed type so an
+    // attacker can't trick us into building a data:image/svg+xml URI
+    // by spoofing the multipart Content-Type header.
     const base64 = req.file.buffer.toString('base64');
-    const dataUri = `data:${req.file.mimetype};base64,${base64}`;
+    const dataUri = `data:${sniffed};base64,${base64}`;
 
     // Call Replicate SAM2 service
     const sizeKb = Math.round(req.file.size / 1024);
@@ -94,6 +118,7 @@ router.post('/', handleUpload, async (req, res) => {
       );
       return res.status(422).json({
         success: false,
+        code: 'no_vehicle_detected',
         message:
           "We couldn't detect a vehicle in this photo. " +
           'Please upload a clear side or front view.',
@@ -113,41 +138,7 @@ router.post('/', handleUpload, async (req, res) => {
       processingTime: result.processingTime,
     });
   } catch (error) {
-    const detail = error.response?.data?.detail || error.response?.data?.message;
-    const status = error.response?.status;
-    console.error(
-      `[Segment Error] ${error.message}${status ? ` status=${status}` : ''}${detail ? ` detail=${detail}` : ''}`,
-    );
-
-    if (error.message === 'TIMEOUT') {
-      return res.status(503).json({
-        success: false,
-        message: 'AI processing timed out. Please try again with a smaller or clearer photo.',
-      });
-    }
-    if (error.response?.status === 402) {
-      // Real cause is logged above ("status=402"); surface a generic
-      // message so end-users don't see our provider name or billing
-      // state. Ops should watch for 402s in logs and top up credits.
-      return res.status(503).json({
-        success: false,
-        message: 'Our AI service is temporarily unavailable. Please try again in a moment.',
-      });
-    }
-    if (error.response?.status === 401) {
-      // Same rationale — auth misconfiguration is an ops problem, not
-      // something to leak to end-users. 503 matches the 402 branch so
-      // any client banner keyed off status code treats them uniformly
-      // as "service temporarily unavailable".
-      return res.status(503).json({
-        success: false,
-        message: 'Our AI service is temporarily unavailable. Please try again in a moment.',
-      });
-    }
-    return res.status(500).json({
-      success: false,
-      message: 'Image processing failed. Please try again with a different photo.',
-    });
+    return handleSegmentError(error, res);
   }
 });
 

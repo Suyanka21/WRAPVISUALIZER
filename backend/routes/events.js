@@ -26,7 +26,21 @@ const router = Router();
 
 const MAX_EVENT_LEN = 64;
 const MAX_PROPS_LEN = 512; // JSON-stringified props cap
-const ALLOWED_EVENT_RE = /^[a-z0-9_.-]{1,64}$/i;
+// Audit W5: previous regex /^[a-z0-9_.-]{1,64}$/i allowed UPPERCASE,
+// dots, dashes, and a leading digit/underscore — none of which are
+// produced by the canonical wvTrack() emitters in the frontend
+// (snake_case ASCII only, lower-case, leading letter, e.g. 'wa_click',
+// 'segment_failed'). Tightening the regex turns an unexpected
+// uppercase or dotted event into a 204 no-op so an exfil-style event
+// crafted by a tampered tab can't pollute the analytics pipeline.
+//
+// CodeRabbit (PR #24): the previous {0,62} quantifier capped event
+// names at 63 chars while MAX_EVENT_LEN was 64 — a 64-char valid
+// snake_case event would silently drop. Derive the regex from
+// MAX_EVENT_LEN so the two stay in sync forever.
+const ALLOWED_EVENT_RE = new RegExp(
+  `^[a-z][a-z0-9_]{0,${MAX_EVENT_LEN - 1}}$`,
+);
 
 const eventsRateLimit = rateLimit({
   windowMs: 60 * 1000,

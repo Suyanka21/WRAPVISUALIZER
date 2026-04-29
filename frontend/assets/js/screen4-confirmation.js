@@ -19,17 +19,52 @@
     {id:'wa1',number:'254705040033',display:'+254 705 040 033',label:'Line 1'},
     {id:'wa2',number:'254700419444',display:'+254 700 419 444',label:'Line 2'}
   ];
+
+  // Shared validator (loaded by partners-validate.js, which every screen
+  // includes BEFORE its own script). Hard-fail to fallback if the validator
+  // module is somehow missing — same outcome as an all-malformed list.
+  var validator=window.WV_PARTNER_VALIDATE||{};
+  var normalizePartnerNumber=validator.normalizePartnerNumber||function(){return null;};
+
+  // Audit V1 whitelist (kept in sync with screen3-quote.js / screen2-studio.html).
+  var ALLOWED_FINISHES=[
+    'Matte','Gloss','Satin','Chrome','Carbon Fibre',
+    'Brushed Metal','Colour Shift','PPF Clear'
+  ];
+  var ALLOWED_COLORS=[
+    'Black','White','Racing Red','Midnight Blue','British Racing Green',
+    'Sunset Orange','Gold','Tiffany Blue','Nardo Gray','Gunmetal',
+    'Espresso Brown','Purple Reign'
+  ];
+  function pickAllowed(value, allowed, fallback){
+    return allowed.indexOf(value)>=0 ? value : fallback;
+  }
+
   var vehicleLabel=sessionStorage.getItem('wv_vehicle_label')||'Vehicle';
-  var finish=sessionStorage.getItem('wv_finish')||'Matte';
-  var color=sessionStorage.getItem('wv_color')||'Black';
-  var rawPartners=Array.isArray(window.WV_PARTNERS)?window.WV_PARTNERS.filter(function(p){return p&&typeof p.number==='string'&&p.number.length>0;}):[];
-  var hasPartnerList=rawPartners.length>0;
-  var partners=hasPartnerList?rawPartners:WV_PARTNERS_FALLBACK;
-  if(!hasPartnerList){
-    console.warn('[WV] partners.js missing or empty; using inline fallback on screen 4');
+  var finish=pickAllowed(sessionStorage.getItem('wv_finish'),ALLOWED_FINISHES,'Matte');
+  var color=pickAllowed(sessionStorage.getItem('wv_color'),ALLOWED_COLORS,'Black');
+
+  // Sanitize the external partner list through the shared validator.
+  // An array with a present-but-malformed entry (e.g. {} or
+  // {number:'abc'}) used to slip past the `&&.length` guard and produce
+  // defaultPartner=undefined, which would build https://wa.me/undefined
+  // — a dead conversion link.
+  var sanitized=(typeof validator.validatePartners==='function')
+    ? validator.validatePartners(window.WV_PARTNERS)
+    : [];
+  var partners=sanitized.length?sanitized:WV_PARTNERS_FALLBACK;
+  if(!sanitized.length){
+    console.warn('[WV] partners.js missing, empty, or all entries invalid; using inline fallback on screen 4');
   }
   var defaultPartner=partners[0].number;
-  var partner=sessionStorage.getItem('wv_wa_partner')||defaultPartner;
+
+  // sessionStorage may carry a partner from an older build or a
+  // tampered tab. Re-validate it against the same normalizer; only
+  // fall back if it's good and present in the sanitized partner list.
+  var storedPartner=normalizePartnerNumber(sessionStorage.getItem('wv_wa_partner'));
+  var partner=(storedPartner&&partners.some(function(p){return p.number===storedPartner;}))
+    ? storedPartner
+    : defaultPartner;
   var track=window.wvTrack||function(){};
 
   // Fire the conversion event only when the user actually arrived
@@ -59,7 +94,11 @@
   if(waAgainBtn){
     waAgainBtn.addEventListener('click',function(){
       track('wa_reopen',{screen:'screen4',partner:partner});
-      window.open('https://wa.me/'+partner,'_blank','noopener');
+      // partner is guaranteed to match /^2547\d{8}$/ by the validator
+      // above, so encodeURIComponent is a no-op on success — but it's
+      // a defense-in-depth guard against any future code path that
+      // could let unsafe data reach this URL builder.
+      window.open('https://wa.me/'+encodeURIComponent(partner),'_blank','noopener');
     });
   }
 })();
