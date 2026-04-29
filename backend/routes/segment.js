@@ -42,8 +42,13 @@ const handleUpload = (req, res, next) => {
   upload.single('image')(req, res, (err) => {
     if (err) {
       console.warn('[Segment] Upload rejected:', err.message);
+      // Multer's MulterError sets a `code`; LIMIT_FILE_SIZE is the
+      // common ops case worth distinguishing in the response.
+      const code =
+        err.code === 'LIMIT_FILE_SIZE' ? 'upload_too_large' : 'invalid_upload';
       return res.status(400).json({
         success: false,
+        code,
         message: 'Invalid upload.',
       });
     }
@@ -62,6 +67,7 @@ router.post('/', handleUpload, async (req, res) => {
     if (!req.file) {
       return res.status(400).json({
         success: false,
+        code: 'invalid_upload',
         message: 'Invalid upload.',
       });
     }
@@ -72,6 +78,7 @@ router.post('/', handleUpload, async (req, res) => {
       console.error('[Segment] REPLICATE_API_TOKEN is missing');
       return res.status(500).json({
         success: false,
+        code: 'service_misconfigured',
         message: 'AI service is not configured. Please contact support.',
       });
     }
@@ -94,6 +101,7 @@ router.post('/', handleUpload, async (req, res) => {
       );
       return res.status(422).json({
         success: false,
+        code: 'no_vehicle_detected',
         message:
           "We couldn't detect a vehicle in this photo. " +
           'Please upload a clear side or front view.',
@@ -119,10 +127,35 @@ router.post('/', handleUpload, async (req, res) => {
       `[Segment Error] ${error.message}${status ? ` status=${status}` : ''}${detail ? ` detail=${detail}` : ''}`,
     );
 
+    // Differentiated error branches.
+    //
+    // End-users get a consistent "temporarily unavailable" wording for
+    // any provider-side failure (don't leak Replicate as the dependency,
+    // don't leak billing/credential state). Internally, we ALWAYS attach
+    // a stable `code` field so clients and tests can discriminate
+    // failure modes without scraping message strings, and ops can
+    // alert on the log line above which carries the upstream status.
     if (error.message === 'TIMEOUT') {
+      return res.status(504).json({
+        success: false,
+        code: 'upstream_timeout',
+        message: 'AI processing timed out. Please try again with a smaller or clearer photo.',
+      });
+    }
+    if (error.response?.status === 429) {
+      // Rate-limited by Replicate. Tell the client to back off; the
+      // 503 + Retry-After pair is the standard signal to the browser
+      // / fetch layer to wait before retrying. We forward Replicate's
+      // Retry-After if it sent one, else default to 30s.
+      const retryAfter =
+        Number(error.response.headers?.['retry-after']) || 30;
+      res.set('Retry-After', String(retryAfter));
       return res.status(503).json({
         success: false,
-        message: 'AI processing timed out. Please try again with a smaller or clearer photo.',
+        code: 'upstream_rate_limited',
+        retry_after_seconds: retryAfter,
+        message:
+          'Our AI service is busy right now. Please try again in a moment.',
       });
     }
     if (error.response?.status === 402) {
@@ -131,6 +164,7 @@ router.post('/', handleUpload, async (req, res) => {
       // state. Ops should watch for 402s in logs and top up credits.
       return res.status(503).json({
         success: false,
+        code: 'upstream_billing',
         message: 'Our AI service is temporarily unavailable. Please try again in a moment.',
       });
     }
@@ -141,11 +175,25 @@ router.post('/', handleUpload, async (req, res) => {
       // as "service temporarily unavailable".
       return res.status(503).json({
         success: false,
+        code: 'upstream_auth',
+        message: 'Our AI service is temporarily unavailable. Please try again in a moment.',
+      });
+    }
+    if (error.response?.status >= 500 && error.response?.status < 600) {
+      // Replicate (or its CDN) returned 5xx. This is a provider
+      // outage from our perspective, not a malformed-request issue,
+      // so 503 is more accurate than 500 (which clients may interpret
+      // as our backend being broken). Distinct `code` lets ops
+      // dashboards count provider-down minutes separately.
+      return res.status(503).json({
+        success: false,
+        code: 'upstream_unavailable',
         message: 'Our AI service is temporarily unavailable. Please try again in a moment.',
       });
     }
     return res.status(500).json({
       success: false,
+      code: 'unexpected_error',
       message: 'Image processing failed. Please try again with a different photo.',
     });
   }
