@@ -14,10 +14,38 @@
     return;
   }
 
+  // Audit V1: whitelist sessionStorage values rendered into the
+  // quote summary AND into the WhatsApp message body. Without this,
+  // a tampered sessionStorage (or a stale value from a prior build's
+  // finish/color naming) would let arbitrary text reach the customer-
+  // facing summary card. The lists are kept in sync with the data-
+  // finish / data-color attributes in screen2-studio.html.
+  var ALLOWED_FINISHES=[
+    'Matte','Gloss','Satin','Chrome','Carbon Fibre',
+    'Brushed Metal','Colour Shift','PPF Clear'
+  ];
+  var ALLOWED_COLORS=[
+    'Black','White','Racing Red','Midnight Blue','British Racing Green',
+    'Sunset Orange','Gold','Tiffany Blue','Nardo Gray','Gunmetal',
+    'Espresso Brown','Purple Reign'
+  ];
+  function pickAllowed(value, allowed, fallback){
+    return allowed.indexOf(value)>=0 ? value : fallback;
+  }
+  // CSS color values destined for an inline style.background must be
+  // a strict #RRGGBB or #RGB form — anything else is dropped to a safe
+  // fallback. This blocks `'red; background:url(...)'` style escapes
+  // even though the modern style API generally rejects them.
+  function safeHex(value){
+    return /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(value)
+      ? value
+      : '#0a0a0a';
+  }
+
   var vehicleLabel=sessionStorage.getItem('wv_vehicle_label')||'Vehicle';
-  var finish=sessionStorage.getItem('wv_finish')||'Matte';
-  var color=sessionStorage.getItem('wv_color')||'Black';
-  var colorHex=sessionStorage.getItem('wv_color_hex')||'#0a0a0a';
+  var finish=pickAllowed(sessionStorage.getItem('wv_finish'),ALLOWED_FINISHES,'Matte');
+  var color=pickAllowed(sessionStorage.getItem('wv_color'),ALLOWED_COLORS,'Black');
+  var colorHex=safeHex(sessionStorage.getItem('wv_color_hex')||'#0a0a0a');
   var vision=(sessionStorage.getItem('wv_vision')||'').trim();
 
   document.getElementById('wv-q-vehicle').textContent=vehicleLabel;

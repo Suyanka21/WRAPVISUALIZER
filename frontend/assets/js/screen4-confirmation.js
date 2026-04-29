@@ -26,9 +26,23 @@
   var validator=window.WV_PARTNER_VALIDATE||{};
   var normalizePartnerNumber=validator.normalizePartnerNumber||function(){return null;};
 
+  // Audit V1 whitelist (kept in sync with screen3-quote.js / screen2-studio.html).
+  var ALLOWED_FINISHES=[
+    'Matte','Gloss','Satin','Chrome','Carbon Fibre',
+    'Brushed Metal','Colour Shift','PPF Clear'
+  ];
+  var ALLOWED_COLORS=[
+    'Black','White','Racing Red','Midnight Blue','British Racing Green',
+    'Sunset Orange','Gold','Tiffany Blue','Nardo Gray','Gunmetal',
+    'Espresso Brown','Purple Reign'
+  ];
+  function pickAllowed(value, allowed, fallback){
+    return allowed.indexOf(value)>=0 ? value : fallback;
+  }
+
   var vehicleLabel=sessionStorage.getItem('wv_vehicle_label')||'Vehicle';
-  var finish=sessionStorage.getItem('wv_finish')||'Matte';
-  var color=sessionStorage.getItem('wv_color')||'Black';
+  var finish=pickAllowed(sessionStorage.getItem('wv_finish'),ALLOWED_FINISHES,'Matte');
+  var color=pickAllowed(sessionStorage.getItem('wv_color'),ALLOWED_COLORS,'Black');
 
   // Sanitize the external partner list through the shared validator.
   // An array with a present-but-malformed entry (e.g. {} or

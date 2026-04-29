@@ -25,13 +25,25 @@ dotenv.config({ path: path.resolve(__dirname, '..', '.env.local') });
 
 const dsn = process.env.SENTRY_DSN;
 if (dsn) {
-  Sentry.init({
-    dsn,
-    environment:
-      process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'production',
-    // Low default sample rate — error events are always captured; traces
-    // are a cost knob tuned by the operator via SENTRY_TRACES_SAMPLE_RATE.
-    tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0.0),
-  });
-  console.info('[Sentry] Initialized');
+  // Audit SF4: a malformed DSN (e.g. a copy-paste error in a deploy
+  // env panel) used to throw synchronously from Sentry.init and
+  // crash the process before listen(). Wrap it so the server still
+  // boots; an operator who misconfigures Sentry shouldn't take the
+  // whole site down.
+  try {
+    Sentry.init({
+      dsn,
+      environment:
+        process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'production',
+      // Low default sample rate — error events are always captured; traces
+      // are a cost knob tuned by the operator via SENTRY_TRACES_SAMPLE_RATE.
+      tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0.0),
+    });
+    console.info('[Sentry] Initialized');
+  } catch (err) {
+    console.error(
+      '[Sentry] init failed — server will continue without error reporting.',
+      err && err.message ? err.message : err,
+    );
+  }
 }

@@ -121,6 +121,54 @@ test('/api/events accepts valid event when Origin is set', async ({ request }) =
   expect(ok.status()).toBe(204);
 });
 
+// Audit W5: regression for the tightened ALLOWED_EVENT_RE.
+// Names with leading digits, dots, dashes, uppercase, or that
+// exceed 63 chars should silently 204 (the route's no-op response
+// when validation fails by design).
+const REJECTED_EVENT_NAMES = [
+  '1leading_digit',
+  'has.dot',
+  'has-dash',
+  'HAS_UPPERCASE',
+  '_leading_underscore',
+  '', // empty
+  'a'.repeat(64), // exactly the upper bound — boundary is 63 inclusive
+];
+for (const evt of REJECTED_EVENT_NAMES) {
+  test(`/api/events rejects malformed event name: ${JSON.stringify(evt)}`, async ({
+    request,
+  }) => {
+    const r = await request.post('/api/events', {
+      data: { event: evt },
+      headers: { Origin: 'http://127.0.0.1:3000' },
+    });
+    // 204 (silent drop) is the by-design response. Any 4xx/5xx would
+    // also be acceptable, but specifically NOT a 200 / 201 success.
+    expect([204, 400, 422]).toContain(r.status());
+    // Body must be empty (204) — never echo the event back.
+    expect((await r.text()).length).toBe(0);
+  });
+}
+
+const ACCEPTED_EVENT_NAMES = [
+  'wa_click',
+  'segment_failed',
+  'inquiry_sent',
+  'a',
+  'a' + '_'.repeat(62),
+];
+for (const evt of ACCEPTED_EVENT_NAMES) {
+  test(`/api/events accepts valid event name: ${JSON.stringify(evt)}`, async ({
+    request,
+  }) => {
+    const r = await request.post('/api/events', {
+      data: { event: evt },
+      headers: { Origin: 'http://127.0.0.1:3000' },
+    });
+    expect(r.status()).toBe(204);
+  });
+}
+
 test('/api/events rejects POST with no Origin header', async () => {
   // Playwright's APIRequest always sets Origin, so go through Node's raw
   // http module to actually exercise the blockNoOriginMutations guard.

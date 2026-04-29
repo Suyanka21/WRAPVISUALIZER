@@ -79,7 +79,13 @@ for (const rel of REQUIRED_FRONTEND_FILES) {
 
 // The hero morph sequence is large (240 JPGs); a missing directory or
 // a partial copy degrades the landing page silently. Spot-check the
-// first and last frames — if either is missing, fail loudly.
+// first and last frames AND the total count — if any deviates from
+// the expected 240, fail loudly. Audit W6: previously only the first
+// and last frames were checked; a partial copy that lost frames in
+// the middle (e.g. an interrupted rsync or an LFS bandwidth cap on
+// a CI deploy) would slip through and the morph would freeze
+// mid-animation in production.
+const EXPECTED_MORPH_FRAMES = 240;
 const MORPH_SENTINEL_FRAMES = ['ezgif-frame-001.jpg', 'ezgif-frame-240.jpg'];
 if (!fs.existsSync(morphPath)) {
   console.error(`[Boot] FATAL: lc30-morph/ directory missing at ${morphPath}.`);
@@ -92,6 +98,17 @@ for (const frame of MORPH_SENTINEL_FRAMES) {
     );
     process.exit(1);
   }
+}
+const morphFrameCount = fs
+  .readdirSync(morphPath)
+  .filter((name) => /^ezgif-frame-\d{3}\.jpg$/.test(name)).length;
+if (morphFrameCount !== EXPECTED_MORPH_FRAMES) {
+  console.error(
+    `[Boot] FATAL: lc30-morph/ has ${morphFrameCount} frames, expected ` +
+      `${EXPECTED_MORPH_FRAMES}. The hero animation will freeze. Re-deploy ` +
+      `the artifact with the full frame set.`,
+  );
+  process.exit(1);
 }
 
 const app = express();

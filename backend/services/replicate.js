@@ -164,6 +164,20 @@ export async function segmentImage(dataUri, token) {
       // Only retry on transient server errors, not on client errors
       // like 401 (bad token) or 402 (no credits).
       if (attempt < MAX_RETRIES && isRetryable(error)) {
+        // Audit SF5: previously a transient 502/503/504 from Replicate
+        // would silently retry with no log line, so ops dashboards
+        // counting retry pressure had no signal to alarm on. Log the
+        // upstream status, response body detail, and which attempt
+        // we're on so a sustained retry loop is visible immediately.
+        const upstreamStatus = error.response?.status;
+        const upstreamDetail =
+          error.response?.data?.detail ||
+          error.response?.data?.message ||
+          error.message;
+        console.warn(
+          `[Replicate] Retryable failure on attempt ${attempt + 1}/${MAX_RETRIES + 1} ` +
+            `status=${upstreamStatus ?? 'n/a'} detail=${upstreamDetail}`,
+        );
         continue;
       }
       throw error;
