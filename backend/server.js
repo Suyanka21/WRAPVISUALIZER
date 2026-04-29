@@ -211,8 +211,8 @@ if (!process.env.REPLICATE_API_TOKEN) {
 // result through /api/health and a clear log line so an operator who
 // pasted a typo'd token finds out within seconds of deploy instead of
 // after the first paying customer hits /api/segment.
-(async () => {
-  const result = await validateToken(process.env.REPLICATE_API_TOKEN);
+async function initReplicateReadiness(token) {
+  const result = await validateToken(token);
   replicateState.reachable = result.valid;
   replicateState.checkedAt = Date.now();
   replicateState.reason = result.valid ? null : result.reason;
@@ -225,7 +225,22 @@ if (!process.env.REPLICATE_API_TOKEN) {
         ' — /api/segment will fail until the token is fixed.',
     );
   }
-})();
+}
+
+// Fire-and-forget; readiness is reported via /api/health, not awaited.
+// validateToken() already swallows expected errors, but attach a .catch
+// so any unexpected rejection (e.g. from a future internal change) is
+// logged instead of becoming an unhandled rejection that may crash the
+// process under Node's --unhandled-rejections=strict default in v15+.
+initReplicateReadiness(process.env.REPLICATE_API_TOKEN).catch((error) => {
+  console.error(
+    '[Replicate] Unexpected error while initializing readiness state.',
+    error,
+  );
+  replicateState.reachable = false;
+  replicateState.checkedAt = Date.now();
+  replicateState.reason = 'init_error';
+});
 
 const server = app.listen(PORT, () => {
   console.log(`[WrapVisualizer] Listening on :${PORT}`);
