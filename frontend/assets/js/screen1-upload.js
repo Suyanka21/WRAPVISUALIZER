@@ -151,9 +151,22 @@
       // Also clear any stale error flag from an earlier attempt.
       sessionStorage.removeItem('wv_segmented_image');
       sessionStorage.removeItem('wv_segment_error');
+      // Audit W3: abort the in-flight segment call if the user closes
+      // the tab or hits back. Without this, a 30s SAM-2 inference keeps
+      // running on Replicate's side (we already paid for it) and the
+      // browser awaits a fetch that will never resolve, blocking other
+      // pagehide handlers. AbortController is supported on every
+      // browser ≥ Chrome 66 / Safari 12.1 / Firefox 57.
+      var ctrl=(typeof AbortController!=='undefined')?new AbortController():null;
+      var onPageHide=function(){ if(ctrl) ctrl.abort(); };
+      if(ctrl) window.addEventListener('pagehide',onPageHide,{once:true});
       try{
         var fd=new FormData(); fd.append('image',selectedFile);
-        var res=await fetch(API+'/api/segment',{method:'POST',body:fd});
+        var res=await fetch(API+'/api/segment',{
+          method:'POST',
+          body:fd,
+          signal: ctrl ? ctrl.signal : undefined,
+        });
         var data=null; try{ data=await res.json(); }catch(_parse){ data=null; }
         if(data&&data.success&&data.segmented_image){
           sessionStorage.setItem('wv_segmented_image',data.segmented_image);
@@ -165,13 +178,20 @@
           var errMsg=(data&&data.message)||'Image processing failed. You can still continue.';
           console.warn('[WV] Segmentation failed:',errMsg);
           sessionStorage.setItem('wv_segment_error',errMsg);
-          track('segment_failed',{status:res.status});
+          track('segment_failed',{status:res.status,code:data&&data.code});
         }
       }catch(err){
-        var networkMsg=(err&&err.message)||'Network error';
-        console.warn('[WV] Segmentation skipped:',networkMsg);
-        sessionStorage.setItem('wv_segment_error','Image processing failed. You can still continue.');
-        track('segment_failed',{reason:'network'});
+        // AbortError is the user closing the tab — not actionable, no banner.
+        if(err&&err.name==='AbortError'){
+          track('segment_aborted',{reason:'pagehide'});
+        }else{
+          var networkMsg=(err&&err.message)||'Network error';
+          console.warn('[WV] Segmentation skipped:',networkMsg);
+          sessionStorage.setItem('wv_segment_error','Image processing failed. You can still continue.');
+          track('segment_failed',{reason:'network'});
+        }
+      }finally{
+        if(ctrl) window.removeEventListener('pagehide',onPageHide);
       }
     }
     window.location.href='screen2-studio.html';
