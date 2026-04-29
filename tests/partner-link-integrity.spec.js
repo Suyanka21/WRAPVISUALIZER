@@ -20,7 +20,17 @@ import { test, expect } from '@playwright/test';
  * The regex is the contract for GEMINI.md rule 5.
  */
 
-const WAME_RE = /^https:\/\/wa\.me\/2547\d{8}(?:\?.*)?$/;
+// CodeRabbit (round 3): the previous (?:\?.*)?$ tail accepted any
+// query string, including raw spaces, multiple params, fragments, or
+// exfil-style payloads. The wa.me contract is exactly:
+//   https://wa.me/<2547XXXXXXXX>            (no query) — used by
+//                                            partners.js menu links;
+//   https://wa.me/<2547XXXXXXXX>?text=<...>  (single text param,
+//                                            URL-encoded) — used by
+//                                            screen3 review buttons.
+// Restrict the matcher accordingly so a regression that emits a
+// raw-space ?text= payload or a tampered second param fails the test.
+const WAME_RE = /^https:\/\/wa\.me\/2547\d{8}(?:\?text=[^?#\s]*)?$/;
 
 const FUNNEL_STATE = {
   wv_vehicle_label: 'Toyota Land Cruiser',
@@ -80,15 +90,24 @@ const POLLUTED_LISTS = [
   },
 ];
 
-/** Collect every wa.me URL that the page currently exposes. */
+/** Collect every wa.me URL that the page currently exposes.
+ *
+ * CodeRabbit (round 3): use getAttribute('href') instead of
+ * HTMLAnchorElement.href so the regex sees the raw markup the app
+ * emitted, not the browser-normalized/percent-encoded form. Without
+ * this, a malformed source string with a raw space could be
+ * silently re-encoded by the DOM and pass the regex.
+ */
 async function collectWaUrls(page) {
   return page.evaluate(() => {
     const urls = new Set();
-    // Anchor hrefs (menu overlay, screen2 contact links).
+    // Anchor hrefs (menu overlay, screen2 contact links). Read the
+    // attribute (raw source) rather than the IDL property (normalized).
     document.querySelectorAll('a[href^="https://wa.me/"]').forEach((el) => {
-      urls.add(/** @type {HTMLAnchorElement} */ (el).href);
+      const href = el.getAttribute('href');
+      if (href) urls.add(href);
     });
-    // Buttons that expose data-href / data-wa-number for tests.
+    // Buttons that expose data-wa-number for tests.
     document.querySelectorAll('button[data-wa-number]').forEach((el) => {
       const num = el.getAttribute('data-wa-number');
       if (num) urls.add('https://wa.me/' + num);

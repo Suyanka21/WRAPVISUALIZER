@@ -54,6 +54,14 @@ function getJson(port, urlPath) {
   });
 }
 
+/**
+ * Poll /api/health on the test backend (127.0.0.1:port) until it
+ * returns HTTP 200, indicating the boot validators have completed
+ * and Express is accepting connections. Polls every 100 ms for up
+ * to 50 attempts (~5 s total) before throwing 'server boot timeout'.
+ *
+ * Returns the parsed JSON body on success; throws on timeout.
+ */
 async function waitForBoot(port) {
   for (let i = 0; i < 50; i++) {
     try {

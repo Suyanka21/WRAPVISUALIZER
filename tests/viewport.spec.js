@@ -123,8 +123,9 @@ test('/api/events accepts valid event when Origin is set', async ({ request }) =
 
 // Audit W5: regression for the tightened ALLOWED_EVENT_RE.
 // Names with leading digits, dots, dashes, uppercase, or that
-// exceed 63 chars should silently 204 (the route's no-op response
-// when validation fails by design).
+// exceed MAX_EVENT_LEN = 64 chars (i.e. >= 65 chars) should
+// silently 204 — the route's no-op response when validation
+// fails by design.
 const REJECTED_EVENT_NAMES = [
   '1leading_digit',
   'has.dot',

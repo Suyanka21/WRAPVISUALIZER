@@ -1,19 +1,14 @@
 /**
- * Image Segmentation Route
- *
- * POST /api/segment
- *
- * Accepts a car photo upload (multipart/form-data), sends it to
- * the Replicate meta/sam-2 API for vehicle body panel segmentation,
- * and returns the masked image URL for wrap overlay on the frontend.
- *
- * File location: backend/routes/segment.js
+ * POST /api/segment — accepts a car photo upload (multipart/form-data),
+ * sends it to the Replicate meta/sam-2 API for vehicle body panel
+ * segmentation, and returns the masked image URL for wrap overlay.
  */
 
 import { Router } from 'express';
 import multer from 'multer';
 import { segmentImage } from '../services/replicate.js';
 import { sniffImageType } from '../utils/image-validation.js';
+import { handleSegmentError } from '../utils/segment-errors.js';
 
 const router = Router();
 
@@ -143,81 +138,7 @@ router.post('/', handleUpload, async (req, res) => {
       processingTime: result.processingTime,
     });
   } catch (error) {
-    const detail = error.response?.data?.detail || error.response?.data?.message;
-    const status = error.response?.status;
-    console.error(
-      `[Segment Error] ${error.message}${status ? ` status=${status}` : ''}${detail ? ` detail=${detail}` : ''}`,
-    );
-
-    // Differentiated error branches.
-    //
-    // End-users get a consistent "temporarily unavailable" wording for
-    // any provider-side failure (don't leak Replicate as the dependency,
-    // don't leak billing/credential state). Internally, we ALWAYS attach
-    // a stable `code` field so clients and tests can discriminate
-    // failure modes without scraping message strings, and ops can
-    // alert on the log line above which carries the upstream status.
-    if (error.message === 'TIMEOUT') {
-      return res.status(504).json({
-        success: false,
-        code: 'upstream_timeout',
-        message: 'AI processing timed out. Please try again with a smaller or clearer photo.',
-      });
-    }
-    if (error.response?.status === 429) {
-      // Rate-limited by Replicate. Tell the client to back off; the
-      // 503 + Retry-After pair is the standard signal to the browser
-      // / fetch layer to wait before retrying. We forward Replicate's
-      // Retry-After if it sent one, else default to 30s.
-      const retryAfter =
-        Number(error.response.headers?.['retry-after']) || 30;
-      res.set('Retry-After', String(retryAfter));
-      return res.status(503).json({
-        success: false,
-        code: 'upstream_rate_limited',
-        retry_after_seconds: retryAfter,
-        message:
-          'Our AI service is busy right now. Please try again in a moment.',
-      });
-    }
-    if (error.response?.status === 402) {
-      // Real cause is logged above ("status=402"); surface a generic
-      // message so end-users don't see our provider name or billing
-      // state. Ops should watch for 402s in logs and top up credits.
-      return res.status(503).json({
-        success: false,
-        code: 'upstream_billing',
-        message: 'Our AI service is temporarily unavailable. Please try again in a moment.',
-      });
-    }
-    if (error.response?.status === 401) {
-      // Same rationale — auth misconfiguration is an ops problem, not
-      // something to leak to end-users. 503 matches the 402 branch so
-      // any client banner keyed off status code treats them uniformly
-      // as "service temporarily unavailable".
-      return res.status(503).json({
-        success: false,
-        code: 'upstream_auth',
-        message: 'Our AI service is temporarily unavailable. Please try again in a moment.',
-      });
-    }
-    if (error.response?.status >= 500 && error.response?.status < 600) {
-      // Replicate (or its CDN) returned 5xx. This is a provider
-      // outage from our perspective, not a malformed-request issue,
-      // so 503 is more accurate than 500 (which clients may interpret
-      // as our backend being broken). Distinct `code` lets ops
-      // dashboards count provider-down minutes separately.
-      return res.status(503).json({
-        success: false,
-        code: 'upstream_unavailable',
-        message: 'Our AI service is temporarily unavailable. Please try again in a moment.',
-      });
-    }
-    return res.status(500).json({
-      success: false,
-      code: 'unexpected_error',
-      message: 'Image processing failed. Please try again with a different photo.',
-    });
+    return handleSegmentError(error, res);
   }
 });
 
