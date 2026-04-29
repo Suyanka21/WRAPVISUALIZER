@@ -29,31 +29,37 @@ const FUNNEL_STATE = {
   wv_color_hex: '#0a0a0a',
 };
 
-/** Seed funnel state and override WV_PARTNERS before any screen script runs. */
+/** Seed funnel state and override WV_PARTNERS before any screen script runs.
+ *
+ * CodeRabbit (PR #24) caught that the previous `DOMContentLoaded` listener
+ * fired AFTER the screen IIFEs had already read window.WV_PARTNERS at
+ * top-level — the test was passing for the wrong reason (it was always
+ * reading the validated production list). Two changes:
+ *   1. Stub partners.js to a no-op via page.route so it can't overwrite
+ *      our injected list.
+ *   2. Assign window.WV_PARTNERS synchronously in addInitScript so it's
+ *      present before any synchronous top-level script reads it.
+ */
 async function seed(page, partners) {
+  // Intercept partners.js (any path that ends with /partners.js but NOT
+  // partners-validate.js) so the production assignment never runs. The
+  // empty body keeps script-load semantics identical.
+  await page.route(/\/assets\/js\/partners\.js(\?.*)?$/, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/javascript; charset=utf-8',
+      body: '/* stubbed by partner-link-integrity.spec.js */',
+    }),
+  );
   await page.addInitScript(
     ({ funnel, partners }) => {
       for (const [k, v] of Object.entries(funnel)) {
         sessionStorage.setItem(k, /** @type {string} */ (v));
       }
-      // partners.js runs AFTER partners-validate.js, and re-assigns
-      // window.WV_PARTNERS to its own validated array. To override,
-      // we have to also stub partners.js out — easiest path is to
-      // re-assign WV_PARTNERS in a second init script that runs after
-      // DOMContentLoaded has fired. But for CRITICAL-1's regression
-      // we want to test the validator's behavior on RAW data. The
-      // cleanest way: replace window.WV_PARTNERS *after* partners.js
-      // has self-sanitized, then verify that per-screen consumers
-      // still re-validate via WV_PARTNER_VALIDATE.
-      // We hook DOMContentLoaded to override AFTER partners.js runs,
-      // BEFORE the per-screen consumer reads WV_PARTNERS.
-      window.addEventListener(
-        'DOMContentLoaded',
-        () => {
-          window.WV_PARTNERS = /** @type {any} */ (partners);
-        },
-        { once: true, capture: true },
-      );
+      // Synchronous assignment — visible to every top-level IIFE on
+      // the page, including screen1-upload.js, screen3-quote.js, and
+      // screen4-confirmation.js.
+      window.WV_PARTNERS = /** @type {any} */ (partners);
     },
     { funnel: FUNNEL_STATE, partners },
   );

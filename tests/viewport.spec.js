@@ -132,7 +132,9 @@ const REJECTED_EVENT_NAMES = [
   'HAS_UPPERCASE',
   '_leading_underscore',
   '', // empty
-  'a'.repeat(64), // exactly the upper bound — boundary is 63 inclusive
+  // 65 chars — exceeds MAX_EVENT_LEN (64). The regex is derived from
+  // MAX_EVENT_LEN so this is the inclusive upper bound + 1.
+  'a' + 'b'.repeat(64),
 ];
 for (const evt of REJECTED_EVENT_NAMES) {
   test(`/api/events rejects malformed event name: ${JSON.stringify(evt)}`, async ({
@@ -142,9 +144,12 @@ for (const evt of REJECTED_EVENT_NAMES) {
       data: { event: evt },
       headers: { Origin: 'http://127.0.0.1:3000' },
     });
-    // 204 (silent drop) is the by-design response. Any 4xx/5xx would
-    // also be acceptable, but specifically NOT a 200 / 201 success.
-    expect([204, 400, 422]).toContain(r.status());
+    // 204 (silent drop) is the by-design contract — the route never
+    // surfaces malformed event names to the client. Asserting the
+    // exact status (not a permissive set) catches a regression where
+    // a future maintainer "helpfully" returns 400/422 to expose
+    // validation errors and accidentally leaks the regex shape.
+    expect(r.status()).toBe(204);
     // Body must be empty (204) — never echo the event back.
     expect((await r.text()).length).toBe(0);
   });
@@ -155,7 +160,9 @@ const ACCEPTED_EVENT_NAMES = [
   'segment_failed',
   'inquiry_sent',
   'a',
-  'a' + '_'.repeat(62),
+  // Exactly MAX_EVENT_LEN (64) chars — the inclusive upper bound.
+  // Catches the off-by-one that previously dropped this length.
+  'a' + 'b'.repeat(63),
 ];
 for (const evt of ACCEPTED_EVENT_NAMES) {
   test(`/api/events accepts valid event name: ${JSON.stringify(evt)}`, async ({

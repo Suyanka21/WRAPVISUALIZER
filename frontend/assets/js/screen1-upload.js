@@ -208,10 +208,16 @@
   // Re-validate window.WV_PARTNERS through the shared validator. partners.js
   // already self-sanitizes, but defense-in-depth: if a future build path
   // injects WV_PARTNERS from a different source, we still drop bad entries.
+  //
+  // CodeRabbit (PR #24): if partners-validate.js fails to load while
+  // partners.js still exposes data, the previous fallback would treat
+  // raw WV_PARTNERS as already-sanitized — exactly the failure mode
+  // CRITICAL-1 was supposed to eliminate. Treat a missing validator as
+  // "no valid partners" so the inline WV_PARTNERS_FALLBACK takes over.
   var validator=window.WV_PARTNER_VALIDATE;
   var sanitized=(validator&&typeof validator.validatePartners==='function')
     ? validator.validatePartners(window.WV_PARTNERS)
-    : (Array.isArray(window.WV_PARTNERS)?window.WV_PARTNERS:[]);
+    : [];
   var partners=sanitized.length?sanitized:WV_PARTNERS_FALLBACK;
   if(!sanitized.length){
     console.warn('[WV] partners.js missing, empty, or all entries invalid; using inline fallback on screen 1');

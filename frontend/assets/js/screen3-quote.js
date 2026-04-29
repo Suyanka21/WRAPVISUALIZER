@@ -103,10 +103,16 @@
   // injects WV_PARTNERS from a different source still has its bad entries
   // dropped here, so screen3 (the lead-firing screen) can never build a
   // wa.me/undefined link.
+  // CodeRabbit (PR #24): if partners-validate.js fails to load while
+  // partners.js still exposes data, the previous fallback would treat
+  // raw WV_PARTNERS as already-sanitized and could rebuild the
+  // wa.me/undefined link path. Treat a missing validator as "no valid
+  // partners" so WV_PARTNERS_FALLBACK takes over — screen3 fires the
+  // actual lead, so a dead link here is the worst place to regress.
   var validator=window.WV_PARTNER_VALIDATE;
   var sanitized=(validator&&typeof validator.validatePartners==='function')
     ? validator.validatePartners(window.WV_PARTNERS)
-    : (Array.isArray(window.WV_PARTNERS)?window.WV_PARTNERS:[]);
+    : [];
   var partners=sanitized.length?sanitized:WV_PARTNERS_FALLBACK;
   if(!sanitized.length){
     console.warn('[WV] partners.js missing, empty, or all entries invalid; using inline fallback on screen 3');

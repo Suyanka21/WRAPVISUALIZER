@@ -7,6 +7,29 @@ import path from 'node:path';
 const SERVER_PATH = path.resolve(process.cwd(), 'backend', 'server.js');
 const TEST_PORT = 3457;
 
+/**
+ * Gracefully terminate a child process and only escalate to SIGKILL if
+ * the SIGTERM is ignored.
+ *
+ * CodeRabbit (PR #24): the previous implementation read child.killed
+ * after sending SIGTERM, but ChildProcess.killed is set true as soon as
+ * the SIGNAL is delivered — not when the process actually exits. The
+ * SIGKILL escalation was therefore unreachable, leaking a hung server
+ * (and its bound port) into the next test. Use Promise.race against
+ * the 'exit' event so we only escalate when the timeout actually wins.
+ */
+async function shutdown(child, sigtermTimeoutMs = 200) {
+  child.kill('SIGTERM');
+  const exited = await Promise.race([
+    new Promise((resolve) => child.once('exit', () => resolve(true))),
+    new Promise((resolve) => setTimeout(() => resolve(false), sigtermTimeoutMs)),
+  ]);
+  if (!exited) {
+    child.kill('SIGKILL');
+    await new Promise((resolve) => child.once('exit', () => resolve(undefined)));
+  }
+}
+
 function getJson(port, urlPath) {
   return new Promise((resolve, reject) => {
     const req = http.get(
@@ -93,9 +116,7 @@ test('replicate readiness re-validates periodically (audit CRITICAL-2)', async (
     expect(c.status).toBe(200);
     expect(c.body.replicate_check_age_ms).toBeLessThan(1500);
   } finally {
-    child.kill('SIGTERM');
-    await new Promise((r) => setTimeout(r, 200));
-    if (!child.killed) child.kill('SIGKILL');
+    await shutdown(child);
   }
 });
 
@@ -121,8 +142,6 @@ test('replicate readiness re-validation can be disabled with =0', async () => {
       a.body.replicate_check_age_ms + 800,
     );
   } finally {
-    child.kill('SIGTERM');
-    await new Promise((r) => setTimeout(r, 200));
-    if (!child.killed) child.kill('SIGKILL');
+    await shutdown(child);
   }
 });

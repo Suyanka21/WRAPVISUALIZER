@@ -33,7 +33,14 @@ const MAX_PROPS_LEN = 512; // JSON-stringified props cap
 // 'segment_failed'). Tightening the regex turns an unexpected
 // uppercase or dotted event into a 204 no-op so an exfil-style event
 // crafted by a tampered tab can't pollute the analytics pipeline.
-const ALLOWED_EVENT_RE = /^[a-z][a-z0-9_]{0,62}$/;
+//
+// CodeRabbit (PR #24): the previous {0,62} quantifier capped event
+// names at 63 chars while MAX_EVENT_LEN was 64 — a 64-char valid
+// snake_case event would silently drop. Derive the regex from
+// MAX_EVENT_LEN so the two stay in sync forever.
+const ALLOWED_EVENT_RE = new RegExp(
+  `^[a-z][a-z0-9_]{0,${MAX_EVENT_LEN - 1}}$`,
+);
 
 const eventsRateLimit = rateLimit({
   windowMs: 60 * 1000,

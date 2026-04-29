@@ -23,6 +23,25 @@ import path from 'node:path';
 const SERVER_PATH = path.resolve(process.cwd(), 'backend', 'server.js');
 const TEST_PORT = 3461;
 
+/**
+ * Gracefully terminate the child server process. CodeRabbit (PR #24):
+ * checking child.killed after sending SIGTERM is unreliable because
+ * ChildProcess.killed is set when the signal is delivered, not when
+ * the process actually exits. Race the 'exit' event against a timeout
+ * and only escalate to SIGKILL when the timeout wins.
+ */
+async function shutdown(child, sigtermTimeoutMs = 200) {
+  child.kill('SIGTERM');
+  const exited = await Promise.race([
+    new Promise((resolve) => child.once('exit', () => resolve(true))),
+    new Promise((resolve) => setTimeout(() => resolve(false), sigtermTimeoutMs)),
+  ]);
+  if (!exited) {
+    child.kill('SIGKILL');
+    await new Promise((resolve) => child.once('exit', () => resolve(undefined)));
+  }
+}
+
 async function waitForBoot(port) {
   for (let i = 0; i < 50; i++) {
     try {
@@ -135,8 +154,6 @@ test('magic-byte sniff rejects spoofed mimetype (audit V2)', async () => {
     // — what we're asserting is that the sniff ALLOWED this through.
     expect(r4.body && r4.body.code).not.toBe('invalid_image_content');
   } finally {
-    child.kill('SIGTERM');
-    await new Promise((r) => setTimeout(r, 200));
-    if (!child.killed) child.kill('SIGKILL');
+    await shutdown(child);
   }
 });

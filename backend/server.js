@@ -20,7 +20,6 @@ import './instrument.js';
 
 import dotenv from 'dotenv';
 import express from 'express';
-import fs from 'node:fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -42,7 +41,14 @@ import {
   sentryRequestHandler,
   sentryErrorHandler,
 } from './middleware/sentry.js';
-import { validateToken } from './services/replicate.js';
+import {
+  validateMorphOrExit,
+  validateFrontendAssetsOrExit,
+} from './boot/morph-validator.js';
+import {
+  parseRevalidateMs,
+  startReplicateReadinessScheduler,
+} from './boot/replicate-ready-scheduler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -66,50 +72,17 @@ const REQUIRED_FRONTEND_FILES = [
   'assets/js/partners.js',
 ];
 
-for (const rel of REQUIRED_FRONTEND_FILES) {
-  const abs = path.join(frontendPath, rel);
-  if (!fs.existsSync(abs)) {
-    console.error(
-      `[Boot] FATAL: required frontend asset missing at ${abs}. ` +
-        'Make sure the deploy artifact includes the frontend/ directory.',
-    );
-    process.exit(1);
-  }
-}
+// Required frontend assets — missing any of these means the deploy
+// artifact is incomplete and the funnel won't render. Implementation
+// lives in backend/boot/morph-validator.js.
+validateFrontendAssetsOrExit(frontendPath, REQUIRED_FRONTEND_FILES);
 
-// The hero morph sequence is large (240 JPGs); a missing directory or
-// a partial copy degrades the landing page silently. Spot-check the
-// first and last frames AND the total count — if any deviates from
-// the expected 240, fail loudly. Audit W6: previously only the first
-// and last frames were checked; a partial copy that lost frames in
-// the middle (e.g. an interrupted rsync or an LFS bandwidth cap on
-// a CI deploy) would slip through and the morph would freeze
-// mid-animation in production.
-const EXPECTED_MORPH_FRAMES = 240;
-const MORPH_SENTINEL_FRAMES = ['ezgif-frame-001.jpg', 'ezgif-frame-240.jpg'];
-if (!fs.existsSync(morphPath)) {
-  console.error(`[Boot] FATAL: lc30-morph/ directory missing at ${morphPath}.`);
-  process.exit(1);
-}
-for (const frame of MORPH_SENTINEL_FRAMES) {
-  if (!fs.existsSync(path.join(morphPath, frame))) {
-    console.error(
-      `[Boot] FATAL: hero morph frame ${frame} missing in ${morphPath}.`,
-    );
-    process.exit(1);
-  }
-}
-const morphFrameCount = fs
-  .readdirSync(morphPath)
-  .filter((name) => /^ezgif-frame-\d{3}\.jpg$/.test(name)).length;
-if (morphFrameCount !== EXPECTED_MORPH_FRAMES) {
-  console.error(
-    `[Boot] FATAL: lc30-morph/ has ${morphFrameCount} frames, expected ` +
-      `${EXPECTED_MORPH_FRAMES}. The hero animation will freeze. Re-deploy ` +
-      `the artifact with the full frame set.`,
-  );
-  process.exit(1);
-}
+// Hero morph sequence — 240 JPGs (`ezgif-frame-001.jpg` …
+// `ezgif-frame-240.jpg`). A missing middle frame freezes the
+// scroll-driven animation on a paying customer's landing page.
+// Implementation enumerates exact filenames (CodeRabbit, PR #24) so
+// a count-only pass with a stray orphan frame can't slip through.
+validateMorphOrExit(morphPath);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -225,75 +198,20 @@ if (!process.env.REPLICATE_API_TOKEN) {
   );
 }
 
-// Boot-time async token validation. We don't block listen() on this
-// — the server should accept traffic immediately — but we surface the
-// result through /api/health and a clear log line so an operator who
-// pasted a typo'd token finds out within seconds of deploy instead of
-// after the first paying customer hits /api/segment.
-async function initReplicateReadiness(token) {
-  const result = await validateToken(token);
-  replicateState.reachable = result.valid;
-  replicateState.checkedAt = Date.now();
-  replicateState.reason = result.valid ? null : result.reason;
-  if (result.valid) {
-    console.info(`[Replicate] Token validated for account=${result.account}`);
-  } else {
-    console.error(
-      `[Replicate] Token validation FAILED reason=${result.reason}` +
-        (result.status ? ` status=${result.status}` : '') +
-        ' — /api/segment will fail until the token is fixed.',
-    );
-  }
-}
-
-/**
- * Wrap initReplicateReadiness with the unhandled-rejection guard. We
- * call this both at boot and from the periodic re-validation interval.
- */
-function runReplicateReadinessCheck() {
-  return initReplicateReadiness(process.env.REPLICATE_API_TOKEN).catch(
-    (error) => {
-      console.error(
-        '[Replicate] Unexpected error while validating readiness state.',
-        error,
-      );
-      replicateState.reachable = false;
-      replicateState.checkedAt = Date.now();
-      replicateState.reason = 'init_error';
-    },
-  );
-}
-
-// Boot-time check: fire-and-forget; readiness is reported via /api/health,
-// not awaited. The .catch above means any unexpected rejection is logged
-// instead of becoming an unhandled rejection (Node's
-// --unhandled-rejections=strict default in v15+ would crash the process).
-runReplicateReadinessCheck();
-
-// Periodic re-validation. Without this, /api/health.replicate_reachable
-// is set once at boot and never re-checked — meaning a token rotation,
-// account suspension, or Replicate-side credential revocation 3 days
-// into uptime is invisible to monitors keyed on `replicate_reachable`,
-// while every paying customer hits a 503 on /api/segment.
+// Boot-time + periodic Replicate readiness validation. Implementation
+// lives in backend/boot/replicate-ready-scheduler.js — it runs the
+// boot check fire-and-forget, then self-schedules subsequent checks
+// off each completion (no overlap, no concurrent /v1/account calls).
 //
-// Default 60s. Set REPLICATE_REVALIDATE_MS=0 to disable (e.g. in tests
-// that don't want background activity), or to a larger value to reduce
-// /v1/account API call volume on Replicate's side.
-const REVALIDATE_MS_RAW = process.env.REPLICATE_REVALIDATE_MS;
-const REVALIDATE_MS =
-  REVALIDATE_MS_RAW === undefined
-    ? 60_000
-    : Math.max(0, Number(REVALIDATE_MS_RAW) || 0);
-let replicateRevalidateTimer = null;
-if (REVALIDATE_MS > 0) {
-  replicateRevalidateTimer = setInterval(
-    runReplicateReadinessCheck,
-    REVALIDATE_MS,
-  );
-  // Don't keep the event loop alive solely for this timer — graceful
-  // shutdown should still exit even if a check is queued.
-  replicateRevalidateTimer.unref();
-}
+// REPLICATE_REVALIDATE_MS overrides the default 60_000 ms cadence;
+// set to 0 to disable re-validation entirely (still runs the boot
+// check). The returned `stop()` is unused in production — process
+// exit is the canonical shutdown — but kept available for tests.
+startReplicateReadinessScheduler({
+  token: process.env.REPLICATE_API_TOKEN,
+  replicateState,
+  intervalMs: parseRevalidateMs(process.env.REPLICATE_REVALIDATE_MS),
+});
 
 const server = app.listen(PORT, () => {
   console.log(`[WrapVisualizer] Listening on :${PORT}`);

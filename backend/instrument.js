@@ -30,6 +30,17 @@ if (dsn) {
   // crash the process before listen(). Wrap it so the server still
   // boots; an operator who misconfigures Sentry shouldn't take the
   // whole site down.
+  // CodeRabbit (PR #24): Number(env || 0.0) silently produces NaN on a
+  // typo'd value (e.g. `SENTRY_TRACES_SAMPLE_RATE=invalid`). @sentry/node
+  // 8.x's parseSampleRate then returns undefined and the SDK falls back
+  // to sampling 100% of transactions — exactly the opposite of what an
+  // operator who set the env var was trying to do (lower the cost).
+  // Parse, validate, and clamp to [0, 1]; refuse non-finite values.
+  const rawSample = process.env.SENTRY_TRACES_SAMPLE_RATE;
+  const parsedSample = rawSample == null || rawSample === '' ? 0 : Number(rawSample);
+  const tracesSampleRate = Number.isFinite(parsedSample)
+    ? Math.min(1, Math.max(0, parsedSample))
+    : 0;
   try {
     Sentry.init({
       dsn,
@@ -37,7 +48,7 @@ if (dsn) {
         process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'production',
       // Low default sample rate — error events are always captured; traces
       // are a cost knob tuned by the operator via SENTRY_TRACES_SAMPLE_RATE.
-      tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0.0),
+      tracesSampleRate,
     });
     console.info('[Sentry] Initialized');
   } catch (err) {
