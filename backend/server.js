@@ -165,11 +165,13 @@ app.use('/api/events', blockNoOriginMutations, eventsRouter);
  * for backward compatibility with any external monitor already polling
  * it. New fields are additive:
  *   - `replicate_reachable` reflects whether the token actually
- *     authenticated against the Replicate API at boot. `null` while
- *     the boot-time check is still in flight.
- *   - `replicate_check_age_ms` is how long ago the boot check ran;
- *     useful for alerting if the value gets very large (the check is
- *     not periodically re-run, so this only grows with uptime).
+ *     authenticated against the Replicate API on the most recent
+ *     check. `null` while the boot-time check is still in flight.
+ *   - `replicate_check_age_ms` is how long ago the most recent check
+ *     ran. The token is re-validated every REPLICATE_REVALIDATE_MS
+ *     (default 60_000 ms), so this value should normally stay below
+ *     ~1 minute. If it grows past several minutes, the re-validation
+ *     interval has stalled — alert on it.
  *
  * Intentionally does NOT call any external API per request so /api/health
  * stays fast, cheap, and never costs a Replicate billing event.
@@ -227,20 +229,54 @@ async function initReplicateReadiness(token) {
   }
 }
 
-// Fire-and-forget; readiness is reported via /api/health, not awaited.
-// validateToken() already swallows expected errors, but attach a .catch
-// so any unexpected rejection (e.g. from a future internal change) is
-// logged instead of becoming an unhandled rejection that may crash the
-// process under Node's --unhandled-rejections=strict default in v15+.
-initReplicateReadiness(process.env.REPLICATE_API_TOKEN).catch((error) => {
-  console.error(
-    '[Replicate] Unexpected error while initializing readiness state.',
-    error,
+/**
+ * Wrap initReplicateReadiness with the unhandled-rejection guard. We
+ * call this both at boot and from the periodic re-validation interval.
+ */
+function runReplicateReadinessCheck() {
+  return initReplicateReadiness(process.env.REPLICATE_API_TOKEN).catch(
+    (error) => {
+      console.error(
+        '[Replicate] Unexpected error while validating readiness state.',
+        error,
+      );
+      replicateState.reachable = false;
+      replicateState.checkedAt = Date.now();
+      replicateState.reason = 'init_error';
+    },
   );
-  replicateState.reachable = false;
-  replicateState.checkedAt = Date.now();
-  replicateState.reason = 'init_error';
-});
+}
+
+// Boot-time check: fire-and-forget; readiness is reported via /api/health,
+// not awaited. The .catch above means any unexpected rejection is logged
+// instead of becoming an unhandled rejection (Node's
+// --unhandled-rejections=strict default in v15+ would crash the process).
+runReplicateReadinessCheck();
+
+// Periodic re-validation. Without this, /api/health.replicate_reachable
+// is set once at boot and never re-checked — meaning a token rotation,
+// account suspension, or Replicate-side credential revocation 3 days
+// into uptime is invisible to monitors keyed on `replicate_reachable`,
+// while every paying customer hits a 503 on /api/segment.
+//
+// Default 60s. Set REPLICATE_REVALIDATE_MS=0 to disable (e.g. in tests
+// that don't want background activity), or to a larger value to reduce
+// /v1/account API call volume on Replicate's side.
+const REVALIDATE_MS_RAW = process.env.REPLICATE_REVALIDATE_MS;
+const REVALIDATE_MS =
+  REVALIDATE_MS_RAW === undefined
+    ? 60_000
+    : Math.max(0, Number(REVALIDATE_MS_RAW) || 0);
+let replicateRevalidateTimer = null;
+if (REVALIDATE_MS > 0) {
+  replicateRevalidateTimer = setInterval(
+    runReplicateReadinessCheck,
+    REVALIDATE_MS,
+  );
+  // Don't keep the event loop alive solely for this timer — graceful
+  // shutdown should still exit even if a check is queued.
+  replicateRevalidateTimer.unref();
+}
 
 const server = app.listen(PORT, () => {
   console.log(`[WrapVisualizer] Listening on :${PORT}`);
