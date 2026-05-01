@@ -132,6 +132,15 @@
       initBtn.style.pointerEvents='none'; initBtn.style.opacity='0.6';
       initBtn.setAttribute('aria-busy','true');
       initBtn.disabled=true;
+      // UI Phase A skeleton: light up the shimmer line + pulse the prompt
+      // so the user sees that the system is doing work. Cleared in the
+      // finally block (or implicitly when we navigate away).
+      var dropzone=document.getElementById('wv-dropzone');
+      var dropzoneShimmer=document.getElementById('wv-dropzone-shimmer');
+      var uploadPromptEl=document.getElementById('wv-upload-prompt');
+      if(dropzoneShimmer){ dropzoneShimmer.classList.remove('hidden'); }
+      if(dropzone){ dropzone.setAttribute('data-busy','true'); }
+      if(uploadPromptEl){ uploadPromptEl.classList.add('wv-skeleton-pulse'); }
       // Block re-entry through the file picker or a template card while the
       // segmentation call is in flight.
       if(fileInput) fileInput.disabled=true;
@@ -228,7 +237,7 @@
     var btn=document.createElement('button');
     btn.setAttribute('aria-label','Chat on WhatsApp '+p.label);
     btn.className='h-12 px-6 bg-secondary-container text-white font-headline font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all';
-    btn.innerHTML='<span class="material-symbols-outlined text-base" style="font-variation-settings:\'FILL\' 1;">chat</span>'+p.label+' \u2014 '+p.display.replace('+254 ','0');
+    btn.innerHTML='<span class="material-symbols-outlined text-base" style="font-variation-settings:\'FILL\' 1;">chat</span>'+p.label+' \u2014 <span class="font-mono">'+p.display.replace('+254 ','0')+'</span>';
     btn.addEventListener('click',function(){
       var v=selVehicleLabel||'General Inquiry';
       var msg=encodeURIComponent('Hi, I am interested in a vehicle wrap.\nVehicle: '+v+'\n\nCould you share options and next steps?');

@@ -21,11 +21,24 @@ body { min-height: 100dvh; }
 .fade-up-d3 { animation-delay: 0.35s; }
 </style>
 <style>
-@keyframes scaleIn { from{opacity:0;transform:scale(0.8)} to{opacity:1;transform:scale(1)} }
-.scale-in { animation: scaleIn 0.5s ease-out both; }
+/* UI Phase A: success icon now uses a 2-step bounce (over-scale to 1.08
+ * then settle to 1.0) so the "done!" moment lands as a tactile beat,
+ * not a flat fade. Reduced-motion path collapses to opacity-only. */
+@keyframes scaleIn {
+  0%   { opacity: 0;    transform: scale(0); }
+  60%  { opacity: 1;    transform: scale(1.08); }
+  100% { opacity: 1;    transform: scale(1); }
+}
+.scale-in {
+  animation: scaleIn 360ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scale-in { animation: none; opacity: 1; transform: none; }
+}
 </style>
 </head>
 <body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-white overflow-x-hidden">
+<a href="#main-content" class="wv-skip-link">Skip to content</a>
 
 <header class="fixed top-0 w-full z-50 flex justify-between items-center px-5 sm:px-8 h-16 bg-background/90 backdrop-blur-xl border-b border-white/5">
   <a href="screen1-upload.html" class="flex items-center gap-2">
@@ -39,7 +52,7 @@ body { min-height: 100dvh; }
   </button>
 </header>
 
-<main class="pt-16 pb-28 min-h-screen flex flex-col items-center justify-center px-5 sm:px-8">
+<main id="main-content" class="pt-16 pb-28 min-h-screen flex flex-col items-center justify-center px-5 sm:px-8">
   <div class="max-w-md w-full text-center">
     <!-- Success Icon -->
     <div class="w-24 h-24 mx-auto mb-8 bg-secondary-container/10 border border-secondary-container/20 flex items-center justify-center scale-in">
@@ -97,19 +110,19 @@ body { min-height: 100dvh; }
 </main>
 
 <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-16 px-4 bg-background/95 backdrop-blur-xl border-t border-white/5" aria-label="Main navigation">
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen1-upload.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen1-upload.html">
     <span class="material-symbols-outlined text-xl">palette</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Home</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen2-studio.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen2-studio.html">
     <span class="material-symbols-outlined text-xl">layers</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Studio</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
     <span class="material-symbols-outlined text-xl">request_quote</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Quote</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
+  <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html" aria-current="page">
     <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1;">support_agent</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Inquiry</span>
   </a>

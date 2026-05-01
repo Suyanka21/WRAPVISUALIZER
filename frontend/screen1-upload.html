@@ -60,6 +60,7 @@ html, body { overflow-x: clip; overflow-y: visible; }
 </style>
 </head>
 <body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-white">
+<a href="#main-content" class="wv-skip-link">Skip to content</a>
 
 <header class="fixed top-0 w-full z-50 flex justify-between items-center px-5 sm:px-8 h-16 bg-background/90 backdrop-blur-xl border-b border-white/5">
   <a href="screen1-upload.html" class="flex items-center gap-2">
@@ -73,7 +74,7 @@ html, body { overflow-x: clip; overflow-y: visible; }
   </button>
 </header>
 
-<main class="pt-16 pb-28">
+<main id="main-content" class="pt-16 pb-28">
 
 <!-- HERO (scroll-jacked LC300 morph) -->
 <section class="hero-morph" aria-label="LC300 wrap transformation">
@@ -105,16 +106,38 @@ html, body { overflow-x: clip; overflow-y: visible; }
       <span>Scroll</span>
       <span class="material-symbols-outlined text-base">keyboard_arrow_down</span>
     </div>
+
+    <!-- Scroll progress line — width set by hero-scroll-animation.js. Premium
+         informative replacement for the bouncy chevron. -->
+    <div id="wv-hero-progress" class="wv-hero-progress" aria-hidden="true"></div>
   </div>
 </section>
 
-<!-- TRUST BAR -->
+<!-- TRUST BAR — UI Phase A: 2×2 grid mobile, 4 col desktop with vertical
+     hairlines; numbers ("500+", "7-Year") raised to display size for
+     scale, label kept as eyebrow underneath. -->
 <div class="border-y border-white/5 bg-surface-container-lowest">
-  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-5 flex flex-wrap justify-center gap-x-10 gap-y-3">
-    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-primary-container text-base" style="font-variation-settings:'FILL' 1;">verified</span>3M Certified</div>
-    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-primary-container text-base" style="font-variation-settings:'FILL' 1;">shield</span>7-Year Warranty</div>
-    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-primary-container text-base" style="font-variation-settings:'FILL' 1;">star</span>500+ Wraps Done</div>
-    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-secondary-container text-base" style="font-variation-settings:'FILL' 1;">chat</span>WhatsApp Support</div>
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-6 grid grid-cols-2 sm:grid-cols-4 sm:divide-x sm:divide-white/5">
+    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+      <span class="material-symbols-outlined text-primary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">verified</span>
+      <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">3M&nbsp;Certified</span>
+      <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Authorised installer</span>
+    </div>
+    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+      <span class="material-symbols-outlined text-primary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">shield</span>
+      <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">7-Year</span>
+      <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Wrap warranty</span>
+    </div>
+    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+      <span class="material-symbols-outlined text-primary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">star</span>
+      <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">500+</span>
+      <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Wraps delivered</span>
+    </div>
+    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+      <span class="material-symbols-outlined text-secondary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">chat</span>
+      <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">WhatsApp</span>
+      <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Direct specialist</span>
+    </div>
   </div>
 </div>
 
@@ -125,8 +148,8 @@ html, body { overflow-x: clip; overflow-y: visible; }
       <span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Step 1</span>
       <h3 class="font-headline text-2xl sm:text-3xl font-bold tracking-tight mb-3">Upload Your Vehicle</h3>
       <p class="text-on-surface-variant text-sm leading-relaxed mb-8 max-w-md">Snap a photo of your car or pick from our curated fleet below. We will map your chosen wrap finish onto it.</p>
-      <div class="group relative flex flex-col items-center justify-center border border-dashed border-outline-variant/30 bg-surface-container-lowest hover:border-primary-container/50 transition-all cursor-pointer" style="min-height:220px;">
-        <input id="wv-file-input" class="absolute inset-0 opacity-0 cursor-pointer z-10" type="file" accept="image/*"/>
+      <div id="wv-dropzone" class="group relative flex flex-col items-center justify-center border border-dashed border-outline-variant/30 bg-surface-container-lowest hover:border-primary-container/50 transition-all cursor-pointer overflow-hidden" style="min-height:220px;">
+        <input id="wv-file-input" class="absolute inset-0 opacity-0 cursor-pointer z-10" type="file" accept="image/*" aria-label="Upload vehicle image"/>
         <div id="wv-upload-prompt" class="flex flex-col items-center gap-3 pointer-events-none">
           <div class="w-16 h-16 flex items-center justify-center bg-primary-container/10 border border-primary-container/20">
             <span class="material-symbols-outlined text-3xl text-primary-container" style="font-variation-settings:'FILL' 1;">cloud_upload</span>
@@ -134,6 +157,12 @@ html, body { overflow-x: clip; overflow-y: visible; }
           <span class="font-headline text-sm font-bold tracking-wide text-white">Drop image or tap to browse</span>
           <span class="text-xs text-on-surface-variant">JPG, PNG, or WebP up to 4MB</span>
         </div>
+        <!-- UI Phase A skeleton: shown while /api/segment is in flight (can
+             be ~12s on cold Replicate). screen1-upload.js toggles
+             [data-busy=true] on this dropzone after the user clicks
+             Initialize Customizer; the shimmer line scans left→right
+             and the prompt subtly pulses. Reduced-motion path opts out. -->
+        <div id="wv-dropzone-shimmer" class="wv-skeleton-shimmer hidden"></div>
       </div>
       <button id="wv-init-btn" class="w-full mt-5 h-14 signature-gradient text-white font-headline font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
         <span>Initialize Customizer</span>
@@ -249,19 +278,19 @@ html, body { overflow-x: clip; overflow-y: visible; }
 </main>
 
 <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-16 px-4 bg-background/95 backdrop-blur-xl border-t border-white/5" aria-label="Main navigation">
-  <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors" href="screen1-upload.html">
+  <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors" href="screen1-upload.html" aria-current="page">
     <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1;">palette</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Home</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen2-studio.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen2-studio.html">
     <span class="material-symbols-outlined text-xl">layers</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Studio</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
     <span class="material-symbols-outlined text-xl">request_quote</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Quote</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
     <span class="material-symbols-outlined text-xl">support_agent</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Inquiry</span>
   </a>

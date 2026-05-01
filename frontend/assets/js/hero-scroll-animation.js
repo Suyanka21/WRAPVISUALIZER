@@ -12,6 +12,7 @@
   var section = document.querySelector('.hero-morph');
   var canvas = document.getElementById('hero-canvas');
   var overlay = document.getElementById('hero-overlay');
+  var progressLine = document.getElementById('wv-hero-progress');
   if (!section || !canvas) return;
 
   var ctx = canvas.getContext('2d', { alpha: false });
@@ -136,6 +137,14 @@
       // Subtle parallax lift so the text feels like it's being pushed
       // off the stage rather than just flatly fading.
       overlay.style.transform = 'translateY(' + (-24 * (1 - t)).toFixed(1) + 'px)';
+    }
+
+    // Drive the brand-orange progress line at the bottom of the hero
+    // stage. Width tracks scroll progress 0→100% so the user sees a
+    // clear "how far am I through the morph" cue. UI Phase A — replaces
+    // the bouncing chevron's role as primary scroll affordance.
+    if (progressLine) {
+      progressLine.style.width = (p * 100).toFixed(2) + '%';
     }
   }
 

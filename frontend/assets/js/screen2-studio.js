@@ -68,8 +68,13 @@
     overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
   }
 
-  // Finish buttons
+  // Finish buttons. UI Phase A: also flip data-finish on the studio
+  // preview <img> so the per-finish CSS filter (.wv-finish-filter
+  // [data-finish=...]) updates the preview the user sees. Cheap
+  // illusion that signals "your finish is being applied" without
+  // requiring a real per-finish render set.
   var finishBtns=document.querySelectorAll('.finish-btn');
+  var studioPreview=document.getElementById('wv-studio-preview');
   finishBtns.forEach(function(btn){
     btn.addEventListener('click',function(){
       finishBtns.forEach(function(b){b.classList.remove('active');});
@@ -77,11 +82,17 @@
       selFinish=btn.getAttribute('data-finish');
       document.getElementById('wv-finish-badge').textContent=selFinish;
       document.getElementById('wv-sum-finish').textContent=selFinish;
+      if(studioPreview){ studioPreview.setAttribute('data-finish',selFinish); }
     });
   });
 
-  // Color swatches
+  // Color swatches. UI Phase A: also updates the live mono caption
+  // beneath the swatch row (#wv-color-caption-name / #wv-color-caption-hex)
+  // so the user sees an authoritative spec for what they just picked
+  // without having to scroll back up to the canvas badge.
   var swatches=document.querySelectorAll('.swatch');
+  var captionName=document.getElementById('wv-color-caption-name');
+  var captionHex=document.getElementById('wv-color-caption-hex');
   swatches.forEach(function(sw){
     sw.addEventListener('click',function(){
       swatches.forEach(function(s){s.classList.remove('active');});
@@ -90,6 +101,8 @@
       selHex=sw.getAttribute('data-hex');
       document.getElementById('wv-color-badge').textContent=selColor;
       document.getElementById('wv-sum-color').textContent=selColor;
+      if(captionName) captionName.textContent=selColor;
+      if(captionHex) captionHex.textContent=selHex;
     });
   });
 

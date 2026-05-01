@@ -1,7 +1,314 @@
-/* Tailwind source for WrapVisualizer.
+/* WrapVisualizer — Tailwind source.
  * Compiled into frontend/assets/css/tailwind.css via `npm run build:css`.
- * No custom layers yet — per-screen styles remain inline in each HTML file. */
+ *
+ * Layer ordering (Tailwind v3 cascade):
+ *   1. @tailwind base       → normalize + Tailwind preflight
+ *   2. @layer base          → WrapVisualizer global rules (focus, motion)
+ *   3. @tailwind components → Tailwind component plugins (forms, etc.)
+ *   4. @layer components    → WrapVisualizer reusable component classes
+ *   5. @tailwind utilities  → utility classes (last, highest precedence)
+ *
+ * Slice 8 adds the JetBrains Mono import alongside the existing two fonts.
+ * Kept here (as @import) rather than in HTML <link> so each screen picks
+ * up the same font set automatically when adding a `font-mono` class.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 @tailwind base;
+
+@layer base {
+  /* CSS custom properties mirror the Tailwind tokens so non-utility CSS
+     (in <style> blocks and inline styles) can reference the same values.
+     Keep names aligned with `tailwind.config.js`. */
+  :root {
+    --brand: #FF6B00;
+    --brand-deep: #7A3000;
+    --brand-soft: #FFDBCC;
+    --ink: #131313;
+    --ink-1: #1c1b1b;
+    --ink-2: #201f1f;
+    --ink-3: #2a2a2a;
+    --ink-4: #353534;
+    --ink-edge: rgba(255, 255, 255, 0.06);
+    --ink-edge-hot: rgba(255, 107, 0, 0.30);
+    --text: #e5e2e1;
+    --text-muted: #e2bfb0;
+    --text-faint: rgba(229, 226, 225, 0.55);
+
+    --motion-instant: 80ms;
+    --motion-fast: 180ms;
+    --motion-base: 260ms;
+    --motion-slow: 420ms;
+    --motion-pageload: 600ms;
+
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-emphasis: cubic-bezier(0.2, 0, 0, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* WCAG 2.1 AA — visible focus indicator at 3:1 against background.
+     Brand orange against ink (#131313) measures ~7.5:1 ✓.
+     Apply only on keyboard focus (`:focus-visible`) to avoid disrupting
+     pointer interactions. */
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: inherit;
+  }
+
+  /* Honor reduced-motion globally. Keyframes still fire (so state IS
+     readable) but at near-instant duration; transforms collapse to
+     opacity-only via the conditional rules below. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 120ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
 @tailwind components;
+
+@layer components {
+  /* ── Skip-to-content link (a11y A6) ──────────────────────────────────
+     Visually hidden until focused via Tab. Required for screen-reader
+     and keyboard-only users so they can jump past the fixed top header. */
+  .wv-skip-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(-150%);
+    z-index: 200;
+    padding: 12px 16px;
+    background: var(--brand);
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 12px;
+    transition: transform var(--motion-fast) var(--ease-emphasis);
+  }
+  .wv-skip-link:focus,
+  .wv-skip-link:focus-visible {
+    transform: translateY(0);
+    outline-offset: -2px;
+  }
+
+  /* ── Eyebrow ("Step 1", "Portfolio", "Process") ──────────────────────
+     Replaces the inline `text-primary-container text-xs font-bold
+     uppercase tracking-[0.2em]` pattern repeated across every screen.
+     Adds the signature 8×1 brand line that ties screens together. */
+  .wv-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--brand);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+  .wv-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  /* ── Pill / chip ─────────────────────────────────────────────────────
+     Used for trust-bar items, badges, status indicators. */
+  .wv-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border: 1px solid var(--ink-edge);
+    background: var(--ink-1);
+    color: var(--text-muted);
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+
+  /* ── Surface (card) ──────────────────────────────────────────────────
+     Replaces `bg-surface-container-low border border-white/5 p-N` runs. */
+  .wv-surface {
+    background: var(--ink-1);
+    border: 1px solid var(--ink-edge);
+  }
+  .wv-surface--inset {
+    background: var(--ink);
+    border: 1px solid var(--ink-edge);
+  }
+  .wv-surface--raised {
+    background: var(--ink-2);
+    border: 1px solid var(--ink-edge);
+  }
+
+  /* ── Section wrapper ─────────────────────────────────────────────────
+     Replaces `max-w-6xl mx-auto px-5 sm:px-8`. */
+  .wv-section {
+    max-width: 72rem; /* matches max-w-6xl */
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+  @media (min-width: 640px) {
+    .wv-section { padding-inline: 32px; }
+  }
+
+  /* ── Button base + variants ──────────────────────────────────────────
+     Active scale on press (matches existing `active:scale-[0.98]`). */
+  .wv-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 28px;
+    height: 56px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    transition:
+      transform var(--motion-instant) var(--ease-spring),
+      filter var(--motion-fast) var(--ease-emphasis),
+      background-color var(--motion-fast) var(--ease-emphasis),
+      border-color var(--motion-fast) var(--ease-emphasis);
+  }
+  .wv-btn:active { transform: scale(0.98); }
+  .wv-btn--primary {
+    background: linear-gradient(135deg, #FF6B00 0%, #7A3000 100%);
+    color: #fff;
+  }
+  .wv-btn--primary:hover { filter: brightness(1.10); }
+  .wv-btn--ghost {
+    background: transparent;
+    border: 1px solid var(--ink-edge);
+    color: var(--text);
+  }
+  .wv-btn--ghost:hover { background: rgba(255, 255, 255, 0.05); }
+
+  /* ── Swatch (a11y A3 + visible-active fix) ───────────────────────────
+     44×44 minimum touch target (was 36×36). Active state uses an
+     outset ring via ::after so the indicator is visible on white,
+     gold, and yellow swatches where a 2px inner border disappears. */
+  .wv-swatch {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform var(--motion-fast) var(--ease-spring);
+  }
+  .wv-swatch:active { transform: scale(0.94); }
+  .wv-swatch.active::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 1px solid var(--brand);
+    pointer-events: none;
+  }
+  /* Light-color swatches need a subtle inset shadow so the swatch
+     itself reads as a chip, not as a hole in the page. */
+  .wv-swatch--light {
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+  }
+
+  /* ── Studio shimmer skeleton (Slice 6) ───────────────────────────────
+     Shown while /api/segment is in flight. Subtle 3% brightness pulse
+     on the static template image + a thin orange line that scans
+     left→right at 1.4s. Reduced-motion path: pulse only, no scan. */
+  .wv-skeleton-shimmer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 107, 0, 0.6) 50%,
+      transparent 100%
+    );
+    animation: wv-shimmer 1.4s linear infinite;
+    pointer-events: none;
+  }
+  .wv-skeleton-pulse {
+    animation: wv-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes wv-shimmer {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  @keyframes wv-pulse {
+    0%, 100% { filter: brightness(1.00); }
+    50%      { filter: brightness(0.97); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wv-skeleton-shimmer { animation: none; opacity: 0.4; }
+    .wv-skeleton-pulse   { animation: none; }
+  }
+
+  /* ── Per-finish CSS filter on Studio canvas (Slice 7) ────────────────
+     Cheap illusion: applies different filter() per finish so the user
+     sees the preview shift when they pick a finish, even though the
+     underlying image is the same template render. Real per-finish
+     re-render is post-launch (Phase C). */
+  .wv-finish-filter[data-finish="Matte"]         { filter: contrast(0.92) saturate(0.85) brightness(0.96); }
+  .wv-finish-filter[data-finish="Gloss"]         { filter: contrast(1.08) saturate(1.05) brightness(1.02); }
+  .wv-finish-filter[data-finish="Satin"]         { filter: contrast(1.00) saturate(0.95) brightness(0.99); }
+  .wv-finish-filter[data-finish="Chrome"]        { filter: contrast(1.18) saturate(1.10) brightness(1.05); }
+  .wv-finish-filter[data-finish="Colour Shift"]  { filter: hue-rotate(15deg) saturate(1.20) contrast(1.05); }
+  .wv-finish-filter[data-finish="Carbon Fibre"]  { filter: contrast(1.15) saturate(0.55) brightness(0.92); }
+  .wv-finish-filter[data-finish="Brushed Metal"] { filter: contrast(1.05) saturate(0.40) brightness(1.02); }
+  .wv-finish-filter[data-finish="PPF Clear"]     { filter: contrast(1.04) saturate(1.02) brightness(1.04); }
+  .wv-finish-filter {
+    transition: filter var(--motion-base) var(--ease-emphasis);
+  }
+
+  /* ── Hero scroll-progress line (Slice 5) ─────────────────────────────
+     Replaces the bouncing chevron hint with a subtle horizontal line
+     anchored to the bottom of the hero stage. Width is set inline
+     by hero-scroll-animation.js as `width: ${progress * 100}%`. */
+  .wv-hero-progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    background: var(--brand);
+    width: 0%;
+    transition: width var(--motion-instant) linear;
+    will-change: width;
+    pointer-events: none;
+  }
+
+  /* ── Active color caption (Slice 5, screen 2) ────────────────────────
+     Renders below the swatch row showing the active color name in
+     mono so it reads as "verifiable specification" rather than label. */
+  .wv-color-caption {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 12px;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .wv-color-caption__name { color: var(--text); font-weight: 700; }
+  .wv-color-caption__hex  { color: var(--text-faint); }
+}
+
 @tailwind utilities;

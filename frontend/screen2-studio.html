@@ -21,15 +21,27 @@ body { min-height: 100dvh; }
 .fade-up-d3 { animation-delay: 0.35s; }
 </style>
 <style>
-.finish-btn { transition: all 0.25s ease; }
+/* UI Phase A: motion tokens + a11y touch targets.
+ * .finish-btn keeps its name (560+ refs across HTML); upgraded to motion-fast/spring.
+ * .swatch lifted from 36×36 → 44×44 (WCAG/iOS minimum). Active state uses an
+ * outset ring (::after) so the indicator is visible on white/gold/yellow swatches
+ * where a 2px inner border would disappear into the chip color. */
+.finish-btn { transition: transform var(--motion-fast, 180ms) var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)), border-color var(--motion-fast, 180ms) var(--ease-emphasis, cubic-bezier(0.2,0,0,1)); position: relative; }
 .finish-btn:hover { transform: translateY(-2px); }
 .finish-btn.active { border-color: #FF6B00 !important; box-shadow: 0 0 0 1px #FF6B00; }
-.swatch { width: 36px; height: 36px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s ease; }
-.swatch:hover { transform: scale(1.15); }
-.swatch.active { border-color: #FF6B00; box-shadow: 0 0 0 2px #FF6B00; }
+.swatch { position: relative; width: 44px; height: 44px; cursor: pointer; border: 2px solid transparent; transition: transform var(--motion-fast, 180ms) var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)); }
+.swatch:hover { transform: scale(1.10); }
+.swatch:active { transform: scale(0.94); }
+.swatch.active::after { content: ''; position: absolute; inset: -4px; border: 1px solid #FF6B00; pointer-events: none; }
+/* Light swatches need an inset hairline so the chip reads against #131313. */
+.swatch[data-color="White"], .swatch[data-color="Gold"], .swatch[data-color="Tiffany Blue"] { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.18); }
+@media (prefers-reduced-motion: reduce) {
+  .finish-btn:hover, .swatch:hover, .swatch:active { transform: none; }
+}
 </style>
 </head>
 <body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-white overflow-x-hidden">
+<a href="#main-content" class="wv-skip-link">Skip to content</a>
 
 <header class="fixed top-0 w-full z-50 flex justify-between items-center px-5 sm:px-8 h-16 bg-background/90 backdrop-blur-xl border-b border-white/5">
   <a href="screen1-upload.html" class="flex items-center gap-2">
@@ -43,7 +55,7 @@ body { min-height: 100dvh; }
   </button>
 </header>
 
-<main class="pt-16 pb-28">
+<main id="main-content" class="pt-16 pb-28">
   <!-- SEGMENTATION ERROR BANNER (hidden unless screen1 set wv_segment_error) -->
   <div id="wv-segment-error" role="status" aria-live="polite" class="hidden border-b border-primary-container/30 bg-primary-container/10">
     <div class="max-w-6xl mx-auto px-5 sm:px-8 py-3 flex items-start gap-3">
@@ -72,7 +84,7 @@ body { min-height: 100dvh; }
   <!-- STUDIO CANVAS -->
   <section class="max-w-6xl mx-auto px-5 sm:px-8 pt-8 pb-6">
     <div class="relative bg-surface-container-low border border-white/5 overflow-hidden" style="min-height:320px;">
-      <img id="wv-studio-preview" src="assets/vehicles/land_cruiser_v8.jpg" alt="Vehicle preview" class="w-full h-full object-cover" style="min-height:320px;"/>
+      <img id="wv-studio-preview" src="assets/vehicles/land_cruiser_v8.jpg" alt="Vehicle preview" class="wv-finish-filter w-full h-full object-cover" data-finish="Matte" style="min-height:320px;"/>
       <div class="absolute top-4 right-4 flex gap-2">
         <span id="wv-finish-badge" class="px-3 py-1.5 bg-background/80 backdrop-blur-sm text-primary-container font-headline text-[10px] font-bold uppercase tracking-widest border border-white/10">Matte</span>
         <span id="wv-color-badge" class="px-3 py-1.5 bg-background/80 backdrop-blur-sm text-on-surface font-headline text-[10px] font-bold uppercase tracking-widest border border-white/10">Black</span>
@@ -145,6 +157,13 @@ body { min-height: 100dvh; }
       <button class="swatch bg-[#3e2723]" data-color="Espresso Brown" data-hex="#3e2723" aria-label="Espresso Brown"></button>
       <button class="swatch bg-[#37474f]" data-color="Gunmetal" data-hex="#37474f" aria-label="Gunmetal"></button>
     </div>
+    <!-- UI Phase A: live active-color caption — mono font reads as
+         "verifiable specification" rather than design label. Updated by
+         screen2-studio.js on every swatch click. -->
+    <p class="wv-color-caption" aria-live="polite">
+      <span class="wv-color-caption__name" id="wv-color-caption-name">Black</span>
+      <span class="wv-color-caption__hex" id="wv-color-caption-hex">#0a0a0a</span>
+    </p>
   </section>
 
   <!-- VISION INPUT -->
@@ -175,19 +194,19 @@ body { min-height: 100dvh; }
 </main>
 
 <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-16 px-4 bg-background/95 backdrop-blur-xl border-t border-white/5" aria-label="Main navigation">
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen1-upload.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen1-upload.html">
     <span class="material-symbols-outlined text-xl">palette</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Home</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors" href="screen2-studio.html">
+  <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors" href="screen2-studio.html" aria-current="page">
     <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1;">layers</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Studio</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
     <span class="material-symbols-outlined text-xl">request_quote</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Quote</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
     <span class="material-symbols-outlined text-xl">support_agent</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Inquiry</span>
   </a>
