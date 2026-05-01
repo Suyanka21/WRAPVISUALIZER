@@ -132,6 +132,15 @@
       initBtn.style.pointerEvents='none'; initBtn.style.opacity='0.6';
       initBtn.setAttribute('aria-busy','true');
       initBtn.disabled=true;
+      // UI Phase A skeleton: light up the shimmer line + pulse the prompt
+      // so the user sees that the system is doing work. Cleared in the
+      // finally block (or implicitly when we navigate away).
+      var dropzone=document.getElementById('wv-dropzone');
+      var dropzoneShimmer=document.getElementById('wv-dropzone-shimmer');
+      var uploadPromptEl=document.getElementById('wv-upload-prompt');
+      if(dropzoneShimmer){ dropzoneShimmer.classList.remove('hidden'); }
+      if(dropzone){ dropzone.setAttribute('data-busy','true'); }
+      if(uploadPromptEl){ uploadPromptEl.classList.add('wv-skeleton-pulse'); }
       // Block re-entry through the file picker or a template card while the
       // segmentation call is in flight.
       if(fileInput) fileInput.disabled=true;

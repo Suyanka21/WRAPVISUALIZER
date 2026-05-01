@@ -148,8 +148,8 @@ html, body { overflow-x: clip; overflow-y: visible; }
       <span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Step 1</span>
       <h3 class="font-headline text-2xl sm:text-3xl font-bold tracking-tight mb-3">Upload Your Vehicle</h3>
       <p class="text-on-surface-variant text-sm leading-relaxed mb-8 max-w-md">Snap a photo of your car or pick from our curated fleet below. We will map your chosen wrap finish onto it.</p>
-      <div class="group relative flex flex-col items-center justify-center border border-dashed border-outline-variant/30 bg-surface-container-lowest hover:border-primary-container/50 transition-all cursor-pointer" style="min-height:220px;">
-        <input id="wv-file-input" class="absolute inset-0 opacity-0 cursor-pointer z-10" type="file" accept="image/*"/>
+      <div id="wv-dropzone" class="group relative flex flex-col items-center justify-center border border-dashed border-outline-variant/30 bg-surface-container-lowest hover:border-primary-container/50 transition-all cursor-pointer overflow-hidden" style="min-height:220px;">
+        <input id="wv-file-input" class="absolute inset-0 opacity-0 cursor-pointer z-10" type="file" accept="image/*" aria-label="Upload vehicle image"/>
         <div id="wv-upload-prompt" class="flex flex-col items-center gap-3 pointer-events-none">
           <div class="w-16 h-16 flex items-center justify-center bg-primary-container/10 border border-primary-container/20">
             <span class="material-symbols-outlined text-3xl text-primary-container" style="font-variation-settings:'FILL' 1;">cloud_upload</span>
@@ -157,6 +157,12 @@ html, body { overflow-x: clip; overflow-y: visible; }
           <span class="font-headline text-sm font-bold tracking-wide text-white">Drop image or tap to browse</span>
           <span class="text-xs text-on-surface-variant">JPG, PNG, or WebP up to 4MB</span>
         </div>
+        <!-- UI Phase A skeleton: shown while /api/segment is in flight (can
+             be ~12s on cold Replicate). screen1-upload.js toggles
+             [data-busy=true] on this dropzone after the user clicks
+             Initialize Customizer; the shimmer line scans left→right
+             and the prompt subtly pulses. Reduced-motion path opts out. -->
+        <div id="wv-dropzone-shimmer" class="wv-skeleton-shimmer hidden"></div>
       </div>
       <button id="wv-init-btn" class="w-full mt-5 h-14 signature-gradient text-white font-headline font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
         <span>Initialize Customizer</span>

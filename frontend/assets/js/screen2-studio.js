@@ -54,8 +54,13 @@
     overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.style.display='none';});
   }
 
-  // Finish buttons
+  // Finish buttons. UI Phase A: also flip data-finish on the studio
+  // preview <img> so the per-finish CSS filter (.wv-finish-filter
+  // [data-finish=...]) updates the preview the user sees. Cheap
+  // illusion that signals "your finish is being applied" without
+  // requiring a real per-finish render set.
   var finishBtns=document.querySelectorAll('.finish-btn');
+  var studioPreview=document.getElementById('wv-studio-preview');
   finishBtns.forEach(function(btn){
     btn.addEventListener('click',function(){
       finishBtns.forEach(function(b){b.classList.remove('active');});
@@ -63,6 +68,7 @@
       selFinish=btn.getAttribute('data-finish');
       document.getElementById('wv-finish-badge').textContent=selFinish;
       document.getElementById('wv-sum-finish').textContent=selFinish;
+      if(studioPreview){ studioPreview.setAttribute('data-finish',selFinish); }
     });
   });
 
