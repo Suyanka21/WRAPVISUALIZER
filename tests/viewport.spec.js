@@ -19,7 +19,7 @@ const SCREENS = [
   {
     path: '/screen2-studio.html',
     cta: '#wv-get-quote',
-    needsFunnelState: false,
+    needsFunnelState: true,
   },
   {
     path: '/screen3-quote.html',
@@ -73,6 +73,15 @@ for (const { path, cta, needsFunnelState } of SCREENS) {
     await expect(el).toBeAttached();
   });
 }
+
+test('screen2 redirects to screen1 when funnel state is missing', async ({ page }) => {
+  // Regression for trustless-audit — screen 2 now enforces the same
+  // funnel guard as screens 3 and 4 to prevent junk WhatsApp leads
+  // from placeholder vehicle data.
+  await page.goto('/screen2-studio.html');
+  await page.waitForURL(/screen1-upload\.html/);
+  await expect(page).toHaveURL(/screen1-upload\.html/);
+});
 
 test('screen3 redirects to screen1 when funnel state is missing', async ({ page }) => {
   // Regression for trustless-audit C4 — a direct visit to screen 3

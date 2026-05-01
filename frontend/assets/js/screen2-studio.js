@@ -1,5 +1,19 @@
 (function(){
   'use strict';
+
+  // Funnel-state guard. Screen 2 only makes sense after the user
+  // selects a vehicle or uploads a photo on screen 1. A direct URL
+  // visit, refresh after sessionStorage was cleared (iOS Safari
+  // Private), or a stale bookmark would render the studio with a
+  // default placeholder vehicle and let the user fire a meaningless
+  // WhatsApp lead. wv_vehicle_label is set on every legitimate entry
+  // path through screen 1, so its absence is a reliable "you skipped
+  // the funnel" signal. Matches screens 3 and 4.
+  if (!sessionStorage.getItem('wv_vehicle_label')) {
+    window.location.replace('screen1-upload.html');
+    return;
+  }
+
   var vehicleLabel=sessionStorage.getItem('wv_vehicle_label')||'Toyota Land Cruiser V8/LC300';
   document.getElementById('wv-vehicle-name').textContent=vehicleLabel;
   document.getElementById('wv-sum-vehicle').textContent=vehicleLabel;
