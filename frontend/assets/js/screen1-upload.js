@@ -237,7 +237,7 @@
     var btn=document.createElement('button');
     btn.setAttribute('aria-label','Chat on WhatsApp '+p.label);
     btn.className='h-12 px-6 bg-secondary-container text-white font-headline font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all';
-    btn.innerHTML='<span class="material-symbols-outlined text-base" style="font-variation-settings:\'FILL\' 1;">chat</span>'+p.label+' \u2014 '+p.display.replace('+254 ','0');
+    btn.innerHTML='<span class="material-symbols-outlined text-base" style="font-variation-settings:\'FILL\' 1;">chat</span>'+p.label+' \u2014 <span class="font-mono">'+p.display.replace('+254 ','0')+'</span>';
     btn.addEventListener('click',function(){
       var v=selVehicleLabel||'General Inquiry';
       var msg=encodeURIComponent('Hi, I am interested in a vehicle wrap.\nVehicle: '+v+'\n\nCould you share options and next steps?');

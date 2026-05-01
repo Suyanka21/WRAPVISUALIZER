@@ -140,7 +140,7 @@
     btn.className='w-full h-14 bg-secondary-container text-white font-headline font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.98] transition-all';
     btn.innerHTML=
       '<span class="material-symbols-outlined text-base" style="font-variation-settings:\'FILL\' 1;">chat</span>'+
-      'Chat '+p.label+' \u2014 '+p.display.replace('+254 ','0');
+      'Chat '+p.label+' \u2014 <span class="font-mono">'+p.display.replace('+254 ','0')+'</span>';
     btn.addEventListener('click',function(){
       if(waInFlight) return;
       waInFlight=true;

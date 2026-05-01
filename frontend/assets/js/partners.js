@@ -45,7 +45,7 @@
       a.className = 'flex items-center gap-3 py-3 px-4 bg-secondary-container/10 border border-secondary-container/20 text-secondary text-sm font-bold';
       a.innerHTML =
         '<span class="material-symbols-outlined text-base" style="font-variation-settings:\'FILL\' 1;">chat</span>' +
-        p.display;
+        '<span class="font-mono">' + p.display + '</span>';
       container.appendChild(a);
     });
   }
