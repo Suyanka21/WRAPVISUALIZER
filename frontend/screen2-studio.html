@@ -157,6 +157,13 @@ body { min-height: 100dvh; }
       <button class="swatch bg-[#3e2723]" data-color="Espresso Brown" data-hex="#3e2723" aria-label="Espresso Brown"></button>
       <button class="swatch bg-[#37474f]" data-color="Gunmetal" data-hex="#37474f" aria-label="Gunmetal"></button>
     </div>
+    <!-- UI Phase A: live active-color caption — mono font reads as
+         "verifiable specification" rather than design label. Updated by
+         screen2-studio.js on every swatch click. -->
+    <p class="wv-color-caption" aria-live="polite">
+      <span class="wv-color-caption__name" id="wv-color-caption-name">Black</span>
+      <span class="wv-color-caption__hex" id="wv-color-caption-hex">#0a0a0a</span>
+    </p>
   </section>
 
   <!-- VISION INPUT -->

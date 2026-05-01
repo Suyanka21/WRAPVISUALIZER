@@ -106,16 +106,38 @@ html, body { overflow-x: clip; overflow-y: visible; }
       <span>Scroll</span>
       <span class="material-symbols-outlined text-base">keyboard_arrow_down</span>
     </div>
+
+    <!-- Scroll progress line — width set by hero-scroll-animation.js. Premium
+         informative replacement for the bouncy chevron. -->
+    <div id="wv-hero-progress" class="wv-hero-progress" aria-hidden="true"></div>
   </div>
 </section>
 
-<!-- TRUST BAR -->
+<!-- TRUST BAR — UI Phase A: 2×2 grid mobile, 4 col desktop with vertical
+     hairlines; numbers ("500+", "7-Year") raised to display size for
+     scale, label kept as eyebrow underneath. -->
 <div class="border-y border-white/5 bg-surface-container-lowest">
-  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-5 flex flex-wrap justify-center gap-x-10 gap-y-3">
-    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-primary-container text-base" style="font-variation-settings:'FILL' 1;">verified</span>3M Certified</div>
-    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-primary-container text-base" style="font-variation-settings:'FILL' 1;">shield</span>7-Year Warranty</div>
-    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-primary-container text-base" style="font-variation-settings:'FILL' 1;">star</span>500+ Wraps Done</div>
-    <div class="flex items-center gap-2 text-on-surface-variant text-xs uppercase tracking-widest font-bold"><span class="material-symbols-outlined text-secondary-container text-base" style="font-variation-settings:'FILL' 1;">chat</span>WhatsApp Support</div>
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 py-6 grid grid-cols-2 sm:grid-cols-4 sm:divide-x sm:divide-white/5">
+    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+      <span class="material-symbols-outlined text-primary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">verified</span>
+      <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">3M&nbsp;Certified</span>
+      <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Authorised installer</span>
+    </div>
+    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+      <span class="material-symbols-outlined text-primary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">shield</span>
+      <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">7-Year</span>
+      <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Wrap warranty</span>
+    </div>
+    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+      <span class="material-symbols-outlined text-primary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">star</span>
+      <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">500+</span>
+      <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Wraps delivered</span>
+    </div>
+    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+      <span class="material-symbols-outlined text-secondary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">chat</span>
+      <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">WhatsApp</span>
+      <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Direct specialist</span>
+    </div>
   </div>
 </div>
 
