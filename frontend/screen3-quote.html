@@ -22,6 +22,7 @@ body { min-height: 100dvh; }
 </style>
 </head>
 <body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-white overflow-x-hidden">
+<a href="#main-content" class="wv-skip-link">Skip to content</a>
 
 <header class="fixed top-0 w-full z-50 flex justify-between items-center px-5 sm:px-8 h-16 bg-background/90 backdrop-blur-xl border-b border-white/5">
   <a href="screen1-upload.html" class="flex items-center gap-2">
@@ -35,7 +36,7 @@ body { min-height: 100dvh; }
   </button>
 </header>
 
-<main class="pt-16 pb-28">
+<main id="main-content" class="pt-16 pb-28">
   <!-- REVIEW HERO -->
   <section class="bg-surface-container-lowest border-b border-white/5">
     <div class="max-w-6xl mx-auto px-5 sm:px-8 py-10 text-center">
@@ -133,19 +134,19 @@ body { min-height: 100dvh; }
 </main>
 
 <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-16 px-4 bg-background/95 backdrop-blur-xl border-t border-white/5" aria-label="Main navigation">
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen1-upload.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen1-upload.html">
     <span class="material-symbols-outlined text-xl">palette</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Home</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen2-studio.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen2-studio.html">
     <span class="material-symbols-outlined text-xl">layers</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Studio</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
+  <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html" aria-current="page">
     <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1;">request_quote</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Quote</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
     <span class="material-symbols-outlined text-xl">support_agent</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Inquiry</span>
   </a>
