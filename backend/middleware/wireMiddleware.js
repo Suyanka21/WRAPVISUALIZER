@@ -24,6 +24,7 @@ import path from 'node:path';
 
 import segmentRouter from '../routes/segment.js';
 import eventsRouter from '../routes/events.js';
+import maskProxyRouter from '../routes/mask-proxy.js';
 import { securityMiddleware } from './security.js';
 import { segmentRateLimit } from './rateLimits.js';
 import { corsMiddleware, blockNoOriginMutations } from './cors.js';
@@ -77,4 +78,5 @@ export function wireMiddleware(app, { frontendPath, morphPath }) {
     segmentRouter,
   );
   app.use('/api/events', blockNoOriginMutations, eventsRouter);
+  app.use('/api/mask-proxy', maskProxyRouter);
 }

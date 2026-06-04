@@ -159,6 +159,7 @@
       // renders a segmentation result that belongs to a different photo.
       // Also clear any stale error flag from an earlier attempt.
       sessionStorage.removeItem('wv_segmented_image');
+      sessionStorage.removeItem('wv_individual_masks');
       sessionStorage.removeItem('wv_segment_error');
       // Audit W3: abort the in-flight segment call if the user closes
       // the tab or hits back. Without this, a 30s SAM-2 inference keeps
@@ -179,6 +180,14 @@
         var data=null; try{ data=await res.json(); }catch(_parse){ data=null; }
         if(data&&data.success&&data.segmented_image){
           sessionStorage.setItem('wv_segmented_image',data.segmented_image);
+          // Persist individual masks so screen2 can pick the single
+          // largest binary mask for the color overlay (instead of the
+          // combined mask which uses arbitrary colors).
+          if(data.individualMasks&&data.individualMasks.length){
+            try{
+              sessionStorage.setItem('wv_individual_masks',JSON.stringify(data.individualMasks));
+            }catch(_quota){ console.warn('[WV] Individual masks too large to persist'); }
+          }
           track('segment_success',{status:res.status});
         }else{
           // Non-blocking failure: keep the user moving through the flow

@@ -18,11 +18,10 @@ import axios from 'axios';
 
 const REPLICATE_API = 'https://api.replicate.com/v1';
 
-// Model identifier — Replicate resolves this to the latest active
-// version automatically. Override with an env var if you need to
-// pin to a specific version hash.
-const SAM2_MODEL = 'meta/sam-2';
-const SAM2_VERSION = process.env.REPLICATE_SAM2_VERSION || null;
+// SAM-2 version hash from https://replicate.com/meta/sam-2
+// Override with REPLICATE_SAM2_VERSION env var if a newer version ships.
+const SAM2_DEFAULT_VERSION = 'fe97b453a6455861e3bac769b441ca1f1086110da7466dbb65cf1eecfd60dc83';
+const SAM2_VERSION = process.env.REPLICATE_SAM2_VERSION || SAM2_DEFAULT_VERSION;
 
 // Timeout and retry configuration
 const TIMEOUT_MS = 90_000; // 90 seconds total budget (cold workers can take 40-60 s)
@@ -84,10 +83,9 @@ async function pollPrediction(predictionUrl, token) {
  * Returns: { combinedMask: string, individualMasks: string[], processingTime: number }
  */
 export async function segmentImage(dataUri, token) {
-  // Build the prediction payload — use the model identifier when no
-  // explicit version is pinned, so Replicate auto-routes to the
-  // latest active version.
+  // Build the prediction payload with the pinned version hash.
   const payload = {
+    version: SAM2_VERSION,
     input: {
       image: dataUri,
       use_m2m: true,
@@ -96,11 +94,6 @@ export async function segmentImage(dataUri, token) {
       stability_score_thresh: 0.95,
     },
   };
-  if (SAM2_VERSION) {
-    payload.version = SAM2_VERSION;
-  } else {
-    payload.model = SAM2_MODEL;
-  }
 
   let lastError = null;
 

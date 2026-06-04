@@ -22,9 +22,38 @@ body { min-height: 100dvh; }
 .fade-up-d3 { animation-delay: 0.35s; }
 </style>
 <style>
-.template-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-.template-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(255,107,0,0.12); }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+/* Template carousel */
+.wv-carousel { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+.wv-carousel::-webkit-scrollbar { display: none; }
+.wv-carousel { scrollbar-width: none; }
+.template-card { flex: 0 0 176px; scroll-snap-align: start; transition: transform 160ms cubic-bezier(0.23,1,0.32,1), box-shadow 200ms ease-out, border-color 160ms ease-out; }
 .template-card.selected { border-color: #FF6B00 !important; box-shadow: 0 0 0 1px #FF6B00, 0 12px 40px rgba(255,107,0,0.15); }
+.template-card:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .template-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(255,107,0,0.12); }
+}
+.wv-popular-badge { position: absolute; top: 6px; right: 6px; background: linear-gradient(135deg, #FF6B00, #7A3000); color: #fff; font-family: 'Space Grotesk'; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 6px; z-index: 2; }
+/* Scroll-triggered entrance */
+[data-animate-child] { opacity: 0; transform: translateY(8px); transition: opacity 300ms cubic-bezier(0.23,1,0.32,1), transform 300ms cubic-bezier(0.23,1,0.32,1); }
+[data-animate-child].wv-visible { opacity: 1; transform: translateY(0); }
+/* Trust bar entrance */
+.wv-trust-item { opacity: 0; transform: scale(0.95); transition: opacity 250ms cubic-bezier(0.23,1,0.32,1), transform 250ms cubic-bezier(0.23,1,0.32,1); }
+.wv-trust-item.wv-visible { opacity: 1; transform: scale(1); }
+@media (prefers-reduced-motion: reduce) {
+  [data-animate-child], .wv-trust-item { opacity: 1; transform: none; transition: none; }
+}
+/* Finish card hover (Task 6) */
+.wv-finish-card { transition: transform 160ms ease-out, border-color 160ms ease-out; }
+.wv-finish-card:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .wv-finish-card:hover { transform: translateY(-2px); border-color: rgba(255,107,0,0.3) !important; }
+}
+/* Dropzone idle pulse (Task 8) */
+@keyframes wv-border-pulse { 0%,100% { border-color: rgba(90,65,54,0.3); } 50% { border-color: rgba(255,107,0,0.35); } }
+.wv-dropzone-idle { animation: wv-border-pulse 2.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .wv-dropzone-idle { animation: none; } }
 </style>
 <style>
 /* Scroll-jacked hero. The outer section is tall so the user has room to
@@ -118,22 +147,22 @@ html, body { overflow-x: clip; overflow-y: visible; }
      scale, label kept as eyebrow underneath. -->
 <div class="border-y border-white/5 bg-surface-container-lowest">
   <div class="max-w-6xl mx-auto px-5 sm:px-8 py-6 grid grid-cols-2 sm:grid-cols-4 sm:divide-x sm:divide-white/5">
-    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+    <div class="wv-trust-item px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
       <span class="material-symbols-outlined text-primary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">verified</span>
       <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">3M&nbsp;Certified</span>
       <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Authorised installer</span>
     </div>
-    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+    <div class="wv-trust-item px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
       <span class="material-symbols-outlined text-primary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">shield</span>
       <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">7-Year</span>
       <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Wrap warranty</span>
     </div>
-    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+    <div class="wv-trust-item px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
       <span class="material-symbols-outlined text-primary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">star</span>
       <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">500+</span>
       <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Wraps delivered</span>
     </div>
-    <div class="px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
+    <div class="wv-trust-item px-3 py-2 sm:py-1 text-center flex flex-col items-center gap-1">
       <span class="material-symbols-outlined text-secondary-container text-2xl" style="font-variation-settings:'FILL' 1;" aria-hidden="true">chat</span>
       <span class="font-headline text-base sm:text-lg font-bold text-white tracking-tight">WhatsApp</span>
       <span class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Direct specialist</span>
@@ -141,17 +170,29 @@ html, body { overflow-x: clip; overflow-y: visible; }
   </div>
 </div>
 
+<!-- HOW IT WORKS (moved above upload to front-load user understanding) -->
+<section class="bg-surface-container-lowest border-y border-white/5 py-16">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="text-center mb-12"><span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Process</span><h3 class="font-headline text-2xl sm:text-3xl font-bold tracking-tight">How It Works</h3></div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6" data-animate="stagger">
+      <div class="text-center" data-animate-child><div class="w-14 h-14 mx-auto mb-4 signature-gradient flex items-center justify-center text-white font-headline font-bold text-xl">1</div><h4 class="font-headline text-sm font-bold uppercase tracking-wider text-white mb-2">Choose Your Vehicle</h4><p class="text-on-surface-variant text-xs leading-relaxed">Upload your car photo or select from our premium template fleet.</p></div>
+      <div class="text-center" data-animate-child><div class="w-14 h-14 mx-auto mb-4 signature-gradient flex items-center justify-center text-white font-headline font-bold text-xl">2</div><h4 class="font-headline text-sm font-bold uppercase tracking-wider text-white mb-2">Pick Your Finish</h4><p class="text-on-surface-variant text-xs leading-relaxed">Browse matte, gloss, satin, chrome, and more &mdash; see the look instantly.</p></div>
+      <div class="text-center" data-animate-child><div class="w-14 h-14 mx-auto mb-4 bg-secondary-container flex items-center justify-center text-white font-headline font-bold text-xl">3</div><h4 class="font-headline text-sm font-bold uppercase tracking-wider text-white mb-2">Chat on WhatsApp</h4><p class="text-on-surface-variant text-xs leading-relaxed">Send your selection to our specialists &mdash; they reply with a tailored quote.</p></div>
+    </div>
+  </div>
+</section>
+
 <!-- UPLOAD SECTION -->
-<section id="upload" class="max-w-6xl mx-auto px-5 sm:px-8 pt-16 pb-12">
+<section id="upload" class="max-w-6xl mx-auto px-5 sm:px-8 pt-16 pb-12" style="scroll-margin-top:80px;">
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
     <div>
       <span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Step 1</span>
       <h3 class="font-headline text-2xl sm:text-3xl font-bold tracking-tight mb-3">Upload Your Vehicle</h3>
       <p class="text-on-surface-variant text-sm leading-relaxed mb-8 max-w-md">Snap a photo of your car or pick from our curated fleet below. We will map your chosen wrap finish onto it.</p>
-      <div id="wv-dropzone" class="group relative flex flex-col items-center justify-center border border-dashed border-outline-variant/30 bg-surface-container-lowest hover:border-primary-container/50 transition-all cursor-pointer overflow-hidden" style="min-height:220px;">
+      <div id="wv-dropzone" class="wv-dropzone-idle group relative flex flex-col items-center justify-center border border-dashed border-outline-variant/30 bg-surface-container-lowest hover:border-primary-container/50 transition-all cursor-pointer overflow-hidden" style="min-height:220px;">
         <input id="wv-file-input" class="absolute inset-0 opacity-0 cursor-pointer z-10" type="file" accept="image/*" aria-label="Upload vehicle image"/>
         <div id="wv-upload-prompt" class="flex flex-col items-center gap-3 pointer-events-none">
-          <div class="w-16 h-16 flex items-center justify-center bg-primary-container/10 border border-primary-container/20">
+          <div class="w-16 h-16 flex items-center justify-center border border-primary-container/20" style="background:radial-gradient(circle at center, rgba(255,107,0,0.12), transparent 70%);">
             <span class="material-symbols-outlined text-3xl text-primary-container" style="font-variation-settings:'FILL' 1;">cloud_upload</span>
           </div>
           <span class="font-headline text-sm font-bold tracking-wide text-white">Drop image or tap to browse</span>
@@ -181,41 +222,42 @@ html, body { overflow-x: clip; overflow-y: visible; }
         </div>
         <span class="text-xs text-on-surface-variant font-medium">7 models</span>
       </div>
-      <div class="space-y-3" id="wv-templates">
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Toyota Land Cruiser V8/LC300" data-vehicle-img="assets/vehicles/land_cruiser_v8.jpg">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Toyota Land Cruiser V8/LC300" src="assets/vehicles/land_cruiser_v8.jpg"/></div>
-          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Toyota Land Cruiser V8/LC300</h4><p class="text-[11px] text-on-surface-variant mt-1">4.5L Twin Turbo &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Large SUV</span></div>
-          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+      <div class="wv-carousel" id="wv-templates">
+        <div class="template-card relative bg-surface-container-low border border-white/5 p-3 flex flex-col cursor-pointer" role="button" tabindex="0" data-vehicle="Toyota Land Cruiser V8/LC300" data-vehicle-img="assets/vehicles/land_cruiser_v8.jpg">
+          <span class="wv-popular-badge">Popular</span>
+          <div class="w-full h-24 bg-surface-container-lowest overflow-hidden mb-2"><img class="w-full h-full object-cover" loading="lazy" alt="Toyota Land Cruiser V8/LC300" src="assets/vehicles/land_cruiser_v8.jpg"/></div>
+          <h4 class="font-headline text-xs font-bold text-white tracking-tight truncate">LC V8 / LC300</h4>
+          <span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-0.5">Large SUV</span>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Range Rover Vogue" data-vehicle-img="assets/vehicles/range_rover_vogue.jpg">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Range Rover Vogue" src="assets/vehicles/range_rover_vogue.jpg"/></div>
-          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Range Rover Vogue</h4><p class="text-[11px] text-on-surface-variant mt-1">LWB Edition &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Luxury SUV</span></div>
-          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex flex-col cursor-pointer" role="button" tabindex="0" data-vehicle="Range Rover Vogue" data-vehicle-img="assets/vehicles/range_rover_vogue.jpg">
+          <div class="w-full h-24 bg-surface-container-lowest overflow-hidden mb-2"><img class="w-full h-full object-cover" loading="lazy" alt="Range Rover Vogue" src="assets/vehicles/range_rover_vogue.jpg"/></div>
+          <h4 class="font-headline text-xs font-bold text-white tracking-tight truncate">Range Rover Vogue</h4>
+          <span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-0.5">Luxury SUV</span>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Lexus LX600" data-vehicle-img="assets/vehicles/lexus_lx600.jpg">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Lexus LX600" src="assets/vehicles/lexus_lx600.jpg"/></div>
-          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Lexus LX600</h4><p class="text-[11px] text-on-surface-variant mt-1">Ultra Luxury Pkg &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Luxury SUV</span></div>
-          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex flex-col cursor-pointer" role="button" tabindex="0" data-vehicle="Lexus LX600" data-vehicle-img="assets/vehicles/lexus_lx600.jpg">
+          <div class="w-full h-24 bg-surface-container-lowest overflow-hidden mb-2"><img class="w-full h-full object-cover" loading="lazy" alt="Lexus LX600" src="assets/vehicles/lexus_lx600.jpg"/></div>
+          <h4 class="font-headline text-xs font-bold text-white tracking-tight truncate">Lexus LX600</h4>
+          <span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-0.5">Luxury SUV</span>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Toyota Land Cruiser Prado" data-vehicle-img="assets/vehicles/prado.jpg">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Toyota Land Cruiser Prado" src="assets/vehicles/prado.jpg"/></div>
-          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Toyota Land Cruiser Prado</h4><p class="text-[11px] text-on-surface-variant mt-1">TX-L Edition &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Mid SUV</span></div>
-          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex flex-col cursor-pointer" role="button" tabindex="0" data-vehicle="Toyota Land Cruiser Prado" data-vehicle-img="assets/vehicles/prado.jpg">
+          <div class="w-full h-24 bg-surface-container-lowest overflow-hidden mb-2"><img class="w-full h-full object-cover" loading="lazy" alt="Toyota Land Cruiser Prado" src="assets/vehicles/prado.jpg"/></div>
+          <h4 class="font-headline text-xs font-bold text-white tracking-tight truncate">Prado</h4>
+          <span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-0.5">Mid SUV</span>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Mercedes-Benz GLE" data-vehicle-img="assets/vehicles/mercedes_gle.jpg">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Mercedes-Benz GLE" src="assets/vehicles/mercedes_gle.jpg"/></div>
-          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Mercedes-Benz GLE</h4><p class="text-[11px] text-on-surface-variant mt-1">4MATIC Luxury &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Luxury SUV</span></div>
-          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex flex-col cursor-pointer" role="button" tabindex="0" data-vehicle="Mercedes-Benz GLE" data-vehicle-img="assets/vehicles/mercedes_gle.jpg">
+          <div class="w-full h-24 bg-surface-container-lowest overflow-hidden mb-2"><img class="w-full h-full object-cover" loading="lazy" alt="Mercedes-Benz GLE" src="assets/vehicles/mercedes_gle.jpg"/></div>
+          <h4 class="font-headline text-xs font-bold text-white tracking-tight truncate">Mercedes GLE</h4>
+          <span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-0.5">Luxury SUV</span>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="BMW 7 Series" data-vehicle-img="assets/vehicles/bmw_7_series.jpg">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="BMW 7 Series" src="assets/vehicles/bmw_7_series.jpg"/></div>
-          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">BMW 7 Series</h4><p class="text-[11px] text-on-surface-variant mt-1">740i M Sport &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Luxury Sedan</span></div>
-          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex flex-col cursor-pointer" role="button" tabindex="0" data-vehicle="BMW 7 Series" data-vehicle-img="assets/vehicles/bmw_7_series.jpg">
+          <div class="w-full h-24 bg-surface-container-lowest overflow-hidden mb-2"><img class="w-full h-full object-cover" loading="lazy" alt="BMW 7 Series" src="assets/vehicles/bmw_7_series.jpg"/></div>
+          <h4 class="font-headline text-xs font-bold text-white tracking-tight truncate">BMW 7 Series</h4>
+          <span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-0.5">Luxury Sedan</span>
         </div>
-        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex gap-4 cursor-pointer" data-vehicle="Subaru Outback" data-vehicle-img="assets/vehicles/subaru_outback.jpg">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 bg-surface-container-lowest overflow-hidden flex-shrink-0"><img class="w-full h-full object-cover" loading="lazy" alt="Subaru Outback" src="assets/vehicles/subaru_outback.jpg"/></div>
-          <div class="flex flex-col justify-center flex-1 min-w-0"><h4 class="font-headline text-sm sm:text-base font-bold text-white tracking-tight truncate">Subaru Outback</h4><p class="text-[11px] text-on-surface-variant mt-1">2.5i Touring &middot; Full Body</p><span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-2">Crossover</span></div>
-          <div class="flex items-center text-on-surface-variant/40"><span class="material-symbols-outlined text-lg">chevron_right</span></div>
+        <div class="template-card bg-surface-container-low border border-white/5 p-3 flex flex-col cursor-pointer" role="button" tabindex="0" data-vehicle="Subaru Outback" data-vehicle-img="assets/vehicles/subaru_outback.jpg">
+          <div class="w-full h-24 bg-surface-container-lowest overflow-hidden mb-2"><img class="w-full h-full object-cover" loading="lazy" alt="Subaru Outback" src="assets/vehicles/subaru_outback.jpg"/></div>
+          <h4 class="font-headline text-xs font-bold text-white tracking-tight truncate">Subaru Outback</h4>
+          <span class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-wider mt-0.5">Crossover</span>
         </div>
       </div>
     </div>
@@ -231,10 +273,10 @@ html, body { overflow-x: clip; overflow-y: visible; }
       <p class="text-on-surface-variant text-sm mt-3 max-w-lg mx-auto">From stealth matte to mirror chrome &mdash; choose the finish that matches your personality. All wraps use 3M &amp; Avery premium vinyl.</p>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-      <div class="bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center hover:border-primary-container/30 transition-all"><div class="w-12 h-12 mx-auto mb-3 bg-[#1a1a1a] flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">texture</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Matte</h4><p class="text-[10px] text-on-surface-variant mt-1">Stealth look</p></div>
-      <div class="bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center hover:border-primary-container/30 transition-all"><div class="w-12 h-12 mx-auto mb-3 bg-[#111] flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">shutter_speed</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Gloss</h4><p class="text-[10px] text-on-surface-variant mt-1">Mirror finish</p></div>
-      <div class="bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center hover:border-primary-container/30 transition-all"><div class="w-12 h-12 mx-auto mb-3 bg-[#252525] flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">waves</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Satin</h4><p class="text-[10px] text-on-surface-variant mt-1">Soft sheen</p></div>
-      <div class="bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center hover:border-primary-container/30 transition-all"><div class="w-12 h-12 mx-auto mb-3 bg-white/10 flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">flare</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Chrome</h4><p class="text-[10px] text-on-surface-variant mt-1">Head-turner</p></div>
+      <div class="wv-finish-card bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center cursor-pointer"><div class="w-12 h-12 mx-auto mb-3 bg-[#1a1a1a] flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">texture</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Matte</h4><p class="text-[10px] text-on-surface-variant mt-1">Stealth look</p></div>
+      <div class="wv-finish-card bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center cursor-pointer"><div class="w-12 h-12 mx-auto mb-3 bg-[#111] flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">shutter_speed</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Gloss</h4><p class="text-[10px] text-on-surface-variant mt-1">Mirror finish</p></div>
+      <div class="wv-finish-card bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center cursor-pointer"><div class="w-12 h-12 mx-auto mb-3 bg-[#252525] flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">waves</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Satin</h4><p class="text-[10px] text-on-surface-variant mt-1">Soft sheen</p></div>
+      <div class="wv-finish-card bg-surface-container-low border border-white/5 p-4 sm:p-5 text-center cursor-pointer"><div class="w-12 h-12 mx-auto mb-3 bg-white/10 flex items-center justify-center border border-white/10"><span class="material-symbols-outlined text-primary text-xl">flare</span></div><h4 class="font-headline text-xs font-bold uppercase tracking-wider text-white">Chrome</h4><p class="text-[10px] text-on-surface-variant mt-1">Head-turner</p></div>
     </div>
   </div>
 </section>
@@ -252,19 +294,15 @@ html, body { overflow-x: clip; overflow-y: visible; }
     <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="assets/gallery/military_green_suv.jpg" alt="Military green SUV wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Military Green</p><p class="text-white/60 text-xs">SUV &middot; Full Body</p></div></div></div>
     <div class="aspect-[4/3] overflow-hidden bg-surface-container-low group cursor-pointer relative"><img src="assets/gallery/racing_red_coupe.jpg" alt="Racing red coupe wrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/><div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4"><div><p class="text-white text-sm font-bold font-headline">Racing Red</p><p class="text-white/60 text-xs">Coupe &middot; Full Body + Accents</p></div></div></div>
   </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section class="bg-surface-container-lowest border-y border-white/5 py-16">
-  <div class="max-w-6xl mx-auto px-5 sm:px-8">
-    <div class="text-center mb-12"><span class="text-primary-container text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Process</span><h3 class="font-headline text-2xl sm:text-3xl font-bold tracking-tight">How It Works</h3></div>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-6">
-      <div class="text-center"><div class="w-14 h-14 mx-auto mb-4 signature-gradient flex items-center justify-center text-white font-headline font-bold text-xl">1</div><h4 class="font-headline text-sm font-bold uppercase tracking-wider text-white mb-2">Choose Your Vehicle</h4><p class="text-on-surface-variant text-xs leading-relaxed">Upload your car photo or select from our premium template fleet.</p></div>
-      <div class="text-center"><div class="w-14 h-14 mx-auto mb-4 signature-gradient flex items-center justify-center text-white font-headline font-bold text-xl">2</div><h4 class="font-headline text-sm font-bold uppercase tracking-wider text-white mb-2">Pick Your Finish</h4><p class="text-on-surface-variant text-xs leading-relaxed">Browse matte, gloss, satin, chrome, and more &mdash; see the look instantly.</p></div>
-      <div class="text-center"><div class="w-14 h-14 mx-auto mb-4 bg-secondary-container flex items-center justify-center text-white font-headline font-bold text-xl">3</div><h4 class="font-headline text-sm font-bold uppercase tracking-wider text-white mb-2">Chat on WhatsApp</h4><p class="text-on-surface-variant text-xs leading-relaxed">Send your selection to our specialists &mdash; they reply with a tailored quote.</p></div>
-    </div>
+  <div class="text-center mt-10">
+    <a href="#upload" class="inline-flex items-center gap-2 text-primary-container font-headline font-bold text-sm uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-all">
+      Like what you see? Start with your own vehicle
+      <span class="material-symbols-outlined text-base">arrow_forward</span>
+    </a>
   </div>
 </section>
+
+<!-- HOW IT WORKS — moved above upload section -->
 
 <!-- WHATSAPP CTA -->
 <section class="max-w-6xl mx-auto px-5 sm:px-8 py-16">
@@ -290,7 +328,7 @@ html, body { overflow-x: clip; overflow-y: visible; }
     <span class="material-symbols-outlined text-xl">request_quote</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Quote</span>
   </a>
-  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen3-quote.html">
+  <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors" href="screen4-confirmation.html">
     <span class="material-symbols-outlined text-xl">support_agent</span>
     <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Inquiry</span>
   </a>
@@ -322,5 +360,47 @@ html, body { overflow-x: clip; overflow-y: visible; }
 <script src="a11y.js"></script>
 <script src="assets/js/hero-scroll-animation.js"></script>
 <script src="assets/js/screen1-upload.js"></script>
+<script>
+/* Task 4/5: Scroll-triggered entrance animations */
+(function(){
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) return;
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (!e.isIntersecting) return;
+      var el = e.target;
+      /* Stagger children if parent has data-animate="stagger" */
+      var children = el.querySelectorAll('[data-animate-child]');
+      if (children.length) {
+        children.forEach(function(c, i) {
+          c.style.transitionDelay = (i * 50) + 'ms';
+          c.classList.add('wv-visible');
+        });
+      }
+      /* Trust bar items */
+      if (el.classList.contains('wv-trust-item')) {
+        var siblings = el.parentElement.querySelectorAll('.wv-trust-item');
+        var idx = Array.prototype.indexOf.call(siblings, el);
+        el.style.transitionDelay = (idx * 60) + 'ms';
+        el.classList.add('wv-visible');
+      }
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('[data-animate="stagger"]').forEach(function(el) { obs.observe(el); });
+  document.querySelectorAll('.wv-trust-item').forEach(function(el) { obs.observe(el); });
+})();
+/* Task 9: Keyboard support for template cards */
+(function(){
+  document.querySelectorAll('.template-card[role="button"]').forEach(function(card) {
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        card.click();
+      }
+    });
+  });
+})();
+</script>
 </body>
 </html>

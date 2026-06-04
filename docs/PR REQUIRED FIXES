@@ -1,0 +1,185 @@
+coderabbitai[bot] commented on this pull request.
+
+Actionable comments posted: 2
+
+♻️ Duplicate comments (1)
+frontend/screen2-studio.html (1)
+205-212: ⚠️ Potential issue | 🟡 Minor | ⚡ Quick win
+
+Duplicate navigation link — same issue as screen1-upload.html.
+
+Both "Quote" (line 205) and "Inquiry" (line 209) link to screen3-quote.html. This should be consistent with the fix
+applied to screen1-upload.html.
+
+🤖 Prompt for AI Agents
+Verify each finding against the current code and only fix it if needed.
+
+In `@frontend/screen2-studio.html` around lines 205 - 212, The two nav anchors
+both point to screen3-quote.html; update the second anchor (the <a> whose inner
+    span text is "Inquiry" or whose material icon is "support_agent") to the correct
+    target (e.g., change its href from "screen3-quote.html" to
+    "screen3-inquiry.html") so it matches the fix applied in screen1-upload.html and
+    no longer duplicates the "Quote" link.
+    🤖 Prompt for all review comments with AI agents
+    Verify each finding against the current code and only fix it if needed.
+
+    Inline comments:
+    In `@frontend/screen1-upload.html`:
+    - Around line 289-296: The "Inquiry" navigation anchor currently duplicates the
+    "Quote" target; locate the second <a> element whose visible text is "Inquiry"
+        (the anchor with the material icon "support_agent") and change its href from
+        "screen3-quote.html" to the correct destination (e.g.,
+        "screen4-confirmation.html") or remove the duplicate link if Inquiry should not
+        exist as a separate entry.
+
+        In `@frontend/screen4-confirmation.html`:
+        - Line 125: Update the Inquiry navigation anchor in
+        frontend/screen4-confirmation.html (the <a> element with
+            href="screen3-quote.html" and classes "flex flex-col items-center justify-center
+            text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors") to use
+            aria-current="step" instead of aria-current="page"; also ensure that only the
+            actual current step anchor on this confirmation screen has aria-current="step"
+            and remove aria-current from other step links so the multi-step state is
+            announced correctly.
+
+            ---
+
+            Duplicate comments:
+            In `@frontend/screen2-studio.html`:
+            - Around line 205-212: The two nav anchors both point to screen3-quote.html;
+            update the second anchor (the <a> whose inner span text is "Inquiry" or whose
+                material icon is "support_agent") to the correct target (e.g., change its href
+                from "screen3-quote.html" to "screen3-inquiry.html") so it matches the fix
+                applied in screen1-upload.html and no longer duplicates the "Quote" link.
+                🪄 Autofix (Beta)
+                Fix all unresolved CodeRabbit comments on this PR:
+
+                Push a commit to this branch (recommended)
+                Create a new PR with the fixes
+                ℹ️ Review info ⚙️ Run configuration
+                Configuration used: defaults
+
+                Review profile: CHILL
+
+                Plan: Pro
+
+                Run ID: ed66b90e-81ae-4e91-a7bd-cabdf6105e7e
+
+                📥 Commits
+                Reviewing files that changed from the base of the PR and between 5c94eac and ca06c26.
+
+                📒 Files selected for processing (12)
+                frontend/assets/css/tailwind.css
+                frontend/assets/js/hero-scroll-animation.js
+                frontend/assets/js/partners.js
+                frontend/assets/js/screen1-upload.js
+                frontend/assets/js/screen2-studio.js
+                frontend/assets/js/screen3-quote.js
+                frontend/screen1-upload.html
+                frontend/screen2-studio.html
+                frontend/screen3-quote.html
+                frontend/screen4-confirmation.html
+                frontend/src/input.css
+                frontend/tailwind.config.js
+                In frontend/screen1-upload.html:
+
+                > + <a
+                    class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors"
+                    href="screen3-quote.html">
+                    <span class="material-symbols-outlined text-xl">request_quote</span>
+                    <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Quote</span>
+                </a>
+                - <a class="flex flex-col items-center justify-center text-on-surface-variant/50 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors"
+                    href="screen3-quote.html">
+                    + <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors"
+                        href="screen3-quote.html">
+                        <span class="material-symbols-outlined text-xl">support_agent</span>
+                        <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Inquiry</span>
+                    </a>
+                    ⚠️ Potential issue | 🟡 Minor | ⚡ Quick win
+
+                    Duplicate navigation link — both "Quote" and "Inquiry" point to screen3-quote.html.
+
+                    Lines 289-292 ("Quote") and lines 293-296 ("Inquiry") both link to the same destination. This
+                    appears unintentional — "Inquiry" likely should link to a different page or the links should be
+                    consolidated.
+
+                    Proposed fix (if Inquiry should be distinct)
+                    If screen4-confirmation.html or another page is the intended target for "Inquiry":
+
+                    - <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors"
+                        href="screen3-quote.html">
+                        + <a class="flex flex-col items-center justify-center text-on-surface-variant/70 hover:text-white p-2 gap-0.5 min-w-[64px] transition-colors"
+                            href="screen4-confirmation.html">
+                            <span class="material-symbols-outlined text-xl">support_agent</span>
+                            <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Inquiry</span>
+                        </a>
+                        Otherwise, consider removing the duplicate link.
+
+                        🤖 Prompt for AI Agents
+                        Verify each finding against the current code and only fix it if needed.
+
+                        In `@frontend/screen1-upload.html` around lines 289 - 296, The "Inquiry"
+                        navigation anchor currently duplicates the "Quote" target; locate the second <a>
+                            element whose visible text is "Inquiry" (the anchor with the material icon
+                            "support_agent") and change its href from "screen3-quote.html" to the correct
+                            destination (e.g., "screen4-confirmation.html") or remove the duplicate link if
+                            Inquiry should not exist as a separate entry.
+                            In frontend/screen4-confirmation.html:
+
+                            > <span class="material-symbols-outlined text-xl">request_quote</span>
+                            <span class="font-headline text-[10px] uppercase font-bold tracking-wider">Quote</span>
+                        </a>
+                        - <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors"
+                            href="screen3-quote.html">
+                            + <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors"
+                                href="screen3-quote.html" aria-current="page">
+                                ⚠️ Potential issue | 🟡 Minor | ⚡ Quick win
+
+                                Use aria-current="step" instead of "page" on the Inquiry nav link.
+
+                                aria-current="page" is the correct value only when the link's href points to the current
+                                document. Here the link points to screen3-quote.html while the current page is
+                                screen4-confirmation.html, so screen readers will announce "current page, Inquiry" —
+                                which is misleading.
+
+                                Per WAI-ARIA, aria-current="page" should be set on the link styled to indicate the user
+                                is currently on that page, while aria-current="step" should be used in a multi-step
+                                process to represent the current step. The confirmation screen is the terminal step of a
+                                4-screen funnel, so "step" is the semantically accurate value.
+
+                                ♿ Proposed fix
+                                - <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors"
+                                    href="screen3-quote.html" aria-current="page">
+                                    + <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors"
+                                        href="screen3-quote.html" aria-current="step">
+                                        📝 Committable suggestion
+                                        ‼️ IMPORTANT
+                                        Carefully review the code before committing. Ensure that it accurately replaces
+                                        the highlighted code, contains no missing lines, and has no issues with
+                                        indentation. Thoroughly test & benchmark the code to ensure it meets the
+                                        requirements.
+
+                                        ⬇️ Suggested change
+                                        - <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors"
+                                            href="screen3-quote.html" aria-current="page">
+                                            + <a class="flex flex-col items-center justify-center text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors"
+                                                href="screen3-quote.html" aria-current="step">
+                                                🤖 Prompt for AI Agents
+                                                Verify each finding against the current code and only fix it if needed.
+
+                                                In `@frontend/screen4-confirmation.html` at line 125, Update the Inquiry
+                                                navigation anchor in frontend/screen4-confirmation.html (the <a> element
+                                                    with
+                                                    href="screen3-quote.html" and classes "flex flex-col items-center
+                                                    justify-center
+                                                    text-primary-container p-2 gap-0.5 min-w-[64px] transition-colors")
+                                                    to use
+                                                    aria-current="step" instead of aria-current="page"; also ensure that
+                                                    only the
+                                                    actual current step anchor on this confirmation screen has
+                                                    aria-current="step"
+                                                    and remove aria-current from other step links so the multi-step
+                                                    state is
+                                                    announced correctly.
+                                                    —

@@ -127,8 +127,8 @@
       // Text is fully visible while the car is still plain black, fades
       // out through the middle of the morph (peaks of the transformation),
       // and stays hidden through the glossy-red reveal.
-      var fadeStart = 0.25;
-      var fadeEnd = 0.55;
+      var fadeStart = 0.35;
+      var fadeEnd = 0.65;
       var t;
       if (p <= fadeStart) t = 1;
       else if (p >= fadeEnd) t = 0;
